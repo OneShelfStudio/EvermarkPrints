@@ -23,6 +23,9 @@ interface LivePrintCustomizerProps {
 const FAST_US_COORDS: Record<string, string> = {
   'charleston, sc': '32.7765° N · 79.9311° W',
   'charleston, south carolina': '32.7765° N · 79.9311° W',
+  'charleston harbor · south carolina': '32.7765° N · 79.9311° W',
+  'asheville, nc': '35.5951° N · 82.5515° W',
+  'asheville, north carolina': '35.5951° N · 82.5515° W',
   'new york, ny': '40.7128° N · 74.0060° W',
   'boston, ma': '42.3601° N · 71.0589° W',
   'boston, massachusetts': '42.3601° N · 71.0589° W',
@@ -36,6 +39,7 @@ const FAST_US_COORDS: Record<string, string> = {
   'san diego, ca': '32.7157° N · 117.1611° W',
   'san francisco, ca': '37.7749° N · 122.4194° W',
   'nantucket, ma': '41.2835° N · 70.0995° W',
+  'nantucket, massachusetts': '41.2835° N · 70.0995° W',
   'newport, ri': '41.4901° N · 71.3128° W',
   'providence, ri': '41.8240° N · 71.4128° W',
   'providence, rhode island': '41.8240° N · 71.4128° W',
@@ -79,10 +83,15 @@ export default function LivePrintCustomizer({
   const [colorwayId, setColorwayId] = useState<ColorwayId>(product.defaultColorway)
   const [frameFinishId, setFrameFinishId] = useState<FrameFinishId>(product.defaultFrame)
   const [viewMode, setViewMode] = useState<'room' | 'studio'>('room')
+  const [activeMockupUrl, setActiveMockupUrl] = useState<string | null>(null)
   const [selectedFormatId, setSelectedFormatId] = useState<string>('framed-16x20')
   const [includeDigitalBump, setIncludeDigitalBump] = useState<boolean>(true)
   const [isGiftOrder, setIsGiftOrder] = useState<boolean>(false)
   const [giftNote, setGiftNote] = useState<string>('')
+
+  // Loaded Painterly Base Plate Image & Watercolor Portrait Backdrop
+  const [basePlateEl, setBasePlateEl] = useState<HTMLImageElement | null>(null)
+  const [portraitBackdropEl, setPortraitBackdropEl] = useState<HTMLImageElement | null>(null)
 
   // Photo Upload State
   const [uploadedPhotoEl, setUploadedPhotoEl] = useState<HTMLImageElement | null>(null)
@@ -101,11 +110,34 @@ export default function LivePrintCustomizer({
   const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
+  // Load painterly base artwork plate whenever product.artworkPlate changes
+  useEffect(() => {
+    let active = true
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      if (active) setBasePlateEl(img)
+    }
+    img.src = product.artworkPlate
+    return () => {
+      active = false
+    }
+  }, [product.artworkPlate])
+
+  // Preload watercolor portrait laurel backdrop for custom photo uploads
+  useEffect(() => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => setPortraitBackdropEl(img)
+    img.src = '/art-plates/watercolor-portrait-backdrop.webp'
+  }, [])
+
   // Sync defaults when switching products in compactHeroMode
   function handleSwitchProduct(newSlug: string) {
     const nextProd = EVERMARK_CATALOG.find((p) => p.slug === newSlug)
     if (!nextProd) return
     setActiveProductSlug(newSlug)
+    setActiveMockupUrl(null)
     setHeadline(nextProd.defaultHeadline)
     setSubline(nextProd.defaultSubline)
     setLocationText(nextProd.defaultLocation)
@@ -122,11 +154,16 @@ export default function LivePrintCustomizer({
     FORMAT_TIERS.find((f) => f.id === selectedFormatId) || FORMAT_TIERS[0]
 
   const showBump = activeFormat.isPhysical
+  const basePhysicalDelta = product.popularPriceUsd - 79
+  const effectiveFormatPrice = activeFormat.isPhysical
+    ? Math.max(48, activeFormat.priceUsd + basePhysicalDelta)
+    : activeFormat.priceUsd
   const totalUsd =
-    activeFormat.priceUsd + (showBump && includeDigitalBump ? DIGITAL_BACKUP_BUMP.priceUsd : 0)
+    effectiveFormatPrice +
+    (showBump && includeDigitalBump ? DIGITAL_BACKUP_BUMP.priceUsd : 0)
 
-  // Two-Pass Renderer:
-  // Pass 1 renders the pure, clean artwork (no technical DPI/Plate text) to cleanCanvasRef.
+  // Two-Pass Painterly Renderer:
+  // Pass 1 renders the museum-grade painterly illustration plate + live custom photo/audio/typography to cleanCanvasRef.
   // Pass 2 copies to visible canvasRef and overlays the Anti-AI Guilloché Security Watermark Mesh.
   useEffect(() => {
     const visibleCanvas = canvasRef.current
@@ -149,232 +186,130 @@ export default function LivePrintCustomizer({
     if (!ctx || !vCtx) return
 
     const seed = hashSeed(`${headline}|${locationText}|${dateText}|${coordsText}`)
+    const isDarkPaper =
+      colorway.id === 'bourbon_walnut' || colorway.id === 'obsidian_silver'
 
-    // 1. Archival Paper Fill
-    ctx.fillStyle = colorway.bgHex
+    // 1. Warm Archival Paper Fill (#FAF6F0 or Deep Gallery Dark)
+    ctx.fillStyle = isDarkPaper ? colorway.bgHex : '#FAF6F0'
     ctx.fillRect(0, 0, W, H)
 
-    // Subtle organic paper grain micro-dots
-    ctx.fillStyle = colorway.inkHex
-    ctx.globalAlpha = 0.024
-    for (let g = 0; g < 650; g++) {
-      const gx = (g * 7919) % W
-      const gy = (g * 6271) % H
-      ctx.fillRect(gx, gy, 1.5, 1.5)
-    }
-    ctx.globalAlpha = 1
-
-    // 2. Clean Museum Double-Line Border (Zero technical DPI / Plate text!)
-    ctx.strokeStyle = colorway.accentHex
-    ctx.globalAlpha = 0.58
-    ctx.lineWidth = 2
-    ctx.strokeRect(52, 52, W - 104, H - 104)
-    ctx.globalAlpha = 0.24
-    ctx.lineWidth = 1
-    ctx.strokeRect(64, 64, W - 128, H - 128)
-    ctx.globalAlpha = 1
-
     const cx = W / 2
-    const cy = 458
-    const R = 304
+    const cy = 435
 
-    // Helper to draw uploaded photo inside a circular medallion with selected filter
-    const drawUploadedPhotoMedallion = (radius: number, centerY = cy) => {
-      if (!uploadedPhotoEl) return false
+    // 2. Draw Painterly Artwork Plate (Full Bleed or Framed Plate Area)
+    ctx.save()
+    if (uploadedPhotoEl && product.mode !== 'vinyl_lyric' && product.mode !== 'soundwave' && product.mode !== 'starmap') {
+      // Draw watercolor laurel wreath backdrop + uploaded customer portrait in the center
+      if (portraitBackdropEl) {
+        ctx.drawImage(portraitBackdropEl, 36, 20, W - 72, H - 180)
+      }
       ctx.save()
       ctx.beginPath()
-      ctx.arc(cx, centerY, radius, 0, Math.PI * 2)
+      ctx.arc(cx, cy - 10, 225, 0, Math.PI * 2)
       ctx.clip()
-
       if (photoFilter === 'bw_film') {
         ctx.filter = 'grayscale(100%) contrast(112%) sepia(12%)'
       } else if (photoFilter === 'charcoal_sketch') {
-        ctx.filter = 'grayscale(100%) contrast(165%) brightness(106%) sepia(22%)'
+        ctx.filter = 'grayscale(100%) contrast(160%) brightness(106%) sepia(24%)'
       } else {
         ctx.filter = 'contrast(104%) saturate(105%)'
       }
-
       const iw = uploadedPhotoEl.width
       const ih = uploadedPhotoEl.height
-      const scale = Math.max((radius * 2) / iw, (radius * 2) / ih)
-      const dw = iw * scale
-      const dh = ih * scale
-      ctx.drawImage(uploadedPhotoEl, cx - dw / 2, centerY - dh / 2, dw, dh)
+      const scale = Math.max(450 / iw, 450 / ih)
+      ctx.drawImage(
+        uploadedPhotoEl,
+        cx - (iw * scale) / 2,
+        cy - 10 - (ih * scale) / 2,
+        iw * scale,
+        ih * scale
+      )
       ctx.filter = 'none'
       ctx.restore()
 
-      // Warm double bezel around photo medallion
-      ctx.save()
+      // Subtle antique gold bezel around uploaded portrait
       ctx.strokeStyle = colorway.accentHex
-      ctx.lineWidth = 3
+      ctx.lineWidth = 2.5
       ctx.beginPath()
-      ctx.arc(cx, centerY, radius, 0, Math.PI * 2)
+      ctx.arc(cx, cy - 10, 225, 0, Math.PI * 2)
       ctx.stroke()
-      ctx.lineWidth = 1
-      ctx.globalAlpha = 0.6
-      ctx.beginPath()
-      ctx.arc(cx, centerY, radius + 10, 0, Math.PI * 2)
-      ctx.stroke()
-      ctx.restore()
-      return true
+    } else if (basePlateEl) {
+      // Draw the rich painterly base plate (Milky Way Nebula, Redouté Botanical Bouquet, Aegean Harbor Chart, Gold Vinyl, Mountain Watercolor, Golden Retriever, Craftsman Home, or Nursery Moon)
+      if (isDarkPaper) {
+        // On dark espresso/midnight gallery paper, frame the artwork inside a museum plate window
+        ctx.save()
+        ctx.beginPath()
+        ctx.roundRect(78, 68, W - 156, 735, 8)
+        ctx.clip()
+        ctx.drawImage(basePlateEl, 60, 20, W - 120, H - 60)
+        ctx.restore()
+        ctx.strokeStyle = colorway.accentHex
+        ctx.lineWidth = 2
+        ctx.strokeRect(78, 68, W - 156, 735)
+      } else {
+        ctx.drawImage(basePlateEl, 0, 0, W, H)
+        // Ensure bottom 25% typography zone is clean archival cream (#FAF6F0)
+        const grad = ctx.createLinearGradient(0, 760, 0, 845)
+        grad.addColorStop(0, 'rgba(250, 246, 240, 0)')
+        grad.addColorStop(1, '#FAF6F0')
+        ctx.fillStyle = grad
+        ctx.fillRect(0, 760, W, 100)
+        ctx.fillStyle = '#FAF6F0'
+        ctx.fillRect(0, 840, W, H - 840)
+      }
+
+      // If customer uploaded a photo on Star Map, Soundwave, or Vinyl Lyric, embed it inside the center medallion!
+      if (uploadedPhotoEl) {
+        const medRadius = product.mode === 'starmap' ? 128 : 112
+        const medY = product.mode === 'starmap' ? 402 : 426
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(cx, medY, medRadius, 0, Math.PI * 2)
+        ctx.clip()
+        if (photoFilter === 'bw_film') {
+          ctx.filter = 'grayscale(100%) contrast(112%) sepia(12%)'
+        } else if (photoFilter === 'charcoal_sketch') {
+          ctx.filter = 'grayscale(100%) contrast(160%) brightness(106%) sepia(24%)'
+        }
+        const iw = uploadedPhotoEl.width
+        const ih = uploadedPhotoEl.height
+        const scale = Math.max((medRadius * 2) / iw, (medRadius * 2) / ih)
+        ctx.drawImage(
+          uploadedPhotoEl,
+          cx - (iw * scale) / 2,
+          medY - (ih * scale) / 2,
+          iw * scale,
+          ih * scale
+        )
+        ctx.filter = 'none'
+        ctx.restore()
+
+        ctx.strokeStyle = '#D8AE64'
+        ctx.lineWidth = 3
+        ctx.beginPath()
+        ctx.arc(cx, medY, medRadius, 0, Math.PI * 2)
+        ctx.stroke()
+      }
     }
+    ctx.restore()
 
-    // 3. Artwork Renderer by Mode
-    ctx.save()
-    if (product.mode === 'starmap') {
-      ctx.strokeStyle = colorway.accentHex
-      ctx.lineWidth = 2.2
-      ctx.beginPath()
-      ctx.arc(cx, cy, R, 0, Math.PI * 2)
-      ctx.stroke()
-
-      ctx.lineWidth = 1
-      ctx.globalAlpha = 0.55
-      ctx.beginPath()
-      ctx.arc(cx, cy, R - 15, 0, Math.PI * 2)
-      ctx.stroke()
-
-      for (let i = 0; i < 72; i++) {
-        const ang = (i * Math.PI * 2) / 72
-        const inner = i % 6 === 0 ? R - 15 : R - 7
-        ctx.beginPath()
-        ctx.moveTo(cx + Math.cos(ang) * inner, cy + Math.sin(ang) * inner)
-        ctx.lineTo(cx + Math.cos(ang) * R, cy + Math.sin(ang) * R)
-        ctx.stroke()
-      }
-
-      ctx.fillStyle = colorway.accentHex
-      ctx.globalAlpha = 0.85
-      ctx.font = '600 13px Georgia, serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('N', cx, cy - R - 10)
-      ctx.fillText('S', cx, cy + R + 20)
-      ctx.fillText('E', cx + R + 16, cy + 4)
-      ctx.fillText('W', cx - R - 16, cy + 4)
-
-      ctx.globalAlpha = 0.22
-      ctx.beginPath()
-      ctx.arc(cx, cy, R * 0.68, 0, Math.PI * 2)
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.ellipse(
-        cx,
-        cy,
-        R * 0.82,
-        R * 0.52,
-        ((seed % 180) * Math.PI) / 180,
-        0,
-        Math.PI * 2
-      )
-      ctx.stroke()
-
-      ctx.beginPath()
-      ctx.arc(cx, cy, R - 17, 0, Math.PI * 2)
-      ctx.clip()
-
-      ctx.fillStyle = colorway.inkHex
-      for (let s = 0; s < 190; s++) {
-        const sSeed = hashSeed(`${seed}-star-${s}`)
-        const rNorm = Math.sqrt((sSeed % 1000) / 1000) * (R - 24)
-        const theta = ((sSeed >> 4) % 3600) * (Math.PI / 1800)
-        const sx = cx + Math.cos(theta) * rNorm
-        const sy = cy + Math.sin(theta) * rNorm
-        const mag = s % 15 === 0 ? 3.1 : s % 5 === 0 ? 2.0 : 1.15
-        ctx.globalAlpha = s % 15 === 0 ? 0.96 : 0.65
-        ctx.beginPath()
-        ctx.arc(sx, sy, mag, 0, Math.PI * 2)
-        ctx.fill()
-      }
-
-      const rotOffset = ((seed % 360) * Math.PI) / 180
-      const constellations = [
-        [
-          [-0.55, -0.35],
-          [-0.38, -0.22],
-          [-0.22, -0.28],
-          [-0.1, -0.12],
-          [0.05, -0.18],
-        ],
-        [
-          [0.18, -0.52],
-          [0.32, -0.4],
-          [0.48, -0.45],
-          [0.42, -0.22],
-          [0.25, -0.25],
-          [0.18, -0.52],
-        ],
-        [
-          [-0.45, 0.22],
-          [-0.25, 0.35],
-          [-0.12, 0.25],
-          [0.04, 0.42],
-          [0.18, 0.3],
-        ],
-        [
-          [0.25, 0.15],
-          [0.42, 0.05],
-          [0.55, 0.22],
-          [0.38, 0.38],
-          [0.25, 0.15],
-        ],
-      ]
-
-      ctx.strokeStyle = colorway.accentHex
-      ctx.lineWidth = 1.5
-      for (const poly of constellations) {
-        ctx.globalAlpha = 0.72
-        ctx.beginPath()
-        poly.forEach(([nx, ny], idx) => {
-          const rx = nx * Math.cos(rotOffset) - ny * Math.sin(rotOffset)
-          const ry = nx * Math.sin(rotOffset) + ny * Math.cos(rotOffset)
-          const px = cx + rx * (R - 40)
-          const py = cy + ry * (R - 40)
-          if (idx === 0) ctx.moveTo(px, py)
-          else ctx.lineTo(px, py)
-        })
-        ctx.stroke()
-
-        ctx.fillStyle = colorway.accentHex
-        ctx.globalAlpha = 1
-        poly.forEach(([nx, ny]) => {
-          const rx = nx * Math.cos(rotOffset) - ny * Math.sin(rotOffset)
-          const ry = nx * Math.sin(rotOffset) + ny * Math.cos(rotOffset)
-          const px = cx + rx * (R - 40)
-          const py = cy + ry * (R - 40)
-          ctx.beginPath()
-          ctx.arc(px, py, 3.6, 0, Math.PI * 2)
-          ctx.fill()
-        })
-      }
-
-      if (uploadedPhotoEl) {
-        drawUploadedPhotoMedallion(112, cy)
-      }
-    } else if (product.mode === 'soundwave') {
-      const waveCenterY = uploadedPhotoEl ? cy + 125 : cy
-      if (uploadedPhotoEl) {
-        drawUploadedPhotoMedallion(135, cy - 95)
-      }
-
-      const bars = 96
-      const waveW = 680
-      const startX = (W - waveW) / 2
-      const stepX = waveW / bars
-      const maxAmp = uploadedPhotoEl ? 110 : 230
-
-      ctx.strokeStyle = colorway.accentHex
-      ctx.globalAlpha = 0.3
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(startX - 20, waveCenterY)
-      ctx.lineTo(startX + waveW + 20, waveCenterY)
-      ctx.stroke()
+    // 3. Acoustic Waveform Overlay (Always shown for 'soundwave' mode OR whenever customer uploads/records audio)
+    if (
+      product.mode === 'soundwave' ||
+      (customAudioPeaks && customAudioPeaks.length > 0)
+    ) {
+      ctx.save()
+      const bars = 88
+      const span = 540
+      const sx0 = cx - span / 2
+      const wy = 795
+      const maxAmp = product.mode === 'soundwave' ? 36 : 26
 
       for (let i = 0; i <= bars; i++) {
         let amp: number
         if (customAudioPeaks && customAudioPeaks.length > 0) {
-          const peakVal = customAudioPeaks[i % customAudioPeaks.length] || 0.15
-          amp = Math.max(8, peakVal * maxAmp)
+          const pk = customAudioPeaks[i % customAudioPeaks.length] || 0.2
+          amp = Math.max(4, pk * maxAmp)
         } else {
           const bSeed = hashSeed(`${seed}-bar-${i}`)
           const env = Math.sin((i / bars) * Math.PI)
@@ -382,319 +317,13 @@ export default function LivePrintCustomizer({
             0.35 +
             0.45 * Math.abs(Math.sin(i * 0.28 + (seed % 17))) +
             0.2 * ((bSeed % 100) / 100)
-          amp = Math.max(8, env * mod * maxAmp)
+          amp = Math.max(4, env * mod * maxAmp)
         }
-
-        const x = startX + i * stepX
-        ctx.strokeStyle = i % 4 === 0 ? colorway.accentHex : colorway.inkHex
-        ctx.globalAlpha = i % 4 === 0 ? 0.95 : 0.78
-        ctx.lineWidth = 3.0
-        ctx.lineCap = 'round'
-        ctx.beginPath()
-        ctx.moveTo(x, waveCenterY - amp)
-        ctx.lineTo(x, waveCenterY + amp)
-        ctx.stroke()
-      }
-
-      if (!uploadedPhotoEl) {
-        ctx.globalAlpha = 0.28
-        ctx.strokeStyle = colorway.accentHex
-        ctx.lineWidth = 1.5
-        ctx.beginPath()
-        ctx.arc(cx, cy, R, 0, Math.PI * 2)
-        ctx.stroke()
-      }
-    } else if (product.mode === 'vinyl_lyric') {
-      // Concentric Vinyl Grooves & Spiral Lyric Ring
-      ctx.strokeStyle = colorway.accentHex
-      ctx.lineWidth = 2.4
-      ctx.beginPath()
-      ctx.arc(cx, cy, R, 0, Math.PI * 2)
-      ctx.stroke()
-
-      for (let ring = 118; ring < R - 8; ring += 11) {
-        ctx.strokeStyle = ring % 33 === 0 ? colorway.accentHex : colorway.inkHex
-        ctx.globalAlpha = ring % 33 === 0 ? 0.65 : 0.24
-        ctx.lineWidth = ring % 33 === 0 ? 1.6 : 1
-        ctx.beginPath()
-        ctx.arc(cx, cy, ring, 0, Math.PI * 2)
-        ctx.stroke()
-      }
-
-      // Center Vinyl Label or Uploaded Couple Photo
-      ctx.globalAlpha = 1
-      if (!drawUploadedPhotoMedallion(108, cy)) {
-        ctx.fillStyle = colorway.accentHex
-        ctx.beginPath()
-        ctx.arc(cx, cy, 106, 0, Math.PI * 2)
-        ctx.fill()
-
-        ctx.fillStyle = colorway.bgHex
-        ctx.font = 'bold 14px Georgia, serif'
-        ctx.textAlign = 'center'
-        ctx.fillText(locationText.slice(0, 24).toUpperCase(), cx, cy - 36)
-        ctx.font = 'italic 12px Georgia, serif'
-        ctx.fillText(dateText.slice(0, 26), cx, cy + 48)
-
-        // Spindle hole
-        ctx.beginPath()
-        ctx.arc(cx, cy, 14, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    } else if (product.mode === 'pet_memorial' || product.mode === 'birth_stat') {
-      if (!drawUploadedPhotoMedallion(215, cy)) {
-        ctx.strokeStyle = colorway.accentHex
-        ctx.lineWidth = 2.2
-        ctx.globalAlpha = 0.85
-        ctx.beginPath()
-        ctx.arc(cx, cy, R * 0.82, 0, Math.PI * 2)
-        ctx.stroke()
-
-        ctx.globalAlpha = 0.35
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.arc(cx, cy, R * 0.76, 0, Math.PI * 2)
-        ctx.stroke()
-
-        ctx.strokeStyle = colorway.inkHex
-        ctx.globalAlpha = 0.92
-        ctx.lineWidth = 3.5
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-        ctx.beginPath()
-        ctx.moveTo(cx - 95, cy + 85)
-        ctx.quadraticCurveTo(cx - 105, cy - 20, cx - 55, cy - 75)
-        ctx.quadraticCurveTo(cx - 85, cy - 15, cx - 45, cy + 5)
-        ctx.quadraticCurveTo(cx - 25, cy - 95, cx + 25, cy - 85)
-        ctx.quadraticCurveTo(cx + 75, cy - 80, cx + 95, cy - 45)
-        ctx.quadraticCurveTo(cx + 100, cy - 15, cx + 55, cy - 5)
-        ctx.quadraticCurveTo(cx + 45, cy + 45, cx + 65, cy + 85)
-        ctx.stroke()
-
-        ctx.fillStyle = colorway.accentHex
-        ctx.beginPath()
-        ctx.arc(cx, cy - 145, 5, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    } else if (product.mode === 'three_map_triptych') {
-      const offsets = [-225, 0, 225]
-      const labels = ['MET', 'ENGAGED', 'MARRIED']
-      offsets.forEach((off, idx) => {
-        const mcx = cx + off
-        const mr = 98
-        ctx.strokeStyle = colorway.accentHex
-        ctx.globalAlpha = 0.9
-        ctx.lineWidth = 2.2
-        ctx.beginPath()
-        ctx.arc(mcx, cy, mr, 0, Math.PI * 2)
-        ctx.stroke()
-
-        for (let r = 22; r < mr; r += 18) {
-          ctx.globalAlpha = 0.28
-          ctx.lineWidth = 1
-          ctx.beginPath()
-          ctx.ellipse(mcx, cy, r, r * 0.82, (idx + 1) * 0.4, 0, Math.PI * 2)
-          ctx.stroke()
-        }
-
-        ctx.fillStyle = colorway.accentHex
-        ctx.globalAlpha = 0.95
-        ctx.font = '600 13px Georgia, serif'
-        ctx.textAlign = 'center'
-        ctx.fillText(labels[idx], mcx, cy + mr + 28)
-      })
-      if (uploadedPhotoEl) {
-        drawUploadedPhotoMedallion(96, cy)
-      }
-    } else if (product.mode === 'family_botanical') {
-      if (!drawUploadedPhotoMedallion(195, cy)) {
-        ctx.strokeStyle = colorway.accentHex
-        ctx.globalAlpha = 0.55
-        ctx.lineWidth = 1.8
-        ctx.beginPath()
-        ctx.arc(cx, cy, R * 0.85, 0, Math.PI * 2)
-        ctx.stroke()
-
-        // Botanical stems & leaves
-        ctx.strokeStyle = colorway.accentHex
-        ctx.globalAlpha = 0.9
-        ctx.lineWidth = 3
-        ctx.beginPath()
-        ctx.moveTo(cx, cy + 185)
-        ctx.quadraticCurveTo(cx - 12, cy, cx, cy - 175)
-        ctx.stroke()
-
-        const leafPairs = [-120, -65, -10, 45, 100]
-        leafPairs.forEach((ly, i) => {
-          const dir = i % 2 === 0 ? 1 : -1
-          ctx.fillStyle = i % 2 === 0 ? colorway.accentHex : colorway.inkHex
-          ctx.globalAlpha = 0.82
-          ctx.beginPath()
-          ctx.ellipse(
-            cx + dir * 52,
-            cy + ly,
-            46,
-            18,
-            dir * -0.35,
-            0,
-            Math.PI * 2
-          )
-          ctx.fill()
-        })
-      }
-    } else if (product.mode === 'marathon_route') {
-      ctx.strokeStyle = colorway.accentHex
-      ctx.lineWidth = 2.5
-      ctx.globalAlpha = 0.85
-      ctx.beginPath()
-      ctx.arc(cx, cy, R * 0.86, 0, Math.PI * 2)
-      ctx.stroke()
-
-      if (!drawUploadedPhotoMedallion(175, cy)) {
-        const coursePts = [
-          [cx - 175, cy + 115],
-          [cx - 105, cy + 25],
-          [cx - 45, cy + 58],
-          [cx + 15, cy - 55],
-          [cx + 95, cy - 22],
-          [cx + 165, cy - 125],
-        ]
-        ctx.strokeStyle = colorway.accentHex
-        ctx.globalAlpha = 1
-        ctx.lineWidth = 6
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-        ctx.beginPath()
-        coursePts.forEach(([px, py], idx) => {
-          if (idx === 0) ctx.moveTo(px, py)
-          else ctx.lineTo(px, py)
-        })
-        ctx.stroke()
-
-        ctx.fillStyle = colorway.inkHex
-        ;[coursePts[0], coursePts[coursePts.length - 1]].forEach(([px, py]) => {
-          ctx.beginPath()
-          ctx.arc(px, py, 9, 0, Math.PI * 2)
-          ctx.fill()
-        })
-      }
-    } else if (product.mode === 'book_stack') {
-      const books = [
-        { w: 460, h: 52, title: headline.slice(0, 28) },
-        { w: 410, h: 46, title: locationText.slice(0, 28) },
-        { w: 490, h: 56, title: subline.slice(0, 32) },
-        { w: 435, h: 48, title: dateText.slice(0, 28) },
-        { w: 515, h: 58, title: coordsText.slice(0, 28) },
-      ]
-      let curY = cy - 135
-      books.forEach((b, idx) => {
-        const bx = cx - b.w / 2
-        ctx.strokeStyle = idx % 2 === 0 ? colorway.accentHex : colorway.inkHex
-        ctx.lineWidth = 2.4
-        ctx.globalAlpha = 0.9
-        ctx.strokeRect(bx, curY, b.w, b.h)
-        ctx.strokeRect(bx + 24, curY + 6, b.w - 48, b.h - 12)
-
-        ctx.fillStyle = colorway.inkHex
-        ctx.font = '600 15px Georgia, serif'
-        ctx.textAlign = 'center'
-        ctx.fillText(b.title.toUpperCase(), cx, curY + b.h / 2 + 5)
-        curY += b.h + 10
-      })
-    } else if (product.mode === 'coordinates' || product.mode === 'coastal_chart') {
-      if (!drawUploadedPhotoMedallion(205, cy)) {
-        ctx.strokeStyle = colorway.accentHex
-        for (let ring = 1; ring <= 7; ring++) {
-          ctx.globalAlpha = ring === 7 ? 0.85 : 0.3
-          ctx.lineWidth = ring === 7 ? 2.2 : 1.2
-          ctx.beginPath()
-          const radX = (R / 7) * ring
-          const radY = radX * (0.82 + ((seed + ring * 13) % 18) * 0.01)
-          ctx.ellipse(
-            cx,
-            cy,
-            radX,
-            radY,
-            (((seed >> ring) % 90) * Math.PI) / 180,
-            0,
-            Math.PI * 2
-          )
-          ctx.stroke()
-        }
-
-        ctx.globalAlpha = 0.65
-        ctx.lineWidth = 1.4
-        ctx.beginPath()
-        ctx.moveTo(cx - R - 24, cy)
-        ctx.lineTo(cx + R + 24, cy)
-        ctx.moveTo(cx, cy - R - 24)
-        ctx.lineTo(cx, cy + R + 24)
-        ctx.stroke()
-
-        ctx.fillStyle = colorway.accentHex
-        ctx.globalAlpha = 0.9
-        ctx.beginPath()
-        ctx.moveTo(cx, cy - 48)
-        ctx.lineTo(cx + 14, cy - 14)
-        ctx.lineTo(cx + 48, cy)
-        ctx.lineTo(cx + 14, cy + 14)
-        ctx.lineTo(cx, cy + 48)
-        ctx.lineTo(cx - 14, cy + 14)
-        ctx.lineTo(cx - 48, cy)
-        ctx.lineTo(cx - 14, cy - 14)
-        ctx.closePath()
-        ctx.fill()
-      }
-    } else {
-      ctx.strokeStyle = colorway.accentHex
-      ctx.globalAlpha = 0.18
-      ctx.lineWidth = 1
-      for (let gx = 120; gx <= W - 120; gx += 40) {
-        ctx.beginPath()
-        ctx.moveTo(gx, 140)
-        ctx.lineTo(gx, 800)
-        ctx.stroke()
-      }
-      for (let gy = 140; gy <= 800; gy += 40) {
-        ctx.beginPath()
-        ctx.moveTo(120, gy)
-        ctx.lineTo(W - 120, gy)
-        ctx.stroke()
-      }
-
-      ctx.globalAlpha = 0.9
-      ctx.lineWidth = 2.4
-      ctx.beginPath()
-      ctx.arc(cx, cy, R * 0.78, 0, Math.PI * 2)
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.arc(cx, cy, R * 0.48, 0, Math.PI * 2)
-      ctx.stroke()
-
-      for (let t = 0; t < 24; t++) {
-        const ang = (t * Math.PI * 2) / 24
-        ctx.beginPath()
-        ctx.moveTo(cx + Math.cos(ang) * (R * 0.48), cy + Math.sin(ang) * (R * 0.48))
-        ctx.lineTo(cx + Math.cos(ang) * (R * 0.78), cy + Math.sin(ang) * (R * 0.78))
-        ctx.stroke()
-      }
-    }
-    ctx.restore()
-
-    // Optional Secondary Soundwave Bar under any print if audio was uploaded on a non-soundwave mode
-    if (product.mode !== 'soundwave' && customAudioPeaks && customAudioPeaks.length > 0) {
-      ctx.save()
-      const bars = 64
-      const span = 380
-      const sx0 = cx - span / 2
-      const wy = 805
-      for (let i = 0; i <= bars; i++) {
-        const pk = customAudioPeaks[i % customAudioPeaks.length] || 0.2
-        const amp = Math.max(4, pk * 26)
         const x = sx0 + (i * span) / bars
         ctx.strokeStyle = i % 3 === 0 ? colorway.accentHex : colorway.inkHex
-        ctx.globalAlpha = 0.85
-        ctx.lineWidth = 2.2
+        ctx.globalAlpha = i % 3 === 0 ? 0.95 : 0.78
+        ctx.lineWidth = 2.6
+        ctx.lineCap = 'round'
         ctx.beginPath()
         ctx.moveTo(x, wy - amp)
         ctx.lineTo(x, wy + amp)
@@ -703,36 +332,53 @@ export default function LivePrintCustomizer({
       ctx.restore()
     }
 
-    // 4. Clean Museum Typography Block Below Artwork (Zero technical DPI stamps!)
+    // 4. Museum Double-Line Archival Frame Border
+    ctx.save()
+    ctx.strokeStyle = colorway.accentHex
+    ctx.globalAlpha = 0.52
+    ctx.lineWidth = 2
+    ctx.strokeRect(44, 44, W - 88, H - 88)
+    ctx.globalAlpha = 0.22
+    ctx.lineWidth = 1
+    ctx.strokeRect(54, 54, W - 108, H - 108)
+    ctx.restore()
+
+    // 5. Clean Luxury Serif Typography Block at Bottom (Zero technical DPI stamps!)
+    ctx.save()
     ctx.textAlign = 'center'
 
     ctx.strokeStyle = colorway.accentHex
-    ctx.globalAlpha = 0.65
-    ctx.lineWidth = 1.5
+    ctx.globalAlpha = 0.75
+    ctx.lineWidth = 1.6
     ctx.beginPath()
-    ctx.moveTo(cx - 130, 850)
-    ctx.lineTo(cx + 130, 850)
+    ctx.moveTo(cx - 140, 854)
+    ctx.lineTo(cx + 140, 854)
     ctx.stroke()
 
     ctx.globalAlpha = 1
     ctx.fillStyle = colorway.inkHex
-    ctx.font = '600 32px Georgia, serif'
-    ctx.fillText(headline.toUpperCase().slice(0, 42), cx, 908)
+    ctx.font = '600 33px Georgia, serif'
+    ctx.fillText(headline.toUpperCase().slice(0, 42), cx, 912)
 
     ctx.fillStyle = colorway.inkHex
     ctx.globalAlpha = 0.88
     ctx.font = 'italic 21px Georgia, serif'
-    ctx.fillText(subline.slice(0, 68), cx, 956)
+    ctx.fillText(subline.slice(0, 68), cx, 958)
 
     ctx.fillStyle = colorway.accentHex
-    ctx.globalAlpha = 0.95
-    ctx.font = '600 17px sans-serif'
-    ctx.fillText(`${locationText.toUpperCase()}   ·   ${dateText.toUpperCase()}`, cx, 1020)
+    ctx.globalAlpha = 0.96
+    ctx.font = '600 17px Georgia, serif'
+    ctx.fillText(
+      `${locationText.toUpperCase()}   •   ${dateText.toUpperCase()}`,
+      cx,
+      1018
+    )
 
     ctx.fillStyle = colorway.mutedHex
-    ctx.globalAlpha = 0.9
-    ctx.font = '500 15px monospace'
+    ctx.globalAlpha = 0.92
+    ctx.font = 'italic 16px Georgia, serif'
     ctx.fillText(coordsText, cx, 1062)
+    ctx.restore()
 
     // =========================================================================
     // PASS 2: Copy to Visible Preview Canvas + Overlay Anti-AI Security Watermark
@@ -740,7 +386,6 @@ export default function LivePrintCustomizer({
     vCtx.clearRect(0, 0, W, H)
     vCtx.drawImage(cleanCanvas, 0, 0)
 
-    // Anti-AI-Inpainting Guilloché Sinusoidal Wave Lattice + Multi-Angle Security Stamp
     vCtx.save()
     // 1. Intersecting sinusoidal Guilloché waves crossing high-frequency artwork & text edges
     for (let wIdx = 0; wIdx < 14; wIdx++) {
@@ -760,7 +405,7 @@ export default function LivePrintCustomizer({
       vCtx.stroke()
     }
 
-    // 2. Diagonal Cross-Hatching Security Grid over Center Medallion & Typography
+    // 2. Diagonal Cross-Hatching Security Grid over Center Artwork & Typography
     vCtx.translate(W / 2, H / 2)
     vCtx.rotate(-0.42)
     vCtx.textAlign = 'center'
@@ -769,14 +414,14 @@ export default function LivePrintCustomizer({
     for (let row = -520; row <= 520; row += 105) {
       for (let col = -420; col <= 420; col += 360) {
         vCtx.fillStyle = colorway.inkHex
-        vCtx.globalAlpha = 0.19
+        vCtx.globalAlpha = 0.18
         vCtx.fillText(
           'EVERMARK PRINTS · PROOF ONLY · DO NOT COPY',
           col + (row % 210 === 0 ? 90 : 0),
           row
         )
         vCtx.fillStyle = colorway.accentHex
-        vCtx.globalAlpha = 0.17
+        vCtx.globalAlpha = 0.16
         vCtx.fillText(
           'EVERMARK PRINTS · PROOF ONLY · DO NOT COPY',
           col + 1.5 + (row % 210 === 0 ? 90 : 0),
@@ -806,9 +451,12 @@ export default function LivePrintCustomizer({
     uploadedPhotoEl,
     photoFilter,
     product.mode,
+    basePlateEl,
+    portraitBackdropEl,
   ])
 
   function handleApplyPreset(preset: EvermarkProduct['presets'][number]) {
+    setActiveMockupUrl(null)
     setHeadline(preset.headline)
     setSubline(preset.subline)
     setLocationText(preset.location)
@@ -824,6 +472,7 @@ export default function LivePrintCustomizer({
     reader.onload = () => {
       const img = new Image()
       img.onload = () => {
+        setActiveMockupUrl(null)
         setUploadedPhotoEl(img)
         setUploadedPhotoName(file.name)
       }
@@ -909,6 +558,7 @@ export default function LivePrintCustomizer({
       const normalized = peaks.map((p) =>
         Math.min(1, Math.max(0.08, Math.pow(p / maxPeak, 0.75)))
       )
+      setActiveMockupUrl(null)
       setCustomAudioPeaks(normalized)
       setUploadedAudioName(file.name)
       setCoordsText(`00:00 —————————●———— ${formatDurationClock(audioBuffer.duration)}`)
@@ -962,6 +612,7 @@ export default function LivePrintCustomizer({
           const normalized = peaks.map((p) =>
             Math.min(1, Math.max(0.1, Math.pow(p / maxPeak, 0.75)))
           )
+          setActiveMockupUrl(null)
           setCustomAudioPeaks(normalized)
           setUploadedAudioName('Live Voice Recording (5s)')
           setCoordsText(`00:00 —————————●———— ${formatDurationClock(audioBuffer.duration)}`)
@@ -992,7 +643,6 @@ export default function LivePrintCustomizer({
         : ''
 
       if (typeof window !== 'undefined') {
-        // Save the CLEAN unwatermarked canvas in localStorage so /success unlocks the unwatermarked print after Stripe payment!
         const cleanCanvas = cleanCanvasRef.current
         const previewDataUrl = cleanCanvas ? cleanCanvas.toDataURL('image/png') : ''
         window.localStorage.setItem(
@@ -1009,7 +659,7 @@ export default function LivePrintCustomizer({
             coordsText,
             colorwayId,
             frameFinishId,
-            formatLabel: `${activeFormat.label} (${frameFinish.label})`,
+            formatLabel: `${product.physicalMedium} — ${activeFormat.label}`,
             giftNote: isGiftOrder ? giftNote : '',
             customPeaks: serializedPeaks,
             previewDataUrl,
@@ -1022,11 +672,11 @@ export default function LivePrintCustomizer({
 
       const lineItems = [
         {
-          name: `${product.shortTitle} — ${activeFormat.label}`,
+          name: `${product.shortTitle} (${product.physicalMedium}) — ${activeFormat.label}`,
           description: `${colorway.shortLabel} | ${
-            activeFormat.isPhysical ? `${frameFinish.label} Frame | ` : ''
+            activeFormat.isPhysical ? `${frameFinish.label} | ` : ''
           }"${headline}" (${locationText} · ${dateText})`,
-          amountCents: activeFormat.priceUsd * 100,
+          amountCents: effectiveFormatPrice * 100,
           quantity: 1,
         },
       ]
@@ -1058,6 +708,8 @@ export default function LivePrintCustomizer({
             brand: 'Evermark Prints',
             productSlug: product.slug,
             sku: product.sku,
+            printifyProductId: product.printifyProductId,
+            printifyBlueprintId: String(product.printifyBlueprintId),
             formatId: activeFormat.id,
             colorwayId,
             frameFinishId,
@@ -1091,15 +743,15 @@ export default function LivePrintCustomizer({
 
   return (
     <div className="space-y-12">
-      {/* Homepage Interactive Product Style Switcher */}
+      {/* Homepage Interactive Product Style Switcher (12 Real Printify Formats!) */}
       {compactHeroMode && (
         <div className="bg-[#FDFBF7] border border-[#D4C3AE] p-4 sm:p-5 shadow-sm space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#7A331E] font-semibold">
-              CHOOSE YOUR KEEPSAKE STYLE TO CUSTOMIZE LIVE (12 BESPOKE EDITIONS):
+              CHOOSE YOUR PHYSICAL PRODUCT &amp; ARTWORK TO CUSTOMIZE LIVE (12 PRINTIFY STUDIO EDITIONS):
             </span>
             <span className="text-xs text-[#5C4D42]">
-              Supports Custom Photos, Voice/Song Audio, &amp; 1-Click GPS Coordinates
+              Framed Prints · Acrylic Stands · Woven Blankets · Chiseled Slate · 3-Panel Triptychs · Soy Candles
             </span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -1110,22 +762,30 @@ export default function LivePrintCustomizer({
                   key={item.slug}
                   type="button"
                   onClick={() => handleSwitchProduct(item.slug)}
-                  className={`p-2.5 text-left border transition flex flex-col justify-between ${
+                  className={`p-2 text-left border transition flex items-center gap-2.5 ${
                     isCurrent
                       ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027] shadow-sm'
                       : 'bg-[#F8F3EA] text-[#261A13] border-[#D8C9B6] hover:border-[#7A331E]'
                   }`}
                 >
-                  <span
-                    className={`text-[10px] font-mono-tech uppercase tracking-wider block ${
-                      isCurrent ? 'text-[#E5C178]' : 'text-[#8C583A]'
-                    }`}
-                  >
-                    {item.categoryLabel.split(' ')[0]}
-                  </span>
-                  <span className="text-xs font-semibold leading-snug mt-0.5 line-clamp-1">
-                    {item.shortTitle}
-                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.previewImage}
+                    alt={item.shortTitle}
+                    className="w-10 h-10 object-cover border border-black/15 shrink-0 bg-white"
+                  />
+                  <div className="min-w-0">
+                    <span
+                      className={`text-[9px] font-mono-tech uppercase tracking-wider block truncate ${
+                        isCurrent ? 'text-[#E5C178]' : 'text-[#8C583A]'
+                      }`}
+                    >
+                      {item.categoryLabel}
+                    </span>
+                    <span className="text-[11px] font-semibold leading-tight block truncate mt-0.5">
+                      {item.shortTitle}
+                    </span>
+                  </div>
                 </button>
               )
             })}
@@ -1134,124 +794,353 @@ export default function LivePrintCustomizer({
       )}
 
       <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        {/* LEFT COLUMN: INTERACTIVE ROOM STAGING & MUSEUM FRAME VIEWER (7 Cols) */}
+        {/* LEFT COLUMN: INTERACTIVE FORM-FACTOR STAGE & PRINTIFY 3D STUDIO CAMERA VIEWS (7 Cols) */}
         <div className="lg:col-span-7 lg:sticky lg:top-24 space-y-4">
           {/* View Mode Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#D8C9B6] pb-3">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => setViewMode('room')}
+                onClick={() => {
+                  setActiveMockupUrl(null)
+                  setViewMode('room')
+                }}
                 className={`px-3.5 py-1.5 text-xs uppercase tracking-[0.14em] font-semibold transition border ${
-                  viewMode === 'room'
+                  !activeMockupUrl && viewMode === 'room'
                     ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                     : 'bg-[#FDFBF7] text-[#5C4D42] border-[#D8C9B6] hover:border-[#1B3027]'
                 }`}
               >
-                Warm Gallery Room View
+                ✦ Live Interactive Customizer
               </button>
               <button
                 type="button"
-                onClick={() => setViewMode('studio')}
+                onClick={() => {
+                  setActiveMockupUrl(null)
+                  setViewMode('studio')
+                }}
                 className={`px-3.5 py-1.5 text-xs uppercase tracking-[0.14em] font-semibold transition border ${
-                  viewMode === 'studio'
+                  !activeMockupUrl && viewMode === 'studio'
                     ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                     : 'bg-[#FDFBF7] text-[#5C4D42] border-[#D8C9B6] hover:border-[#1B3027]'
                 }`}
               >
-                Close-Up Frame View
+                Close-Up Artwork Proof
               </button>
+              {product.mockupGallery.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveMockupUrl(product.mockupGallery[0])}
+                  className={`px-3.5 py-1.5 text-xs uppercase tracking-[0.14em] font-semibold transition border ${
+                    activeMockupUrl
+                      ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A]'
+                      : 'bg-[#FDFBF7] text-[#9E472A] border-[#D8C9B6] hover:border-[#9E472A]'
+                  }`}
+                >
+                  📷 3D Studio Photos ({product.mockupGallery.length})
+                </button>
+              )}
             </div>
 
             <span className="text-[11px] font-mono-tech uppercase tracking-[0.12em] text-[#7A331E] font-medium">
-              {frameFinish.label} · {colorway.shortLabel}
+              {product.physicalMedium}
             </span>
           </div>
 
-          {/* Interactive Gallery Wall Stage */}
+          {/* Interactive Gallery Wall Stage OR Real Printify 3D Camera Mockup Viewer */}
           <div
             className={`relative overflow-hidden border border-[#CBB89F] transition-all select-none ${
               viewMode === 'room'
-                ? 'gallery-wall-surface pt-10 pb-20 px-6 sm:px-14'
+                ? 'gallery-wall-surface pt-8 pb-16 px-6 sm:px-12'
                 : 'bg-[#E9DFCF] py-8 px-4 sm:px-10'
             }`}
             onContextMenu={(e) => e.preventDefault()}
           >
-            {viewMode === 'room' && (
-              <>
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-60"
-                  style={{
-                    background:
-                      'linear-gradient(125deg, rgba(255,248,235,0.88) 0%, rgba(242,226,202,0.15) 48%, rgba(156,122,88,0.28) 100%)',
-                  }}
-                />
-                <div className="relative z-10 flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#5C4D42] mb-6">
-                  <span>LIVE INTERACTIVE STUDIO PREVIEW</span>
-                  <span>{activeFormat.dimensions}</span>
-                </div>
-              </>
-            )}
-
-            {/* Physical Hardwood Frame + 8-Ply Museum Mat Board */}
-            <div
-              className={`relative z-10 mx-auto transition-all duration-300 ${
-                viewMode === 'room' ? 'max-w-[390px]' : 'max-w-[490px]'
-              }`}
-              style={{
-                backgroundColor: frameFinish.outerHex,
-                padding: viewMode === 'room' ? '14px' : '18px',
-                boxShadow:
-                  viewMode === 'room'
-                    ? '24px 34px 58px rgba(38, 24, 14, 0.38), 4px 8px 16px rgba(38, 24, 14, 0.2)'
-                    : '0 24px 48px rgba(38, 24, 14, 0.25)',
-                border: `2px solid ${frameFinish.lipHex}`,
-              }}
-            >
-              <div
-                style={{
-                  border: `2px solid ${frameFinish.innerHex}`,
-                  backgroundColor: '#F8F4EC',
-                  padding: viewMode === 'room' ? '16px' : '22px',
-                }}
-              >
-                <div
-                  className="p-[2px]"
-                  style={{
-                    backgroundColor: '#D4C7B4',
-                    boxShadow: 'inset 1px 1px 3px rgba(0,0,0,0.18)',
-                  }}
+            <div className="relative z-10 flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#5C4D42] mb-5">
+              <span>
+                {activeMockupUrl
+                  ? `PRINTIFY 3D STUDIO MOCKUP · BLUEPRINT #${product.printifyBlueprintId}`
+                  : `LIVE INTERACTIVE PROOF · ${product.physicalMedium.toUpperCase()}`}
+              </span>
+              {activeMockupUrl && (
+                <button
+                  type="button"
+                  onClick={() => setActiveMockupUrl(null)}
+                  className="underline text-[#9E472A] font-semibold"
                 >
-                  <canvas
-                    ref={canvasRef}
-                    onContextMenu={(e) => e.preventDefault()}
-                    draggable={false}
-                    className="w-full h-auto block pointer-events-none select-none"
-                  />
-                </div>
-              </div>
+                  ← Back to Live Customizer
+                </button>
+              )}
             </div>
 
-            {viewMode === 'room' && (
-              <>
-                <div className="pointer-events-none absolute bottom-10 left-0 right-0 h-[3px] bg-[#CBB89F] border-b border-[#FAF5EC]" />
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-[#DDD0BC]" />
-                <div
-                  className="pointer-events-none absolute bottom-0 left-[10%] right-[10%] h-5 shadow-inner"
-                  style={{
-                    backgroundColor: frameFinish.outerHex,
-                    borderTop: `3px solid ${frameFinish.innerHex}`,
-                  }}
+            {activeMockupUrl ? (
+              <div className="relative z-10 mx-auto max-w-[520px] bg-white border border-[#D8C9B6] shadow-2xl overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={activeMockupUrl}
+                  alt={product.title}
+                  className="w-full h-auto block"
                 />
-              </>
+              </div>
+            ) : (
+              /* Authentic Physical Form-Factor Renderer Wrapping Live Canvas */
+              <div
+                className={`relative z-10 mx-auto transition-all duration-300 ${
+                  viewMode === 'room' ? 'max-w-[400px]' : 'max-w-[490px]'
+                }`}
+              >
+                {product.formFactor === 'acrylic-stand' ? (
+                  /* Crystal Acrylic Block + Solid Carved Hardwood Stand */
+                  <div className="flex flex-col items-center">
+                    <div
+                      className="w-full p-[10px] relative"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.5) 100%)',
+                        border: '2px solid rgba(255,255,255,0.85)',
+                        boxShadow:
+                          '0 22px 48px rgba(28, 20, 14, 0.32), inset 0 0 14px rgba(255,255,255,0.75)',
+                        backdropFilter: 'blur(4px)',
+                      }}
+                    >
+                      <canvas
+                        ref={canvasRef}
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable={false}
+                        className="w-full h-auto block pointer-events-none select-none shadow-sm"
+                      />
+                    </div>
+                    {/* Solid Carved Hardwood Base */}
+                    <div
+                      className="w-[74%] h-10 -mt-1 rounded-b-sm relative flex items-center justify-center"
+                      style={{
+                        background: `linear-gradient(90deg, ${frameFinish.lipHex} 0%, ${frameFinish.outerHex} 25%, ${frameFinish.innerHex} 50%, ${frameFinish.outerHex} 80%, ${frameFinish.lipHex} 100%)`,
+                        boxShadow: '0 18px 30px rgba(20, 12, 6, 0.45)',
+                        borderTop: '3px solid #E5C178',
+                      }}
+                    >
+                      <span className="text-[9px] font-mono-tech uppercase tracking-[0.25em] text-[#F7F4ED]/75">
+                        EVERMARK HARDWOOD STAND
+                      </span>
+                    </div>
+                  </div>
+                ) : product.formFactor === 'chiseled-slate' ? (
+                  /* Raw Hand-Chiseled Natural Stone Slate Plaque + Display Feet */
+                  <div className="flex flex-col items-center">
+                    <div
+                      className="w-full p-[14px] relative"
+                      style={{
+                        background:
+                          'linear-gradient(145deg, #2B2D2F 0%, #1C1D1F 50%, #383A3D 100%)',
+                        boxShadow:
+                          '20px 30px 52px rgba(15, 15, 15, 0.48), inset 0 0 0 3px #484A4E',
+                        borderRadius: '6px',
+                      }}
+                    >
+                      <canvas
+                        ref={canvasRef}
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable={false}
+                        className="w-full h-auto block pointer-events-none select-none rounded-[2px]"
+                      />
+                    </div>
+                    {/* Two Matte Black Slate Display Feet */}
+                    <div className="w-[68%] flex justify-between -mt-2 relative z-20 px-4">
+                      <div className="w-7 h-7 bg-gradient-to-b from-[#2A2A2A] to-[#111] rounded-b-sm shadow-lg border-t border-white/20" />
+                      <div className="w-7 h-7 bg-gradient-to-b from-[#2A2A2A] to-[#111] rounded-b-sm shadow-lg border-t border-white/20" />
+                    </div>
+                  </div>
+                ) : product.formFactor === 'woven-blanket' ? (
+                  /* Jacquard Woven Cotton Throw Blanket with Braided Fringe Edges */
+                  <div
+                    className="p-[14px] relative"
+                    style={{
+                      background:
+                        'repeating-linear-gradient(45deg, #D8C3A5, #D8C3A5 4px, #9E472A 4px, #9E472A 8px, #1B3027 8px, #1B3027 12px)',
+                      boxShadow: '18px 28px 48px rgba(38, 24, 14, 0.34)',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    <div className="bg-[#FAF6F0] p-1 shadow-inner">
+                      <canvas
+                        ref={canvasRef}
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable={false}
+                        className="w-full h-auto block pointer-events-none select-none"
+                      />
+                    </div>
+                  </div>
+                ) : product.formFactor === 'wood-tapestry' ? (
+                  /* Wood-Topped Wall Tapestry with Hanging Twine & Bottom Wood Dowel */
+                  <div className="flex flex-col items-center">
+                    {/* Hanging Twine Triangle */}
+                    <div className="w-36 h-10 relative flex justify-center">
+                      <div className="w-3 h-3 rounded-full bg-[#B8924A] shadow z-10 -mt-1" />
+                      <svg
+                        viewBox="0 0 140 40"
+                        className="absolute inset-0 w-full h-full stroke-[#8C6D46]"
+                        fill="none"
+                        strokeWidth="2.5"
+                      >
+                        <path d="M 70 2 L 8 40 M 70 2 L 132 40" />
+                      </svg>
+                    </div>
+                    {/* Top Solid Wood Hanger Bar */}
+                    <div
+                      className="w-[104%] h-4 rounded-sm shadow-md z-10"
+                      style={{
+                        background: `linear-gradient(180deg, ${frameFinish.innerHex}, ${frameFinish.outerHex})`,
+                        border: `1px solid ${frameFinish.lipHex}`,
+                      }}
+                    />
+                    <div className="w-full shadow-2xl">
+                      <canvas
+                        ref={canvasRef}
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable={false}
+                        className="w-full h-auto block pointer-events-none select-none"
+                      />
+                    </div>
+                    {/* Bottom Weighted Wood Bar */}
+                    <div
+                      className="w-[104%] h-4 rounded-sm shadow-lg z-10"
+                      style={{
+                        background: `linear-gradient(180deg, ${frameFinish.innerHex}, ${frameFinish.outerHex})`,
+                        border: `1px solid ${frameFinish.lipHex}`,
+                      }}
+                    />
+                  </div>
+                ) : product.formFactor === 'triptych-acrylic' ? (
+                  /* 3-Panel Split Optical Acrylic Triptych */
+                  <div className="relative shadow-2xl">
+                    <canvas
+                      ref={canvasRef}
+                      onContextMenu={(e) => e.preventDefault()}
+                      draggable={false}
+                      className="w-full h-auto block pointer-events-none select-none"
+                    />
+                    {/* Two vertical wall-gap split dividers */}
+                    <div className="pointer-events-none absolute inset-y-0 left-[32.5%] w-[10px] bg-[#E8DFD1] shadow-inner border-x border-black/15" />
+                    <div className="pointer-events-none absolute inset-y-0 left-[65.5%] w-[10px] bg-[#E8DFD1] shadow-inner border-x border-black/15" />
+                  </div>
+                ) : product.formFactor === 'amber-candle' ? (
+                  /* Apothecary Amber Glass Soy Candle Jar */
+                  <div className="flex flex-col items-center pt-2">
+                    {/* Candle Flame */}
+                    <div className="w-4 h-7 rounded-full bg-gradient-to-t from-amber-500 via-yellow-300 to-white shadow-[0_0_24px_8px_rgba(251,191,36,0.75)] mb-1 animate-pulse" />
+                    {/* Amber Jar Rim */}
+                    <div className="w-[68%] h-5 rounded-t-md bg-gradient-to-r from-[#3D1C08] via-[#7A3B12] to-[#3D1C08] border-b border-amber-400/40 shadow" />
+                    {/* Amber Glass Body Wrapping Label */}
+                    <div
+                      className="w-[78%] p-4 rounded-b-2xl relative"
+                      style={{
+                        background:
+                          'linear-gradient(90deg, #2B1204 0%, #6E320C 18%, #8F4516 50%, #6E320C 82%, #2B1204 100%)',
+                        boxShadow:
+                          '0 24px 48px rgba(38, 18, 6, 0.45), inset 0 0 18px rgba(251, 191, 36, 0.25)',
+                      }}
+                    >
+                      <div className="rounded-sm overflow-hidden shadow-md">
+                        <canvas
+                          ref={canvasRef}
+                          onContextMenu={(e) => e.preventDefault()}
+                          draggable={false}
+                          className="w-full h-auto block pointer-events-none select-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Museum Solid Hardwood Frame + 8-Ply Mat Board (Default Framed Print / Floating Canvas / Birch Plaque) */
+                  <div
+                    style={{
+                      backgroundColor: frameFinish.outerHex,
+                      padding: viewMode === 'room' ? '14px' : '18px',
+                      boxShadow:
+                        viewMode === 'room'
+                          ? '24px 34px 58px rgba(38, 24, 14, 0.38), 4px 8px 16px rgba(38, 24, 14, 0.2)'
+                          : '0 24px 48px rgba(38, 24, 14, 0.25)',
+                      border: `2px solid ${frameFinish.lipHex}`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        border: `2px solid ${frameFinish.innerHex}`,
+                        backgroundColor: '#F8F4EC',
+                        padding:
+                          product.formFactor === 'framed-canvas'
+                            ? '6px'
+                            : viewMode === 'room'
+                            ? '16px'
+                            : '22px',
+                      }}
+                    >
+                      <div
+                        className="p-[2px]"
+                        style={{
+                          backgroundColor: '#D4C7B4',
+                          boxShadow: 'inset 1px 1px 3px rgba(0,0,0,0.18)',
+                        }}
+                      >
+                        <canvas
+                          ref={canvasRef}
+                          onContextMenu={(e) => e.preventDefault()}
+                          draggable={false}
+                          className="w-full h-auto block pointer-events-none select-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Security Watermark Notice & Occasion Presets (Zero Free Downloads!) */}
+          {/* Printify 3D Studio Camera Angle Thumbnails + Live Proof Toggle */}
+          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
+              <span>SWITCH BETWEEN LIVE CUSTOMIZER &amp; REAL PRINTIFY 3D STUDIO PHOTOS:</span>
+              <span className="text-[#6E5A4C]">🔒 Anti-AI Watermark Active</span>
+            </div>
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+              <button
+                type="button"
+                onClick={() => setActiveMockupUrl(null)}
+                className={`px-3 py-2 border text-xs font-semibold shrink-0 transition ${
+                  !activeMockupUrl
+                    ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
+                    : 'bg-[#F8F3EA] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027]'
+                }`}
+              >
+                ✦ Live Customizer Proof
+              </button>
+              {product.mockupGallery.map((mUrl, idx) => (
+                <button
+                  key={mUrl}
+                  type="button"
+                  onClick={() => setActiveMockupUrl(mUrl)}
+                  className={`relative w-14 h-14 border overflow-hidden shrink-0 transition ${
+                    activeMockupUrl === mUrl
+                      ? 'border-[#9E472A] ring-2 ring-[#9E472A]'
+                      : 'border-[#D8C9B6] opacity-80 hover:opacity-100'
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={mUrl}
+                    alt={`3D Studio Angle ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Occasion Presets */}
           <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono-tech text-[11px] uppercase tracking-[0.12em] text-[#7A331E] font-semibold">
-                Quick Presets:
+                Quick Occasion Presets:
               </span>
               {product.presets.map((preset, idx) => (
                 <button
@@ -1264,10 +1153,6 @@ export default function LivePrintCustomizer({
                 </button>
               ))}
             </div>
-
-            <span className="text-[11px] text-[#6E5A4C] font-mono-tech">
-              🔒 Security Watermark Removed on Final Print
-            </span>
           </div>
 
           {!compactHeroMode && (
@@ -1300,12 +1185,17 @@ export default function LivePrintCustomizer({
             <p className="text-xs sm:text-sm text-[#5C4D42] leading-relaxed">
               {product.subtitle}
             </p>
+            <div className="pt-1">
+              <span className="inline-block px-2.5 py-1 bg-[#F3E9DA] border border-[#D8C9B6] text-[11px] font-mono-tech text-[#261A13]">
+                Physical Medium: <strong>{product.physicalMedium}</strong>
+              </span>
+            </div>
           </div>
 
           {/* STEP 1: Select 8 Rich Designer Palettes */}
           <div className="space-y-2.5">
             <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-              01. Choose Designer Color Palette (8 Archival Editions)
+              01. Choose Typography &amp; Border Palette (8 Archival Editions)
             </label>
             <div className="grid grid-cols-2 gap-2">
               {COLORWAYS.map((c) => {
@@ -1314,7 +1204,10 @@ export default function LivePrintCustomizer({
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => setColorwayId(c.id)}
+                    onClick={() => {
+                      setActiveMockupUrl(null)
+                      setColorwayId(c.id)
+                    }}
                     className={`p-2.5 border text-left transition flex items-center gap-2.5 ${
                       isSel
                         ? 'border-[#1B3027] bg-[#F3E9DA] ring-1 ring-[#1B3027]'
@@ -1326,7 +1219,7 @@ export default function LivePrintCustomizer({
                       style={{ backgroundColor: c.bgHex }}
                     >
                       <span
-                        className="w-2 h-2 rounded-full"
+                        className="w-2.5 h-2.5 rounded-full"
                         style={{ backgroundColor: c.accentHex }}
                       />
                     </span>
@@ -1339,10 +1232,10 @@ export default function LivePrintCustomizer({
             </div>
           </div>
 
-          {/* STEP 2: Select Hardwood Frame Finish */}
+          {/* STEP 2: Select Hardwood Frame / Wood Base Finish */}
           <div className="space-y-2.5">
             <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-              02. Select Solid Hardwood Frame
+              02. Select Hardwood Finish (Frame / Stand / Trim)
             </label>
             <div className="grid grid-cols-3 gap-2.5">
               {FRAME_FINISHES.map((f) => {
@@ -1351,7 +1244,10 @@ export default function LivePrintCustomizer({
                   <button
                     key={f.id}
                     type="button"
-                    onClick={() => setFrameFinishId(f.id)}
+                    onClick={() => {
+                      setActiveMockupUrl(null)
+                      setFrameFinishId(f.id)
+                    }}
                     className={`p-2.5 border text-left transition flex items-center gap-2 ${
                       isSel
                         ? 'border-[#1B3027] bg-[#F3E9DA] ring-1 ring-[#1B3027]'
@@ -1374,7 +1270,7 @@ export default function LivePrintCustomizer({
           {/* STEP 3: Attach Custom Photo OR Voice/Song Audio (Always Visible!) */}
           <div className="space-y-3 pt-1">
             <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-              03. Attach Photo Portrait or Voice/Song Audio (Optional)
+              03. Attach Custom Photo Portrait or Voice/Song Audio (Optional)
             </label>
 
             <div className="grid sm:grid-cols-2 gap-2.5">
@@ -1382,10 +1278,10 @@ export default function LivePrintCustomizer({
               <div className="p-3 bg-[#F6EFE4] border border-[#D8C9B6] space-y-2 flex flex-col justify-between">
                 <div>
                   <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold block">
-                    Custom Photo Medallion
+                    Watercolor Photo Portrait
                   </span>
                   <p className="text-[11px] text-[#5C4D42] leading-snug mt-0.5">
-                    Embed a couple, baby, pet, or home photo into your print.
+                    Frame your own pet, baby, couple, or house photo inside our gilded laurel wash.
                   </p>
                 </div>
 
@@ -1450,7 +1346,7 @@ export default function LivePrintCustomizer({
                     Voice or Song Soundwave
                   </span>
                   <p className="text-[11px] text-[#5C4D42] leading-snug mt-0.5">
-                    Upload a song/voicemail clip or record 5s from your mic.
+                    Upload a song/voicemail clip or record 5s live from your mic.
                   </p>
                 </div>
 
@@ -1486,7 +1382,7 @@ export default function LivePrintCustomizer({
           {/* STEP 4: Personalize Inscription */}
           <div className="space-y-3.5 pt-1">
             <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-              04. Personalize Your Inscription (Updates Live)
+              04. Personalize Your Inscription (Updates Live on Canvas)
             </label>
 
             <div className="space-y-1">
@@ -1496,7 +1392,10 @@ export default function LivePrintCustomizer({
               <input
                 type="text"
                 value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
+                onChange={(e) => {
+                  setActiveMockupUrl(null)
+                  setHeadline(e.target.value)
+                }}
                 maxLength={42}
                 className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                 placeholder="e.g., THE NIGHT OUR STORY BEGAN"
@@ -1510,7 +1409,10 @@ export default function LivePrintCustomizer({
               <input
                 type="text"
                 value={subline}
-                onChange={(e) => setSubline(e.target.value)}
+                onChange={(e) => {
+                  setActiveMockupUrl(null)
+                  setSubline(e.target.value)
+                }}
                 maxLength={68}
                 className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                 placeholder="e.g., Underneath these exact stars, everything changed."
@@ -1535,7 +1437,10 @@ export default function LivePrintCustomizer({
                 <input
                   type="text"
                   value={locationText}
-                  onChange={(e) => setLocationText(e.target.value)}
+                  onChange={(e) => {
+                    setActiveMockupUrl(null)
+                    setLocationText(e.target.value)
+                  }}
                   maxLength={38}
                   className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                 />
@@ -1548,7 +1453,10 @@ export default function LivePrintCustomizer({
                 <input
                   type="text"
                   value={dateText}
-                  onChange={(e) => setDateText(e.target.value)}
+                  onChange={(e) => {
+                    setActiveMockupUrl(null)
+                    setDateText(e.target.value)
+                  }}
                   maxLength={34}
                   className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                 />
@@ -1569,7 +1477,10 @@ export default function LivePrintCustomizer({
               <input
                 type="text"
                 value={coordsText}
-                onChange={(e) => setCoordsText(e.target.value)}
+                onChange={(e) => {
+                  setActiveMockupUrl(null)
+                  setCoordsText(e.target.value)
+                }}
                 maxLength={44}
                 className="w-full border border-[#CBB89F] bg-[#F6EFE4] px-3.5 py-2 text-xs font-mono-tech text-[#261A13] focus:border-[#1B3027] focus:outline-none"
               />
@@ -1585,6 +1496,9 @@ export default function LivePrintCustomizer({
             <div className="space-y-2.5">
               {FORMAT_TIERS.map((tier) => {
                 const isSelected = tier.id === activeFormat.id
+                const tierPrice = tier.isPhysical
+                  ? Math.max(48, tier.priceUsd + basePhysicalDelta)
+                  : tier.priceUsd
                 return (
                   <button
                     key={tier.id}
@@ -1599,7 +1513,9 @@ export default function LivePrintCustomizer({
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-xs sm:text-sm text-[#261A13]">
-                          {tier.label}
+                          {tier.id === 'framed-16x20'
+                            ? `${product.physicalMedium} (Standard Edition)`
+                            : tier.label}
                         </span>
                         {tier.badge && (
                           <span className="px-2 py-0.5 bg-[#1B3027] text-[#F7F4ED] text-[10px] font-mono-tech uppercase tracking-wider">
@@ -1612,11 +1528,11 @@ export default function LivePrintCustomizer({
 
                     <div className="text-right shrink-0">
                       <span className="text-base sm:text-lg font-semibold text-[#261A13] block">
-                        ${tier.priceUsd}
+                        ${tierPrice}
                       </span>
                       {tier.compareAtUsd && (
                         <span className="text-xs text-[#8C7A6B] line-through block">
-                          ${tier.compareAtUsd}
+                          ${tier.compareAtUsd + (tier.isPhysical ? Math.max(0, basePhysicalDelta) : 0)}
                         </span>
                       )}
                     </div>
@@ -1694,13 +1610,13 @@ export default function LivePrintCustomizer({
               <span>
                 {isCheckingOut
                   ? 'Preparing Archival Commission...'
-                  : `Commission Custom Print — $${totalUsd}`}
+                  : `Commission Custom Keepsake — $${totalUsd}`}
               </span>
               <span>→</span>
             </button>
 
             <p className="text-[11px] text-[#5C4D42] text-center font-mono-tech">
-              COMPLIMENTARY US FRAMED DELIVERY (3–5 DAYS) · SHIPS GIFT-READY WITH ZERO PRICE TAGS
+              COMPLIMENTARY US STUDIO DELIVERY (3–5 DAYS) · SHIPS GIFT-READY WITH ZERO PRICE TAGS
             </p>
             <p className="text-[11px] text-[#7A6858] text-center">
               Protected by our{' '}
@@ -1797,7 +1713,7 @@ export default function LivePrintCustomizer({
                     </div>
                     <div className="p-5 space-y-3">
                       <span className="text-[10px] font-mono-tech uppercase tracking-[0.16em] text-[#9E472A] font-semibold block">
-                        {other.categoryLabel}
+                        {other.physicalMedium}
                       </span>
                       <h3 className="text-xl font-editorial font-semibold text-[#261A13]">
                         {other.shortTitle}
@@ -1806,7 +1722,7 @@ export default function LivePrintCustomizer({
                         {other.subtitle}
                       </p>
                       <div className="pt-3 border-t border-[#E5D9C5] flex items-center justify-between text-xs font-medium text-[#1B3027]">
-                        <span>From ${other.popularPriceUsd} Framed</span>
+                        <span>From ${other.popularPriceUsd}</span>
                         <span className="font-mono-tech uppercase tracking-wider text-[11px]">
                           Personalize →
                         </span>

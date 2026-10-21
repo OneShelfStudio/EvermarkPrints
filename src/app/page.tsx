@@ -13,20 +13,20 @@ export default function EvermarkHomePage() {
         <div className="grid lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
             <div className="inline-flex flex-wrap items-center gap-2.5 px-3 py-1 bg-[#9E472A] text-[#FDFBF7] text-[11px] font-mono-tech uppercase tracking-[0.18em]">
-              <span>HANDCRAFTED IN AMERICAN STUDIOS</span>
+              <span>HANDCRAFTED IN US STUDIOS</span>
               <span>·</span>
-              <span>12 CUSTOM PHOTO, VOICE &amp; MAP COLLECTIONS</span>
+              <span>FRAMED ART · ACRYLIC STANDS · WOVEN BLANKETS · CHISELED SLATE · SOY CANDLES</span>
             </div>
 
             <h1 className="text-4xl sm:text-6xl font-editorial font-normal tracking-tight text-[#F7F4ED] leading-[1.06]">
-              Turn the Moment Everything Changed Into{' '}
+              Painterly Keepsakes &amp;{' '}
               <span className="italic text-[#E5C178]">
-                Heirloom Framed Art.
+                Bespoke Heirloom Decor.
               </span>
             </h1>
 
             <p className="text-sm sm:text-base text-[#E2D9C8] max-w-2xl leading-relaxed">
-              Switch between all 12 custom keepsake styles in our interactive studio below—attach a favorite photo, upload or record a voice note, plot exact night-sky or home coordinates, and preview your print inside a solid Walnut, Warm Oak, or Matte Black frame.
+              Explore 12 distinct physical gifts and hand-illustrated artwork editions below—from 100% cotton jacquard-woven fringed blankets, raw chiseled natural stone slate plaques, and crystal acrylic desk stands to 3-panel split gallery triptychs, wood-topped tapestries, and scented amber soy candles.
             </p>
           </div>
 
@@ -37,15 +37,15 @@ export default function EvermarkHomePage() {
             <ul className="space-y-2.5 text-xs text-[#EDE4D4]">
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
-                <span>Attach Custom Photos (.JPG/.PNG) &amp; Real Voice/Song Audio</span>
+                <span>Painterly Milky Way, Redouté Botanical &amp; Watercolor Art</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
-                <span>8 Rich Designer Colorways on 310gsm Museum Cotton Rag</span>
+                <span>9 Authentic Printify US Formats (Blankets, Slate, Acrylic, Wood)</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
-                <span>Solid American Walnut, Honey Oak &amp; Matte Black Frames</span>
+                <span>Attach Custom Photos (.JPG/.PNG) &amp; Live Voice/Song Audio</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
@@ -67,19 +67,19 @@ export default function EvermarkHomePage() {
         <LivePrintCustomizer product={flagshipStarMap} compactHeroMode />
       </section>
 
-      {/* Curated Gallery Catalog — All 12 Archival Collections with Warm Room Staging */}
-      <section className="space-y-10 border-t border-[#CBB89F] pt-16">
+      {/* Curated Gallery Catalog — All 12 Real Printify 3D Studio Products */}
+      <section id="collection" className="space-y-10 border-t border-[#CBB89F] pt-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <p className="text-[11px] font-mono-tech uppercase tracking-[0.2em] text-[#9E472A] font-semibold">
-              THE COMPLETE ARCHIVE · 12 BESPOKE COLLECTIONS
+              THE COMPLETE ARCHIVE · 12 BESPOKE PHYSICAL EDITIONS
             </p>
             <h2 className="text-3xl sm:text-5xl font-editorial font-semibold text-[#261A13]">
-              Explore All Twelve Custom Keepsake Editions
+              Explore Our Twelve Custom Keepsakes
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-[#5C4D42] max-w-md">
-            Every collection supports custom photo medallions, voice/song soundwaves, 8 rich designer colorways, and free 3–5 day US framed shipping.
+            Each edition is crafted to order in our US Printify partner studios—featuring real 3D studio photography, custom photo &amp; voice uploads, and free 3–5 day US shipping.
           </p>
         </div>
 
@@ -90,10 +90,10 @@ export default function EvermarkHomePage() {
               className="bg-[#FDFBF7] border border-[#CBB89F] hover:border-[#1B3027] shadow-sm hover:shadow-xl flex flex-col justify-between transition group"
             >
               <div>
-                {/* Framed Interior Gallery Room Photograph */}
+                {/* Real Printify 3D Studio Product Photograph */}
                 <Link
                   href={`/create/${item.slug}`}
-                  className="block aspect-[5/4] w-full overflow-hidden bg-[#EFE5D6] border-b border-[#D8C9B6] relative"
+                  className="block aspect-square w-full overflow-hidden bg-[#F5EFE6] border-b border-[#D8C9B6] relative"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -101,8 +101,11 @@ export default function EvermarkHomePage() {
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700"
                   />
-                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-[#1B3027] text-[#F7F4ED] text-[10px] font-mono-tech uppercase tracking-[0.14em]">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-[#1B3027] text-[#F7F4ED] text-[10px] font-mono-tech uppercase tracking-[0.14em] shadow">
                     {item.badge}
+                  </span>
+                  <span className="absolute bottom-3 right-3 px-2.5 py-1 bg-[#261A13]/90 text-[#E5C178] text-[10px] font-mono-tech uppercase tracking-wider">
+                    {item.physicalMedium}
                   </span>
                 </Link>
 
@@ -131,7 +134,7 @@ export default function EvermarkHomePage() {
               <div className="px-6 py-4 bg-[#F3E9DA] border-t border-[#D8C9B6] flex items-center justify-between gap-4">
                 <div>
                   <span className="text-base font-semibold text-[#261A13] block">
-                    ${item.popularPriceUsd} Framed
+                    ${item.popularPriceUsd} Physical Edition
                   </span>
                   <span className="text-[11px] text-[#6E5A4C] block">
                     or ${item.startingPriceUsd} Instant Digital Master
@@ -142,7 +145,7 @@ export default function EvermarkHomePage() {
                   href={`/create/${item.slug}`}
                   className="px-4 py-2.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-[0.14em] font-medium transition shrink-0"
                 >
-                  Personalize →
+                  Customize →
                 </Link>
               </div>
             </article>
@@ -156,25 +159,25 @@ export default function EvermarkHomePage() {
       <section className="bg-[#FDFBF7] border border-[#CBB89F] p-8 sm:p-12 grid md:grid-cols-3 gap-8 shadow-sm">
         <div className="space-y-3 md:border-r md:border-[#D8C9B6] md:pr-6">
           <span className="text-[11px] font-mono-tech uppercase tracking-[0.18em] text-[#9E472A] font-semibold">
-            01 · 310GSM MUSEUM COTTON RAG
+            01 · PAINTERLY MUSEUM ARTWORK
           </span>
           <h3 className="text-2xl font-editorial font-semibold text-[#261A13]">
-            Rich Warmth &amp; Tactile Depth
+            Hand-Illustrated Depth &amp; Warmth
           </h3>
           <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
-            We never print on thin glossy poster stock. Every edition is struck on 310gsm acid-free cotton rag with archival pigment inks rated for over a century of lightfast permanence.
+            Every edition pairs museum-grade watercolor, Redouté botanical, and celestial nebula illustrations with your custom typography, coordinates, uploaded portraits, and voice waveforms.
           </p>
         </div>
 
         <div className="space-y-3 md:border-r md:border-[#D8C9B6] md:pr-6">
           <span className="text-[11px] font-mono-tech uppercase tracking-[0.18em] text-[#1B3027] font-semibold">
-            02 · KILN-DRIED HARDWOOD FRAMES
+            02 · DIVERSE US PHYSICAL MEDIUMS
           </span>
           <h3 className="text-2xl font-editorial font-semibold text-[#261A13]">
-            Mitered &amp; Assembled in the USA
+            Woven, Chiseled, Cast &amp; Framed
           </h3>
           <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
-            Choose between American Black Walnut, Warm Honey Oak, or Matte Gallery Black Ash. Each frame is hand-joined in our US partner studios and arrives wired and ready to hang in 3–5 business days.
+            From 100% cotton jacquard-woven fringed blankets and raw chiseled natural stone slate plaques to crystal acrylic desk blocks, 3-panel split triptychs, and scented amber soy candles.
           </p>
         </div>
 
