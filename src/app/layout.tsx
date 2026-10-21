@@ -184,6 +184,17 @@ export default function RootLayout({
               <p className="text-[#5C554D] leading-relaxed">
                 310gsm acid-free cotton rag, 8-ply museum mat framing, and archival pigment inks rated for 100+ years of lightfast permanence. Shipped complimentary across all 50 US states.
               </p>
+              <div className="flex flex-wrap lg:justify-end gap-4 pt-2 text-[11px] font-mono-tech uppercase tracking-[0.12em] text-[#171513]">
+                <Link href="/refunds" className="hover:underline underline-offset-4">
+                  Refund &amp; Replacement Policy
+                </Link>
+                <Link href="/privacy" className="hover:underline underline-offset-4">
+                  Privacy Policy
+                </Link>
+                <Link href="/terms" className="hover:underline underline-offset-4">
+                  Terms of Service
+                </Link>
+              </div>
               <p className="text-[11px] text-[#7A6F63] pt-4 border-t border-[#DDD5C7]">
                 © {new Date().getFullYear()} Evermark Prints. Part of{' '}
                 <a

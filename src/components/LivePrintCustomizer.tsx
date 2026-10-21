@@ -975,6 +975,20 @@ export default function LivePrintCustomizer({
             <p className="text-[11px] text-[#6E655B] text-center font-mono-tech">
               COMPLIMENTARY US FRAMED DELIVERY (3–5 DAYS) · 310GSM MUSEUM COTTON RAG
             </p>
+            <p className="text-[11px] text-[#7A6F63] text-center">
+              Protected by our{' '}
+              <Link href="/refunds" className="underline underline-offset-2 text-[#171513]">
+                100% Damaged-or-Defective Replacement Guarantee
+              </Link>{' '}
+              ·{' '}
+              <Link href="/terms" className="underline underline-offset-2 hover:text-[#171513]">
+                Terms
+              </Link>{' '}
+              ·{' '}
+              <Link href="/privacy" className="underline underline-offset-2 hover:text-[#171513]">
+                Privacy
+              </Link>
+            </p>
           </div>
         </div>
       </div>
