@@ -7,135 +7,173 @@ export default function EvermarkHomePage() {
   const flagshipStarMap = EVERMARK_CATALOG[0]
 
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-6 py-10 md:py-14 space-y-16">
-      {/* Hero Header */}
-      <section className="space-y-6 text-center max-w-4xl mx-auto">
-        <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold">
-          <span>★★★★★ Rated 4.9/5 by US Families &amp; Gift Buyers</span>
-          <span>•</span>
-          <span>Ships Ready-to-Hang from US Studios in 3–5 Days</span>
+    <div className="max-w-7xl mx-auto px-5 sm:px-8 py-10 md:py-16 space-y-20">
+      {/* Editorial Exhibition Header */}
+      <section className="border-b border-[#DDD5C7] pb-12">
+        <div className="grid lg:grid-cols-12 gap-8 items-end">
+          <div className="lg:col-span-8 space-y-5">
+            <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono-tech uppercase tracking-[0.2em] text-[#7A6F63]">
+              <span>ARCHIVAL MONOGRAPH STUDIO</span>
+              <span>·</span>
+              <span>310GSM GERMAN ETCHING COTTON RAG</span>
+              <span>·</span>
+              <span>SOLID AMERICAN HARDWOOD</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-editorial font-normal tracking-tight text-[#171513] leading-[1.06]">
+              The Exact Moment Everything Changed,{' '}
+              <span className="italic font-normal text-[#6E4E2E]">
+                Framed for Permanence.
+              </span>
+            </h1>
+          </div>
+
+          <div className="lg:col-span-4 space-y-4 lg:border-l lg:border-[#DDD5C7] lg:pl-8">
+            <p className="text-sm text-[#4A443C] leading-relaxed">
+              Every piece is plotted from your exact astronomical date, acoustic recording, or meridian coordinates—printed on heavyweight acid-free cotton rag and framed in solid walnut, oak, or gallery black ash.
+            </p>
+            <div className="flex items-center justify-between text-xs font-mono-tech text-[#171513] pt-2 border-t border-[#EAE3D5]">
+              <span>★★★★★ 4.9/5 (US COLLECTORS)</span>
+              <span>3–5 DAY US DELIVERY</span>
+            </div>
+          </div>
         </div>
-
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-[#f7f4ef] leading-[1.12]">
-          Turn the Moment Everything Changed Into{' '}
-          <span className="italic font-normal text-amber-300">Museum-Framed Art.</span>
-        </h1>
-
-        <p className="text-sm sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          Type your date, city, song, or dedication into our live studio customizer below and watch your print update in real time. Crafted on heavyweight archival canvas in the USA.
-        </p>
       </section>
 
-      {/* Interactive Live Customizer Right on the Homepage */}
-      <section id="live-studio">
+      {/* Interactive Live Studio Customizer Right on the Homepage */}
+      <section id="live-studio" className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#DDD5C7] pb-3">
+          <span className="text-[11px] font-mono-tech uppercase tracking-[0.18em] text-[#171513] font-semibold">
+            INTERACTIVE COMMISSION BENCH — PLATE NO. 01 (THE NIGHT SKY)
+          </span>
+          <span className="text-xs text-[#5C554D]">
+            Type below to preview your custom inscription &amp; hardwood frame in real time
+          </span>
+        </div>
+
         <LivePrintCustomizer product={flagshipStarMap} compactHeroMode />
       </section>
 
-      {/* All 6 Custom Archival Editions */}
-      <section className="space-y-8 border-t border-white/10 pt-14">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      {/* Curated Gallery Catalog — All 6 Archival Plates with Framed Room Photography */}
+      <section className="space-y-10 border-t border-[#DDD5C7] pt-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-300">
-              Choose Your Custom Edition
+            <p className="text-[11px] font-mono-tech uppercase tracking-[0.2em] text-[#7A6F63]">
+              CURATED ARCHIVE · SIX COMMISSIONS
             </p>
-            <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#f7f4ef]">
-              Six Bespoke Archival Keepsakes
+            <h2 className="text-3xl sm:text-5xl font-editorial font-normal text-[#171513]">
+              Select an Archival Plate to Personalize
             </h2>
-            <p className="text-sm text-slate-300">
-              Every edition includes our live real-time preview builder, four timeless archival colorways, and free 3–5 day US shipping on all framed canvases.
-            </p>
           </div>
+          <p className="text-xs sm:text-sm text-[#5C554D] max-w-md">
+            Each plate includes live real-time previewing, four museum paper &amp; ink palettes, three solid hardwood frame finishes, and complimentary US shipping.
+          </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {EVERMARK_CATALOG.map((item) => (
-            <div
+            <article
               key={item.slug}
-              className="rounded-2xl bg-[#0d121f]/90 border border-white/15 hover:border-amber-400/50 p-6 flex flex-col justify-between space-y-6 transition shadow-xl group"
+              className="bg-[#FCFBF8] border border-[#D5CCBC] hover:border-[#171513] flex flex-col justify-between transition group"
             >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs border-b border-white/10 pb-3">
-                  <span className="font-bold text-amber-300">{item.badge}</span>
-                  <span className="text-slate-400">★★★★★ 4.9</span>
+              <div>
+                {/* Framed Interior Gallery Room Photograph */}
+                <Link
+                  href={`/create/${item.slug}`}
+                  className="block aspect-[5/4] w-full overflow-hidden bg-[#EFEAE0] border-b border-[#DDD5C7] relative"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.previewImage}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700"
+                  />
+                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-[#FCFBF8]/95 border border-[#DDD5C7] text-[10px] font-mono-tech uppercase tracking-[0.14em] text-[#171513]">
+                    {item.plateNumber}
+                  </span>
+                </Link>
+
+                <div className="p-6 space-y-3">
+                  <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#7A6F63]">
+                    <span>{item.categoryLabel}</span>
+                    <span className="text-[#171513]">★ 4.9</span>
+                  </div>
+
+                  <Link href={`/create/${item.slug}`}>
+                    <h3 className="text-2xl font-editorial font-semibold text-[#171513] group-hover:text-[#6E4E2E] transition">
+                      {item.title}
+                    </h3>
+                  </Link>
+
+                  <p className="text-xs sm:text-sm text-[#5C554D] leading-relaxed">
+                    {item.description}
+                  </p>
+
+                  <p className="text-[11px] font-mono-tech text-[#7A6F63] pt-1">
+                    {item.paperSpec}
+                  </p>
                 </div>
-
-                <h3 className="text-xl font-serif font-bold text-[#f7f4ef] group-hover:text-amber-300 transition">
-                  {item.title}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  {item.description}
-                </p>
-
-                <ul className="space-y-1.5 text-xs text-slate-300 pt-1">
-                  {item.highlights.slice(0, 3).map((h, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="text-emerald-400 font-bold">✓</span>
-                      <span>{h}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+              <div className="px-6 py-4 bg-[#F3EFE6] border-t border-[#DDD5C7] flex items-center justify-between gap-4">
                 <div>
-                  <span className="text-lg font-bold text-[#f7f4ef] block">
+                  <span className="text-base font-semibold text-[#171513] block">
                     ${item.popularPriceUsd} Framed
                   </span>
-                  <span className="text-[11px] text-slate-400 block">
-                    or ${item.startingPriceUsd} Instant 300 DPI Digital
+                  <span className="text-[11px] text-[#6E655B] block">
+                    or ${item.startingPriceUsd} Instant 300 DPI Master
                   </span>
                 </div>
 
                 <Link
                   href={`/create/${item.slug}`}
-                  className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-md shrink-0"
+                  className="px-4 py-2.5 bg-[#171513] hover:bg-[#2E2925] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-[0.14em] font-medium transition shrink-0"
                 >
-                  Personalize Live →
+                  Personalize →
                 </Link>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </section>
 
       <AdUnit slot="4800798822" />
 
-      {/* Why Evermark Prints */}
-      <section className="rounded-2xl bg-[#0d121f]/80 border border-white/15 p-7 sm:p-10 grid md:grid-cols-3 gap-6">
-        <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
-            01 · True Mathematical Precision
+      {/* Architectural Materials & Craftsmanship Spec */}
+      <section className="bg-[#EFEAE0] border border-[#D5CCBC] p-8 sm:p-12 grid md:grid-cols-3 gap-8">
+        <div className="space-y-3 md:border-r md:border-[#D5CCBC] md:pr-6">
+          <span className="text-[11px] font-mono-tech uppercase tracking-[0.18em] text-[#6E4E2E] font-semibold">
+            01 · 310GSM MUSEUM COTTON RAG
           </span>
-          <h3 className="text-xl font-serif font-bold text-[#f7f4ef]">
-            Zero Generic Templates
+          <h3 className="text-2xl font-editorial font-semibold text-[#171513]">
+            True Archival Weight &amp; Texture
           </h3>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Every star chart, acoustic soundwave, and coordinate map is plotted dynamically from your exact date, location, and inscription at 300 DPI archival resolution.
+          <p className="text-xs sm:text-sm text-[#4A443C] leading-relaxed">
+            We never print on thin glossy poster stock. Every edition is struck on 310gsm acid-free cotton rag with carbon-based pigment inks rated for over a century of lightfast permanence.
           </p>
         </div>
 
-        <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-            02 · Crafted &amp; Framed in the USA
+        <div className="space-y-3 md:border-r md:border-[#D5CCBC] md:pr-6">
+          <span className="text-[11px] font-mono-tech uppercase tracking-[0.18em] text-[#6E4E2E] font-semibold">
+            02 · KILN-DRIED HARDWOOD FRAMES
           </span>
-          <h3 className="text-xl font-serif font-bold text-[#f7f4ef]">
-            3–5 Day Free US Delivery
+          <h3 className="text-2xl font-editorial font-semibold text-[#171513]">
+            Mitered &amp; Assembled in the USA
           </h3>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Produced on museum-grade cotton-blend canvas with solid wood float frames in our US partner studios and shipped straight to your door via USPS/UPS.
+          <p className="text-xs sm:text-sm text-[#4A443C] leading-relaxed">
+            Choose between American Black Walnut, Natural White Oak, or Matte Gallery Black Ash. Each frame is hand-joined in our US partner studios and arrives wired and ready to hang in 3–5 business days.
           </p>
         </div>
 
-        <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
-            03 · Instant Digital Option
+        <div className="space-y-3">
+          <span className="text-[11px] font-mono-tech uppercase tracking-[0.18em] text-[#6E4E2E] font-semibold">
+            03 · SAME-DAY DIGITAL MASTER
           </span>
-          <h3 className="text-xl font-serif font-bold text-[#f7f4ef]">
-            Need a Last-Minute Gift Today?
+          <h3 className="text-2xl font-editorial font-semibold text-[#171513]">
+            Immediate 300 DPI Archival File
           </h3>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Choose the Instant 300 DPI Digital Print Master (or add it to any physical frame order) to download your print-ready artwork immediately after checkout.
+          <p className="text-xs sm:text-sm text-[#4A443C] leading-relaxed">
+            Need a last-minute anniversary or closing gift today? Select the 300 DPI Archival Print Master—or include it with any framed order—to download your high-resolution file immediately after checkout.
           </p>
         </div>
       </section>

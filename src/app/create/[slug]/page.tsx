@@ -54,17 +54,22 @@ export default function CreateCustomPrintPage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-6 py-8 md:py-12 space-y-10">
+    <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8 md:py-12 space-y-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 text-xs text-slate-300">
-        <Link href="/" className="text-amber-300 hover:text-amber-200 font-semibold">
-          ← All Custom Archival Editions
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#DDD5C7] pb-4 text-xs text-[#5C554D] font-mono-tech">
+        <Link
+          href="/"
+          className="text-[#171513] hover:text-[#6E4E2E] uppercase tracking-[0.14em] font-semibold"
+        >
+          ← Return to Archival Plate Index
         </Link>
-        <span>🇺🇸 Free US Framed Shipping (3–5 Days) · ⚡ Instant 300 DPI Digital Available</span>
+        <span className="uppercase tracking-[0.12em]">
+          {product.plateNumber} · COMPLIMENTARY US FRAMED DELIVERY (3–5 DAYS)
+        </span>
       </div>
 
       <LivePrintCustomizer product={product} />

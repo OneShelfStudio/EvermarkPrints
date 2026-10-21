@@ -1,16 +1,36 @@
 import type { Metadata } from 'next'
+import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import Link from 'next/link'
 import './globals.css'
 
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+})
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jakarta',
+})
+
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-jetbrains',
+})
+
 export const metadata: Metadata = {
-  title: 'Evermark Prints | Custom Night Sky Star Maps, Soundwave Art & Archival Keepsakes',
+  title: 'Evermark Prints | Archival Custom Star Maps, Acoustic Monographs & Coordinate Art',
   description:
-    'Design custom astronomical night sky star maps, voice & song acoustic waveform prints, hometown coordinate charts, and pet tribute keepsakes with live real-time preview. Framed & shipped in the USA in 3–5 business days.',
+    'Bespoke astronomical night sky charts, voice & song waveform monographs, topographic home coordinates, and heirloom keepsake prints. Printed on 310gsm cotton rag and framed in solid American hardwood.',
   openGraph: {
-    title: 'Evermark Prints | Custom Night Sky Star Maps & Archival Keepsakes',
+    title: 'Evermark Prints | Bespoke Archival Custom Prints — USA',
     description:
-      'Enter your date, place, or voice note and watch your museum-framed keepsake print come to life in real time. Framed & shipped in the USA.',
+      'Commission custom astronomical night sky maps, acoustic waveform monographs, and architectural coordinate prints with real-time gallery framing preview.',
     url: 'https://evermarkprints.com',
     siteName: 'Evermark Prints',
     locale: 'en_US',
@@ -24,7 +44,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${jakarta.variable} ${jetbrains.variable} scroll-smooth`}
+    >
       <head>
         <meta name="google-adsense-account" content="ca-pub-7651037308656903" />
         <script
@@ -33,121 +56,141 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="bg-[#070a12] text-[#f7f4ef] font-sans min-h-screen flex flex-col selection:bg-amber-400 selection:text-slate-950">
-        {/* Top Announcement Ribbon */}
-        <div className="bg-amber-400 text-slate-950 text-xs font-bold py-2 px-4 text-center">
-          🇺🇸 Free Tracked US Shipping (3–5 Business Days) on All Framed Canvas Prints · Save $29 on 2-Print Gift Sets
+      <body className="bg-[#F7F4ED] text-[#171513] font-sans-clean min-h-screen flex flex-col selection:bg-[#171513] selection:text-[#F7F4ED]">
+        {/* Editorial Top Archival Bar */}
+        <div className="bg-[#171513] text-[#F4EFE6] text-[11px] tracking-[0.16em] uppercase py-2.5 px-4 text-center font-medium border-b border-[#2C2824]">
+          Complimentary Tracked US Delivery (3–5 Business Days) on All Framed Editions &nbsp;·&nbsp; Save $29 on Two-Print Collector Pairs
         </div>
 
-        {/* Navigation Header */}
-        <header className="sticky top-0 z-50 bg-[#070a12]/90 backdrop-blur-xl border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-5 sm:px-6 py-4 flex items-center justify-between gap-4">
+        {/* Fine Print House Header */}
+        <header className="sticky top-0 z-50 bg-[#F7F4ED]/95 backdrop-blur-md border-b border-[#DDD5C7]">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between gap-6">
             <Link href="/" className="flex flex-col group">
-              <span className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#f7f4ef] group-hover:text-amber-300 transition">
-                Evermark Prints
+              <span className="text-2xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#171513]">
+                EVERMARK PRINTS
               </span>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-amber-300/90">
-                Archival Custom Studio · USA
+              <span className="text-[10px] uppercase tracking-[0.24em] text-[#7A6F63] font-mono-tech">
+                Bespoke Archival Press · United States
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6 text-xs sm:text-sm font-medium text-slate-200">
-              <Link href="/create/custom-star-map" className="hover:text-amber-300 transition">
-                Night Sky Star Map
+            <nav className="hidden lg:flex items-center gap-8 text-xs uppercase tracking-[0.14em] font-medium text-[#4A443C]">
+              <Link
+                href="/create/custom-star-map"
+                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+              >
+                Night Sky Chart
               </Link>
-              <Link href="/create/custom-soundwave-art" className="hover:text-amber-300 transition">
-                Voice &amp; Song Waveform
+              <Link
+                href="/create/custom-soundwave-art"
+                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+              >
+                Acoustic Monograph
               </Link>
-              <Link href="/create/custom-coordinates-print" className="hover:text-amber-300 transition">
-                Home Coordinates
+              <Link
+                href="/create/custom-coordinates-print"
+                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+              >
+                Meridian Coordinates
               </Link>
-              <Link href="/create/custom-pet-memorial" className="hover:text-amber-300 transition">
-                Pet Tribute
+              <Link
+                href="/create/custom-pet-memorial"
+                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+              >
+                Companion Tribute
+              </Link>
+              <Link
+                href="/create/coastal-bathymetry-chart"
+                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+              >
+                Coastal Survey
               </Link>
             </nav>
 
             <Link
               href="/create/custom-star-map"
-              className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-md shrink-0"
+              className="px-5 py-2.5 bg-[#171513] hover:bg-[#2E2925] text-[#F7F4ED] text-[11px] uppercase tracking-[0.16em] font-semibold transition shrink-0"
             >
-              Design Your Print →
+              Commission a Print
             </Link>
           </div>
         </header>
 
         <main className="flex-grow">{children}</main>
 
-        {/* Studio Footer */}
-        <footer className="border-t border-white/10 bg-[#05080f] py-12 mt-16">
-          <div className="max-w-7xl mx-auto px-5 sm:px-6 grid sm:grid-cols-2 lg:grid-cols-12 gap-8 text-xs text-slate-300">
-            <div className="lg:col-span-5 space-y-3">
-              <p className="text-lg font-serif font-bold text-[#f7f4ef]">Evermark Prints</p>
-              <p className="leading-relaxed max-w-sm text-slate-400">
-                Museum-grade custom star maps, acoustic waveform prints, architectural coordinate charts, and heirloom keepsakes crafted to order and shipped across the United States in 3–5 business days.
+        {/* Architectural Editorial Footer */}
+        <footer className="border-t border-[#DDD5C7] bg-[#EFEAE0] text-[#4A443C] py-16 mt-24">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 grid sm:grid-cols-2 lg:grid-cols-12 gap-10 text-xs">
+            <div className="lg:col-span-5 space-y-4">
+              <p className="text-2xl font-editorial font-semibold tracking-tight text-[#171513]">
+                EVERMARK PRINTS
               </p>
-              <p className="text-slate-400 pt-1">
-                Support &amp; Custom Orders:{' '}
+              <p className="leading-relaxed max-w-sm text-[#5C554D] text-sm">
+                Custom astronomical star charts, acoustic waveform monographs, meridian home coordinates, and heirloom tributes. Printed on 310gsm cotton rag and framed in kiln-dried American hardwood.
+              </p>
+              <p className="text-xs text-[#5C554D] pt-1 font-mono-tech">
+                CONCIERGE &amp; BESPOKE COMMISSIONS:{' '}
                 <a
                   href="mailto:ryanb@digital-dads-llc.com"
-                  className="text-amber-300 hover:underline font-semibold"
+                  className="text-[#171513] underline underline-offset-4 font-medium"
                 >
                   ryanb@digital-dads-llc.com
                 </a>
               </p>
             </div>
 
-            <div className="lg:col-span-4 space-y-2">
-              <p className="font-bold uppercase tracking-wider text-amber-300">
-                Custom Archival Editions
+            <div className="lg:col-span-4 space-y-3">
+              <p className="font-mono-tech text-[11px] uppercase tracking-[0.18em] text-[#171513] font-semibold">
+                Archival Plate Index
               </p>
-              <ul className="space-y-2 text-slate-300">
+              <ul className="space-y-2.5 text-[#5C554D]">
                 <li>
-                  <Link href="/create/custom-star-map" className="hover:text-amber-300">
-                    The Exact Night Sky Star Map
+                  <Link href="/create/custom-star-map" className="hover:text-[#171513] transition">
+                    Plate 01 — The Exact Night Sky Star Map
                   </Link>
                 </li>
                 <li>
-                  <Link href="/create/custom-soundwave-art" className="hover:text-amber-300">
-                    Custom Voice &amp; Song Waveform Print
+                  <Link href="/create/custom-soundwave-art" className="hover:text-[#171513] transition">
+                    Plate 02 — Voice &amp; Song Acoustic Waveform
                   </Link>
                 </li>
                 <li>
-                  <Link href="/create/custom-coordinates-print" className="hover:text-amber-300">
-                    Architectural Latitude &amp; Home Coordinate Print
+                  <Link href="/create/custom-coordinates-print" className="hover:text-[#171513] transition">
+                    Plate 03 — Latitude &amp; Homestead Meridian
                   </Link>
                 </li>
                 <li>
-                  <Link href="/create/custom-pet-memorial" className="hover:text-amber-300">
-                    Heirloom Pet Tribute Keepsake
+                  <Link href="/create/custom-pet-memorial" className="hover:text-[#171513] transition">
+                    Plate 04 — Heirloom Companion Monograph
                   </Link>
                 </li>
                 <li>
-                  <Link href="/create/patent-architectural-triptych" className="hover:text-amber-300">
-                    Custom Patent &amp; Engineering Blueprint
+                  <Link href="/create/patent-architectural-triptych" className="hover:text-[#171513] transition">
+                    Plate 05 — Horological &amp; Engineering Blueprint
                   </Link>
                 </li>
                 <li>
-                  <Link href="/create/coastal-bathymetry-chart" className="hover:text-amber-300">
-                    Custom Coastal Depth &amp; Nautical Chart
+                  <Link href="/create/coastal-bathymetry-chart" className="hover:text-[#171513] transition">
+                    Plate 06 — Coastal Bathymetry &amp; Harbor Chart
                   </Link>
                 </li>
               </ul>
             </div>
 
-            <div className="lg:col-span-3 space-y-3 lg:text-right">
-              <p className="font-bold uppercase tracking-wider text-emerald-300">
-                US Archival Guarantee
+            <div className="lg:col-span-3 space-y-4 lg:text-right">
+              <p className="font-mono-tech text-[11px] uppercase tracking-[0.18em] text-[#171513] font-semibold">
+                Materials &amp; Provenance
               </p>
-              <p className="text-slate-400 leading-relaxed">
-                Every framed print is crafted on heavyweight archival canvas with solid wood float framing and ships free in the US.
+              <p className="text-[#5C554D] leading-relaxed">
+                310gsm acid-free cotton rag, 8-ply museum mat framing, and archival pigment inks rated for 100+ years of lightfast permanence. Shipped complimentary across all 50 US states.
               </p>
-              <p className="text-[11px] text-slate-500 pt-3 border-t border-white/10">
+              <p className="text-[11px] text-[#7A6F63] pt-4 border-t border-[#DDD5C7]">
                 © {new Date().getFullYear()} Evermark Prints. Part of{' '}
                 <a
                   href="https://digital-dads-llc.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-amber-300 hover:underline"
+                  className="text-[#171513] underline underline-offset-4"
                 >
                   Digital Dads LLC
                 </a>
