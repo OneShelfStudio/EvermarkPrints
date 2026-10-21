@@ -16,7 +16,7 @@ export async function GET() {
   const itemsXml = EVERMARK_CATALOG.flatMap((product) =>
     product.variants.map((variant, idx) => {
       const itemId = idx === 0 ? product.sku : `${product.sku}-${variant.id.toUpperCase()}`
-      const fullTitle = escapeXml(`${product.title} — ${variant.label}`)
+      const fullTitle = escapeXml(`${product.title} · ${variant.label}`)
       const fullDesc = escapeXml(`${product.description} (${variant.subtitle})`)
       const primaryImage = `${baseUrl}${product.previewImage}`
       const additionalImagesXml = product.mockupGallery

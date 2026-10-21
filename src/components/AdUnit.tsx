@@ -76,10 +76,10 @@ export default function AdUnit({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 px-3 bg-[#F3EFE6] border border-[#DDD5C7]">
           <div className="space-y-1">
             <p className="text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#6E4E2E] font-semibold">
-              TWO-PRINT COLLECTOR PAIR · SAVE $29 + COMPLIMENTARY PRIORITY DELIVERY
+              TWO-KEEPSSAKE FAMILY BUNDLE · SAVE 25% + COMPLIMENTARY PRIORITY DELIVERY
             </p>
             <p className="text-sm font-editorial font-semibold text-[#171513]">
-              Commission two 16&quot; × 20&quot; Solid Hardwood Framed Editions — Keep One, Gift One to Family
+              Add a 2nd Identical Copy for Family or Grandparents at 25% Off With Free Combined Shipping
             </p>
           </div>
           <Link

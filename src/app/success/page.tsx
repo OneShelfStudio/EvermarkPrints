@@ -114,7 +114,7 @@ function SuccessContent() {
           collectUsShipping: true,
           lineItems: [
             {
-              name: `${opts.title} (Added Onto Existing Order — Free Combined Shipping)`,
+              name: `${opts.title} (Added Onto Existing Order · Free Combined Shipping)`,
               description: `Matching Inscription: "${design.headline}" (${design.locationText} · ${design.dateText})`,
               amountCents: opts.priceUsd * 100,
               quantity: 1,
@@ -165,7 +165,7 @@ function SuccessContent() {
             Thank You for Your Commission.
           </h1>
           <p className="text-sm sm:text-base text-[#4A3B31] leading-relaxed">
-            Your custom keepsake order has been verified via Stripe and queued for production in our US studio. We will email your live USPS/UPS tracking link as soon as your package is dispatched (3–5 business days).
+            Your custom keepsake order has been verified via Stripe and queued for production in our US studio. We will email your live USPS/UPS tracking link as soon as your package is dispatched (3 to 5 business days).
           </p>
         </div>
 
@@ -249,7 +249,7 @@ function SuccessContent() {
           </div>
 
           <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
-            Because your commission is currently in our 2-hour studio queue, you can add a matching second copy for family or bundle a companion physical keepsake with your exact same custom inscription—with <strong>free combined US delivery</strong>.
+            Because your commission is currently in our 2-hour studio queue, you can add a matching second copy for family or bundle a companion physical keepsake with your exact same custom inscription, including <strong>free combined US delivery</strong>.
           </p>
 
           <div className="grid sm:grid-cols-3 gap-4">
@@ -287,7 +287,7 @@ function SuccessContent() {
                   onClick={() =>
                     handleAddOntoExistingOrder({
                       slug: matchedCatalogProduct.slug,
-                      title: `2nd Identical Copy — ${matchedCatalogProduct.shortTitle}`,
+                      title: `2nd Identical Copy · ${matchedCatalogProduct.shortTitle}`,
                       priceUsd: duplicateDiscountPrice,
                       printifyProductId: matchedCatalogProduct.printifyProductId,
                       printifyBlueprintId: matchedCatalogProduct.printifyBlueprintId,

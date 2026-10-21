@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { EVERMARK_CATALOG } from '@/lib/catalog'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://evermarkprints.com'
+  const baseUrl = 'https://www.evermarkprints.com'
 
   return [
     {

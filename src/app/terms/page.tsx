@@ -18,7 +18,7 @@ export default function TermsOfServicePage() {
           Terms of Service
         </h1>
         <p className="text-xs sm:text-sm text-[#5C554D]">
-          Governing all custom print commissions and digital downloads on Evermark Prints (Digital Dads LLC).
+          Governing all custom physical keepsake commissions on Evermark Prints (Digital Dads LLC).
         </p>
       </div>
 
@@ -37,17 +37,21 @@ export default function TermsOfServicePage() {
 
         <section className="space-y-3">
           <h2 className="text-2xl font-editorial font-semibold text-[#171513]">
-            2. Custom Inscription Verification
+            2. Custom Inscription Verification &amp; 2-Hour Edit Window
           </h2>
           <p>
-            Every Evermark print is bespoke and manufactured specifically to the text, dates, cities, and coordinates you enter in our Live Commission Bench. Please review your live interactive preview carefully for spelling, capitalization, dates, and coordinates prior to completing checkout.
+            Every Evermark keepsake is bespoke and manufactured specifically to the text, dates, cities, coordinates, photos, and audio waveforms you enter in our Live Studio Customizer. Please review your live interactive preview carefully for spelling, capitalization, dates, and coordinates prior to completing checkout.
           </p>
           <p>
-            If you notice a typo immediately after placing your order, please email{' '}
+            If you notice a typo immediately after placing your order, you may update your wording directly on our{' '}
+            <Link href="/track" className="underline text-[#171513] font-semibold">
+              Live Order Tracker (/track)
+            </Link>{' '}
+            or email{' '}
             <a href="mailto:ryanb@digital-dads-llc.com" className="underline text-[#171513] font-semibold">
               ryanb@digital-dads-llc.com
             </a>{' '}
-            within <strong>2 hours of purchase</strong> so we can update your print file before it is dispatched to our US framing workshop.
+            within <strong>2 hours of purchase</strong> so we can update your file before it enters physical production.
           </p>
         </section>
 
@@ -56,16 +60,16 @@ export default function TermsOfServicePage() {
             3. US Shipping &amp; Production Windows
           </h2>
           <p>
-            Physical framed editions ship exclusively to addresses within the United States via USPS, UPS, or FedEx. Standard archival production and framing takes 1–2 business days, with complimentary tracked US delivery arriving within <strong>3–5 business days</strong> for most domestic destinations.
+            All physical editions ship to addresses within the United States via USPS, UPS, or FedEx. Standard studio production and framing takes 1 to 2 business days, with complimentary tracked US delivery arriving within <strong>3 to 5 business days</strong> for most domestic destinations.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-2xl font-editorial font-semibold text-[#171513]">
-            4. Intellectual Property &amp; Personal Use License
+            4. Intellectual Property
           </h2>
           <p>
-            All cartographic engines, typographic layouts, mathematical star-plotting algorithms, and plate designs are the proprietary intellectual property of Digital Dads LLC / Evermark Prints. When you purchase an Instant 300 DPI Archival Print Master or digital backup file, you are granted a non-exclusive, perpetual <strong>personal-use license</strong> to print and display the artwork for yourself or as a personal gift. Commercial resale or redistribution of Evermark digital files is prohibited.
+            All original artwork plates, cartographic layouts, typographic arrangements, and customizer software on Evermark Prints are the proprietary intellectual property of Digital Dads LLC. Commercial reproduction or scraping of our artwork plates is prohibited.
           </p>
         </section>
 

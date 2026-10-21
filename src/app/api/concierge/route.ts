@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
       if (matched.length === 0) {
         return NextResponse.json({
-          reply: `I searched our live studio ledger for "${lookupKey}" and didn't find a completed order under that exact email/ID yet. If you used a different email at checkout, type it here—or visit our /track page!`,
+          reply: `I searched our live studio ledger for "${lookupKey}" and didn't find a completed order under that exact email or ID yet. If you used a different email at checkout, type it here, or visit our /track page!`,
         })
       }
 
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
             }") was verified ${mins} minutes ago and is currently in our 2-Hour Proof Window. You can edit any typo OR add matching keepsakes onto your order with free combined shipping at https://www.evermarkprints.com/track using "${lookupKey}".`
           : `Your commission ("${
               meta.headline || 'Custom Keepsake'
-            }") is currently in our US Printify Studio. Tracked USPS/UPS delivery arrives in 3–5 business days. You can view your live proof or add companion items at https://www.evermarkprints.com/track.`
+            }") is currently in our American production studio. Tracked USPS/UPS delivery arrives in 3 to 5 business days. You can view your live proof or add companion items at https://www.evermarkprints.com/track.`
 
       return NextResponse.json({
         reply: statusText,
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({
         reply:
-          'All 12 physical keepsake editions ship FREE from our US studios and arrive in 3–5 business days via tracked USPS/UPS. Every package ships gift-ready with zero retail prices on the packing slip!',
+          'All 12 physical keepsake editions ship FREE from our US studios and arrive in 3 to 5 business days via tracked USPS/UPS. Every package ships gift-ready with zero retail prices on the packing slip!',
       })
     }
 
@@ -150,7 +150,7 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({
         reply:
-          'You can enter promo code WELCOME15 at Stripe Checkout for 15% off your order—or add a 2nd duplicate copy for grandparents/family at 25% off right inside the customizer!',
+          'You can enter promo code WELCOME15 at Stripe Checkout for 15% off your order, or add a 2nd duplicate copy for grandparents or family at 25% off right inside the customizer!',
       })
     }
 

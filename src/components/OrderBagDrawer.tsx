@@ -139,7 +139,7 @@ export default function OrderBagDrawer() {
       const first = bagItems[0]
 
       const lineItems = bagItems.map((item) => ({
-        name: `${item.shortTitle} — ${item.variantLabel}`,
+        name: `${item.shortTitle} · ${item.variantLabel}`,
         description: `${item.colorwayLabel}${
           item.frameFinishLabel ? ` | ${item.frameFinishLabel}` : ''
         } | "${item.headline}" (${item.locationText} · ${item.dateText})`,

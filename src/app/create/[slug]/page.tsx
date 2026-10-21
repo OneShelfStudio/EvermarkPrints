@@ -82,7 +82,7 @@ export default function CreateCustomPrintPage({
     offers: product.variants.map((v, idx) => ({
       '@type': 'Offer',
       sku: idx === 0 ? product.sku : `${product.sku}-${v.id.toUpperCase()}`,
-      name: `${product.shortTitle} — ${v.label}`,
+      name: `${product.shortTitle} · ${v.label}`,
       url: `${baseUrl}/create/${product.slug}`,
       priceCurrency: 'USD',
       price: v.priceUsd.toFixed(2),
@@ -142,7 +142,7 @@ export default function CreateCustomPrintPage({
           ← Return to Archival Collection Index
         </Link>
         <span className="uppercase tracking-[0.12em]">
-          {product.plateNumber} · COMPLIMENTARY US STUDIO DELIVERY (3–5 DAYS)
+          {product.plateNumber} · COMPLIMENTARY US STUDIO DELIVERY (3 TO 5 DAYS)
         </span>
       </div>
 

@@ -26,7 +26,7 @@ export default function EvermarkHomePage() {
             </h1>
 
             <p className="text-sm sm:text-base text-[#E2D9C8] max-w-2xl leading-relaxed">
-              Explore 12 distinct physical gifts and hand-illustrated artwork editions below—from 100% cotton jacquard-woven fringed blankets, raw chiseled natural stone slate plaques, and crystal acrylic desk stands to 3-panel split gallery triptychs, wood-topped tapestries, and scented amber soy candles.
+              Explore 12 distinct physical gifts and hand-illustrated artwork editions below, from 100% cotton jacquard-woven fringed blankets, raw chiseled natural stone slate plaques, and crystal acrylic desk stands to 3-panel split gallery triptychs, wood-topped tapestries, and scented amber soy candles.
             </p>
           </div>
 
@@ -37,11 +37,11 @@ export default function EvermarkHomePage() {
             <ul className="space-y-2.5 text-xs text-[#EDE4D4]">
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
-                <span>Painterly Milky Way, Redouté Botanical &amp; Watercolor Art</span>
+                <span>Painterly Milky Way, Botanical &amp; Watercolor Art</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
-                <span>9 Authentic Printify US Formats (Blankets, Slate, Acrylic, Wood)</span>
+                <span>9 Bespoke Heirloom Mediums (Blankets, Slate, Acrylic, Wood)</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
@@ -49,7 +49,7 @@ export default function EvermarkHomePage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#E5C178] font-bold">✓</span>
-                <span>Free 3–5 Day US Delivery · Gift-Ready With Zero Price Tags</span>
+                <span>Free 3 to 5 Day US Delivery · Gift-Ready With Zero Price Tags</span>
               </li>
             </ul>
             <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] font-mono-tech text-[#E5C178]">
@@ -67,7 +67,7 @@ export default function EvermarkHomePage() {
         <LivePrintCustomizer product={flagshipStarMap} compactHeroMode />
       </section>
 
-      {/* Curated Gallery Catalog — All 12 Real Printify 3D Studio Products */}
+      {/* Curated Gallery Catalog: All 12 Bespoke Studio Keepsakes */}
       <section id="collection" className="space-y-10 border-t border-[#CBB89F] pt-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
@@ -79,7 +79,7 @@ export default function EvermarkHomePage() {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-[#5C4D42] max-w-md">
-            Each edition is crafted to order in our US Printify partner studios—featuring real 3D studio photography, custom photo &amp; voice uploads, and free 3–5 day US shipping.
+            Each edition is crafted to order in our American studios, featuring real 3D studio photography, custom photo and voice uploads, and complimentary 3 to 5 day US shipping.
           </p>
         </div>
 

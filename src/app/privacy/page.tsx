@@ -28,12 +28,12 @@ export default function PrivacyPolicyPage() {
             1. Information We Collect
           </h2>
           <p>
-            When you design and commission a custom print on{' '}
+            When you design and commission a custom keepsake on{' '}
             <span className="font-mono-tech text-xs">evermarkprints.com</span>, we collect only the information required to render, fulfill, and deliver your custom artwork:
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              <strong>Custom Artwork Inscriptions:</strong> The headline, dedication line, date, city/location, coordinates, or waveform text you enter into our live studio customizer.
+              <strong>Custom Artwork Inscriptions:</strong> The headline, dedication line, date, city or location, coordinates, uploaded portrait photos, or voice waveform audio you enter into our live studio customizer.
             </li>
             <li>
               <strong>Order &amp; US Shipping Information:</strong> Your name, email address, US shipping address, and phone number (for USPS/UPS delivery notifications) collected securely during Stripe Checkout.
@@ -56,7 +56,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li>
-              <strong>US Archival Print Fulfillment (Printify, Inc.):</strong> For physical framed canvas and fine-art orders, your shipping name, US delivery address, and rendered 300 DPI print file are transmitted via encrypted API to our US print-on-demand fulfillment partner (Printify, Inc. and its domestic US print studios) solely to manufacture and ship your order via USPS, UPS, or FedEx.
+              <strong>Domestic US Production &amp; Fulfillment Studios:</strong> For physical framed prints, woven blankets, stone slates, acrylic plaques, and soy candles, your shipping name, US delivery address, and rendered high-resolution print file are transmitted via encrypted API to our domestic US production studios solely to manufacture and ship your order via USPS, UPS, or FedEx.
             </li>
             <li>
               <strong>Payment Processing &amp; Fraud Prevention (Stripe, Inc.):</strong> To process payments, issue refunds when applicable, and prevent fraudulent transactions.
@@ -69,10 +69,10 @@ export default function PrivacyPolicyPage() {
 
         <section className="space-y-3">
           <h2 className="text-2xl font-editorial font-semibold text-[#171513]">
-            3. Local Browser Storage for Custom Previews
+            3. Local Browser Storage for Custom Previews &amp; Order Bag
           </h2>
           <p>
-            When you use our Live Commission Bench, your browser temporarily caches your inscription and preview image in <span className="font-mono-tech text-xs">localStorage</span> so that your custom design persists during Stripe Checkout and is immediately downloadable on your order confirmation page.
+            When you use our Live Studio Customizer or add items to your Order Bag, your browser temporarily caches your inscription and preview configuration in <span className="font-mono-tech text-xs">localStorage</span> so that your custom items persist during Stripe Checkout and on your order confirmation page.
           </p>
         </section>
 

@@ -17,7 +17,7 @@ export default function StudioConciergeBot() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      text: 'Welcome to Evermark Prints. Ask me about attaching a photo or voice note, frame woods, 3–5 day US delivery, or type your checkout email to track a live order.',
+      text: 'Welcome to Evermark Prints. Ask me about attaching a photo or voice note, frame woods, 3 to 5 day US delivery, or type your checkout email to track a live order.',
     },
   ])
 

@@ -26,14 +26,14 @@ const jetbrains = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Evermark Prints | Custom Night Sky Star Maps, Photo & Voice Keepsakes — Framed in USA',
+  title: 'Evermark Prints | Custom Night Sky Star Maps, Photo & Voice Keepsakes Framed in USA',
   description:
     'Bespoke astronomical night sky charts, custom photo & vinyl song prints, voice waveform monographs, pet portraits, and home coordinate art. Printed on 310gsm cotton rag and framed in solid American hardwood.',
   openGraph: {
-    title: 'Evermark Prints | Bespoke Archival Custom Prints — USA',
+    title: 'Evermark Prints | Bespoke Archival Custom Prints · USA',
     description:
       'Commission custom night sky maps, photo & song vinyl prints, voice waveforms, and pet portraits with live gallery wall preview.',
-    url: 'https://evermarkprints.com',
+    url: 'https://www.evermarkprints.com',
     siteName: 'Evermark Prints',
     locale: 'en_US',
     type: 'website',
@@ -69,9 +69,9 @@ export default function RootLayout({
       <body className="text-[#261A13] font-sans-clean min-h-screen flex flex-col selection:bg-[#1B3027] selection:text-[#F7F4ED]">
         {/* Warm Heritage Forest & Burnished Brass Announcement Ribbon */}
         <div className="bg-[#1B3027] text-[#F7F4ED] text-[11px] tracking-[0.15em] uppercase py-2.5 px-4 text-center font-medium border-b border-[#D8AE64]/30">
-          Complimentary Tracked US Delivery (3–5 Days) on All Framed Editions &nbsp;·&nbsp;{' '}
+          Complimentary Tracked US Delivery (3 to 5 Days) on All Custom Keepsakes &nbsp;·&nbsp;{' '}
           <span className="text-[#E5C178] font-semibold">
-            Use Code WELCOME15 for 15% Off or Save $29 on Two-Print Gift Pairs
+            Use Code WELCOME15 for 15% Off or Save 25% When Adding a Second Family Copy
           </span>
         </div>
 

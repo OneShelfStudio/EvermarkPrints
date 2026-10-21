@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://evermarkprints.com/sitemap.xml',
+    sitemap: 'https://www.evermarkprints.com/sitemap.xml',
   }
 }

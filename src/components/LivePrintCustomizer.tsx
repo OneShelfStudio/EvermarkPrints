@@ -549,10 +549,10 @@ export default function LivePrintCustomizer({
         setCoordsText(formatted)
         setGpsStatusMsg('Exact GPS coordinates plotted from location.')
       } else {
-        setGpsStatusMsg('Location not found — try "City, State" format.')
+        setGpsStatusMsg('Location not found. Try "City, State" format.')
       }
     } catch {
-      setGpsStatusMsg('Unable to reach coordinate service — you may type coordinates directly.')
+      setGpsStatusMsg('Unable to reach coordinate service. You may type coordinates directly.')
     } finally {
       setIsLookingUpGps(false)
     }
@@ -595,7 +595,7 @@ export default function LivePrintCustomizer({
       setActiveMockupUrl(null)
       setCustomAudioPeaks(normalized)
       setUploadedAudioName(file.name)
-      setCoordsText(`00:00 —————————●———— ${formatDurationClock(audioBuffer.duration)}`)
+      setCoordsText(`00:00  • • • • • ● • • •  ${formatDurationClock(audioBuffer.duration)}`)
       await audioCtx.close()
     } catch {
       setErrorMsg(
@@ -649,7 +649,7 @@ export default function LivePrintCustomizer({
           setActiveMockupUrl(null)
           setCustomAudioPeaks(normalized)
           setUploadedAudioName('Live Voice Recording (5s)')
-          setCoordsText(`00:00 —————————●———— ${formatDurationClock(audioBuffer.duration)}`)
+          setCoordsText(`00:00  • • • • • ● • • •  ${formatDurationClock(audioBuffer.duration)}`)
           await audioCtx.close()
         } catch {
           setUploadedAudioName('Voice Note Plotted')
@@ -705,8 +705,8 @@ export default function LivePrintCustomizer({
         printifyBlueprintId: product.printifyBlueprintId,
         printifyProviderId: product.printifyProviderId,
         printifyVariantId: activeVariant.printifyVariantId,
-        title: `${product.title} (2nd Gift Copy — 25% Off)`,
-        shortTitle: `${product.shortTitle} (2nd Gift Copy — 25% Off)`,
+        title: `${product.title} (2nd Gift Copy, 25% Off)`,
+        shortTitle: `${product.shortTitle} (2nd Gift Copy, 25% Off)`,
         physicalMedium: product.physicalMedium,
         variantLabel: activeVariant.label,
         colorwayLabel: colorway.shortLabel,
@@ -794,7 +794,7 @@ export default function LivePrintCustomizer({
             coordsText,
             colorwayId,
             frameFinishId,
-            formatLabel: `${product.physicalMedium} — ${activeVariant.label}`,
+            formatLabel: `${product.physicalMedium} · ${activeVariant.label}`,
             giftNote: isGiftOrder ? giftNote : '',
             customPeaks: serializedPeaks,
             previewDataUrl,
@@ -810,7 +810,7 @@ export default function LivePrintCustomizer({
       const allCheckoutItems = [...existingBag, ...currentItems]
 
       const lineItems = allCheckoutItems.map((item) => ({
-        name: `${item.shortTitle} — ${item.variantLabel}`,
+        name: `${item.shortTitle} · ${item.variantLabel}`,
         description: `${item.colorwayLabel}${
           item.frameFinishLabel ? ` | ${item.frameFinishLabel}` : ''
         } | "${item.headline}" (${item.locationText} · ${item.dateText})`,
@@ -870,12 +870,12 @@ export default function LivePrintCustomizer({
 
   return (
     <div className="space-y-12">
-      {/* Homepage Interactive Product Style Switcher (12 Real Printify Formats!) */}
+      {/* Homepage Interactive Product Style Switcher (12 Bespoke Studio Editions) */}
       {compactHeroMode && (
         <div className="bg-[#FDFBF7] border border-[#D4C3AE] p-4 sm:p-5 shadow-sm space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#7A331E] font-semibold">
-              CHOOSE YOUR PHYSICAL PRODUCT &amp; ARTWORK TO CUSTOMIZE LIVE (12 PRINTIFY STUDIO EDITIONS):
+              CHOOSE YOUR PHYSICAL PRODUCT &amp; ARTWORK TO CUSTOMIZE LIVE (12 BESPOKE STUDIO EDITIONS):
             </span>
             <span className="text-xs text-[#5C4D42]">
               Framed Prints · Acrylic Stands · Woven Blankets · Chiseled Slate · 3-Panel Triptychs · Soy Candles
@@ -986,7 +986,7 @@ export default function LivePrintCustomizer({
             <div className="relative z-10 flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#5C4D42] mb-5">
               <span>
                 {activeMockupUrl
-                  ? `PRINTIFY 3D STUDIO MOCKUP · BLUEPRINT #${product.printifyBlueprintId}`
+                  ? `3D STUDIO GALLERY PHOTOGRAPH · ${product.physicalMedium.toUpperCase()}`
                   : `LIVE INTERACTIVE PROOF · ${product.physicalMedium.toUpperCase()}`}
               </span>
               {activeMockupUrl && (
@@ -1223,10 +1223,10 @@ export default function LivePrintCustomizer({
             )}
           </div>
 
-          {/* Printify 3D Studio Camera Angle Thumbnails + Live Proof Toggle */}
+          {/* 3D Studio Camera Angle Thumbnails + Live Proof Toggle */}
           <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-3.5 space-y-2.5">
             <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
-              <span>SWITCH BETWEEN LIVE CUSTOMIZER &amp; REAL PRINTIFY 3D STUDIO PHOTOS:</span>
+              <span>SWITCH BETWEEN LIVE CUSTOMIZER &amp; 3D STUDIO GALLERY PHOTOS:</span>
               <span className="text-[#6E5A4C]">🔒 Anti-AI Watermark Active</span>
             </div>
             <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
@@ -1817,7 +1817,7 @@ export default function LivePrintCustomizer({
               <span>
                 {isCheckingOut
                   ? 'Preparing Archival Commission...'
-                  : `Commission Custom Keepsake — $${totalUsd}`}
+                  : `Commission Custom Keepsake · $${totalUsd}`}
               </span>
               <span>→</span>
             </button>
@@ -1831,7 +1831,7 @@ export default function LivePrintCustomizer({
             </button>
 
             <p className="text-[11px] text-[#5C4D42] text-center font-mono-tech">
-              COMPLIMENTARY US STUDIO DELIVERY (3–5 DAYS) · SHIPS GIFT-READY WITH ZERO PRICE TAGS
+              COMPLIMENTARY US STUDIO DELIVERY (3 TO 5 DAYS) · SHIPS GIFT-READY WITH ZERO PRICE TAGS
             </p>
             <p className="text-[11px] text-[#7A6858] text-center">
               Protected by our{' '}
@@ -1886,7 +1886,7 @@ export default function LivePrintCustomizer({
                     {rev.body}
                   </p>
                   <p className="text-xs text-[#7A6858] pt-1 font-mono-tech uppercase tracking-wider">
-                    — {rev.author} · {rev.location} (Verified Buyer)
+                    Verified Buyer · {rev.author} · {rev.location}
                   </p>
                 </div>
               ))}
