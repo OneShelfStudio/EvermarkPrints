@@ -51,6 +51,14 @@ export default function RootLayout({
       className={`${cormorant.variable} ${jakarta.variable} ${jetbrains.variable} scroll-smooth`}
     >
       <head>
+        <meta
+          name="google-site-verification"
+          content="_kgVkVkPHeRyon91CNtaiCyIvI1KTdfgLhBWR5nABXE"
+        />
+        <meta
+          name="google-site-verification"
+          content="jd6LCvddjCEMnPibZKgsfe7ulY69PFU3jowaM9TWVsI"
+        />
         <meta name="google-adsense-account" content="ca-pub-7651037308656903" />
         <script
           async
