@@ -1,10 +1,23 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import AdUnit from '@/components/AdUnit'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Evermark Prints',
+  title: 'Privacy Policy',
   description:
     'Privacy Policy and US data protection practices for Evermark Prints, a division of Digital Dads LLC.',
+  alternates: {
+    canonical: 'https://www.evermarkprints.com/privacy',
+  },
+  openGraph: {
+    title: 'Privacy Policy | Evermark Prints',
+    description:
+      'Privacy Policy and US data protection practices for Evermark Prints, a division of Digital Dads LLC.',
+    url: 'https://www.evermarkprints.com/privacy',
+    siteName: 'Evermark Prints',
+    locale: 'en_US',
+    type: 'website',
+  },
 }
 
 export default function PrivacyPolicyPage() {
@@ -107,6 +120,8 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
       </div>
+
+      <AdUnit slot="4800798822" fallbackVariant="bundle" />
     </div>
   )
 }

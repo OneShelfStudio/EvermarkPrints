@@ -1,10 +1,23 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import AdUnit from '@/components/AdUnit'
 
 export const metadata: Metadata = {
-  title: 'Refund, Replacement & Cancellation Policy | Evermark Prints',
+  title: 'Refund, Replacement & Cancellation Policy',
   description:
     'Archival Quality Guarantee, damaged-in-transit replacement policy, and custom order refund terms for Evermark Prints.',
+  alternates: {
+    canonical: 'https://www.evermarkprints.com/refunds',
+  },
+  openGraph: {
+    title: 'Refund, Replacement & Cancellation Policy | Evermark Prints',
+    description:
+      'Archival Quality Guarantee, damaged-in-transit replacement policy, and custom order refund terms for Evermark Prints.',
+    url: 'https://www.evermarkprints.com/refunds',
+    siteName: 'Evermark Prints',
+    locale: 'en_US',
+    type: 'website',
+  },
 }
 
 export default function RefundPolicyPage() {
@@ -99,6 +112,8 @@ export default function RefundPolicyPage() {
           </div>
         </section>
       </div>
+
+      <AdUnit slot="4800798822" fallbackVariant="acrylic" />
     </div>
   )
 }

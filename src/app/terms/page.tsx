@@ -1,10 +1,23 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import AdUnit from '@/components/AdUnit'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Evermark Prints',
+  title: 'Terms of Service',
   description:
     'Terms of Service and custom commission conditions for Evermark Prints, a division of Digital Dads LLC.',
+  alternates: {
+    canonical: 'https://www.evermarkprints.com/terms',
+  },
+  openGraph: {
+    title: 'Terms of Service | Evermark Prints',
+    description:
+      'Terms of Service and custom commission conditions for Evermark Prints, a division of Digital Dads LLC.',
+    url: 'https://www.evermarkprints.com/terms',
+    siteName: 'Evermark Prints',
+    locale: 'en_US',
+    type: 'website',
+  },
 }
 
 export default function TermsOfServicePage() {
@@ -94,6 +107,8 @@ export default function TermsOfServicePage() {
           </p>
         </section>
       </div>
+
+      <AdUnit slot="4800798822" fallbackVariant="candle" />
     </div>
   )
 }

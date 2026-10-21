@@ -18,16 +18,32 @@ export function generateMetadata({
     return { title: 'Edition Not Found | Evermark Prints' }
   }
   const baseUrl = 'https://www.evermarkprints.com'
+  const canonicalUrl = `${baseUrl}/create/${product.slug}`
   return {
-    title: `${product.title} (${product.physicalMedium}) | Evermark Prints`,
+    title: `${product.title} (${product.physicalMedium})`,
     description: product.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${product.title} | Evermark Prints`,
       description: product.description,
-      url: `${baseUrl}/create/${product.slug}`,
+      url: canonicalUrl,
+      siteName: 'Evermark Prints',
+      locale: 'en_US',
+      type: 'website',
       images: product.mockupGallery.map((img) => ({
         url: `${baseUrl}${img}`,
+        width: 1200,
+        height: 1200,
+        alt: `${product.title} (${product.physicalMedium})`,
       })),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.title} | Evermark Prints`,
+      description: product.description,
+      images: [`${baseUrl}${product.previewImage}`],
     },
   }
 }
@@ -127,11 +143,40 @@ export default function CreateCustomPrintPage({
     })),
   }
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Evermark Prints',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: product.categoryLabel,
+        item: `${baseUrl}/#collection`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.title,
+        item: `${baseUrl}/create/${product.slug}`,
+      },
+    ],
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8 md:py-12 space-y-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#DDD5C7] pb-4 text-xs text-[#5C554D] font-mono-tech">

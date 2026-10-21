@@ -26,18 +26,109 @@ const jetbrains = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Evermark Prints | Custom Night Sky Star Maps, Photo & Voice Keepsakes Framed in USA',
+  metadataBase: new URL('https://www.evermarkprints.com'),
+  title: {
+    default:
+      'Evermark Prints | Custom Night Sky Star Maps, Woven Blankets, Stone Slates & Framed Keepsakes',
+    template: '%s | Evermark Prints',
+  },
   description:
-    'Bespoke astronomical night sky charts, custom photo & vinyl song prints, voice waveform monographs, pet portraits, and home coordinate art. Printed on 310gsm cotton rag and framed in solid American hardwood.',
+    'Commission bespoke custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveform art, pet portraits, and scented soy candles. Handcrafted in US studios with free 3 to 5 day delivery.',
+  keywords: [
+    'custom star map framed',
+    'custom night sky print',
+    'custom soundwave art',
+    'personalized woven throw blanket',
+    'custom stone slate photo plaque',
+    'first home portrait gift',
+    'custom pet memorial wood plaque',
+    'newborn birth stat framed print',
+    'first dance lyrics vinyl print',
+    'custom anniversary triptych',
+    'personalized soy candle gift',
+    'Evermark Prints',
+  ],
+  authors: [{ name: 'Evermark Prints (Digital Dads LLC)', url: 'https://www.evermarkprints.com' }],
+  creator: 'Evermark Prints',
+  publisher: 'Digital Dads LLC',
+  alternates: {
+    canonical: 'https://www.evermarkprints.com',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
-    title: 'Evermark Prints | Bespoke Archival Custom Prints · USA',
+    title: 'Evermark Prints | Bespoke Archival Custom Prints & Heirloom Keepsakes',
     description:
-      'Commission custom night sky maps, photo & song vinyl prints, voice waveforms, and pet portraits with live gallery wall preview.',
+      'Commission custom night sky maps, jacquard woven blankets, chiseled stone slates, crystal acrylic blocks, voice waveforms, and pet portraits with live studio preview and free US shipping.',
     url: 'https://www.evermarkprints.com',
     siteName: 'Evermark Prints',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/mockups/custom-star-map/mockup-1.jpg',
+        width: 1200,
+        height: 1200,
+        alt: 'Evermark Prints Custom Night Sky Star Map Framed in Solid American Hardwood',
+      },
+    ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Evermark Prints | Custom Star Maps, Woven Blankets & Heirloom Gifts',
+    description:
+      'Design custom star maps, voice waveforms, woven blankets, stone slates, and pet portraits with live interactive preview and free 3 to 5 day US delivery.',
+    images: ['/mockups/custom-star-map/mockup-1.jpg'],
+  },
+}
+
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'OnlineStore',
+      '@id': 'https://www.evermarkprints.com/#organization',
+      name: 'Evermark Prints',
+      legalName: 'Digital Dads LLC',
+      url: 'https://www.evermarkprints.com',
+      logo: 'https://www.evermarkprints.com/mockups/custom-star-map/mockup-1.jpg',
+      image: 'https://www.evermarkprints.com/mockups/custom-star-map/mockup-1.jpg',
+      description:
+        'Bespoke American archival studio crafting custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveforms, and pet portraits.',
+      email: 'ryanb@digital-dads-llc.com',
+      priceRange: '$$',
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: 'US',
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'US',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 30,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.evermarkprints.com/#website',
+      url: 'https://www.evermarkprints.com',
+      name: 'Evermark Prints',
+      publisher: {
+        '@id': 'https://www.evermarkprints.com/#organization',
+      },
+    },
+  ],
 }
 
 export default function RootLayout({
@@ -64,6 +155,10 @@ export default function RootLayout({
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7651037308656903"
           crossOrigin="anonymous"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
       <body className="text-[#261A13] font-sans-clean min-h-screen flex flex-col selection:bg-[#1B3027] selection:text-[#F7F4ED]">

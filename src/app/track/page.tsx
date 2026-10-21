@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { COMPANION_ADD_ONS } from '@/lib/catalog'
+import AdUnit from '@/components/AdUnit'
 import type { TrackedOrderRecord } from '@/app/api/orders/lookup/route'
 
 export default function TrackOrderPage() {
@@ -433,6 +434,10 @@ export default function TrackOrderPage() {
           </div>
         </div>
       ))}
+
+      <div className="pt-4">
+        <AdUnit slot="4800798822" fallbackVariant="acrylic" />
+      </div>
 
       <div className="pt-4 text-center">
         <Link

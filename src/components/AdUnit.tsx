@@ -6,12 +6,14 @@ import Link from 'next/link'
 interface AdUnitProps {
   slot: string
   format?: 'auto' | 'fluid' | 'rectangle'
+  fallbackVariant?: 'bundle' | 'candle' | 'acrylic'
   className?: string
 }
 
 export default function AdUnit({
   slot,
   format = 'auto',
+  fallbackVariant = 'bundle',
   className = '',
 }: AdUnitProps) {
   const adRef = useRef<HTMLModElement | null>(null)
@@ -51,12 +53,38 @@ export default function AdUnit({
     }
   }, [])
 
+  const fallbackContent =
+    fallbackVariant === 'candle'
+      ? {
+          kicker: 'BESPOKE STUDIO COMPANION · HAND-POURED IN USA',
+          headline:
+            'Pair Your Keepsake With a Custom Label 9oz Scented Amber Glass Soy Candle ($48 · Free US Shipping)',
+          ctaLabel: 'Customize Soy Candle →',
+          ctaHref: '/create/custom-book-stack-print',
+        }
+      : fallbackVariant === 'acrylic'
+        ? {
+            kicker: 'FREESTANDING DESKTOP HEIRLOOM · 1" THICK OPTICAL CRYSTAL',
+            headline:
+              'Design a Custom Voice & Song Waveform Crystal Acrylic Block With Solid Wood LED Stand',
+            ctaLabel: 'Design Acrylic Block →',
+            ctaHref: '/create/custom-soundwave-art',
+          }
+        : {
+            kicker: 'TWO-KEEPSAKE FAMILY BUNDLE · SAVE 25% + COMPLIMENTARY US DELIVERY',
+            headline:
+              'Add a 2nd Identical Copy for Family or Grandparents at 25% Off With Free Combined Shipping',
+            ctaLabel: 'Explore Collector Pair →',
+            ctaHref: '/create/custom-star-map',
+          }
+
   return (
-    <div
+    <aside
+      aria-label="Sponsored Studio Spotlight"
       className={`w-full overflow-hidden border border-[#DDD5C7] bg-[#FCFBF8] p-4 ${className}`}
     >
       <div className="flex items-center justify-between text-[10px] font-mono-tech uppercase tracking-[0.16em] text-[#8C8275] mb-2">
-        <span>Collector Pairing</span>
+        <span>Sponsored · Collector Pairing</span>
         <span>Evermark Archival Press</span>
       </div>
 
@@ -76,20 +104,20 @@ export default function AdUnit({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2 px-3 bg-[#F3EFE6] border border-[#DDD5C7]">
           <div className="space-y-1">
             <p className="text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#6E4E2E] font-semibold">
-              TWO-KEEPSSAKE FAMILY BUNDLE · SAVE 25% + COMPLIMENTARY PRIORITY DELIVERY
+              {fallbackContent.kicker}
             </p>
             <p className="text-sm font-editorial font-semibold text-[#171513]">
-              Add a 2nd Identical Copy for Family or Grandparents at 25% Off With Free Combined Shipping
+              {fallbackContent.headline}
             </p>
           </div>
           <Link
-            href="/create/custom-star-map"
+            href={fallbackContent.ctaHref}
             className="px-4 py-2 bg-[#171513] hover:bg-[#2E2925] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-[0.14em] shrink-0 transition"
           >
-            Explore Collector Pair →
+            {fallbackContent.ctaLabel}
           </Link>
         </div>
       )}
-    </div>
+    </aside>
   )
 }

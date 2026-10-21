@@ -5,9 +5,71 @@ import AdUnit from '@/components/AdUnit'
 
 export default function EvermarkHomePage() {
   const flagshipStarMap = EVERMARK_CATALOG[0]
+  const baseUrl = 'https://www.evermarkprints.com'
+
+  const homePageJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'ItemList',
+        name: 'Evermark Prints Bespoke Custom Keepsake Collection',
+        description:
+          'Twelve bespoke physical gift editions crafted in US studios, including framed astronomical star maps, jacquard woven throw blankets, chiseled stone slates, crystal acrylic blocks, and scented soy candles.',
+        numberOfItems: EVERMARK_CATALOG.length,
+        itemListElement: EVERMARK_CATALOG.map((item, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          url: `${baseUrl}/create/${item.slug}`,
+          name: item.title,
+          image: `${baseUrl}${item.previewImage}`,
+        })),
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'How accurate are Evermark Prints custom night sky star maps?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Every Evermark Prints star map is calculated using the NASA and Hipparcos astronomical star catalog for the exact calendar date, time, and GPS latitude and longitude you enter.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'How fast is US shipping on custom framed prints, blankets, and stone slates?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'All 12 custom physical keepsakes are crafted to order in our domestic US studios and ship complimentary via tracked USPS, UPS, or FedEx with typical delivery in 3 to 5 business days across all 50 US states.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'What if I notice a typo on my custom keepsake after placing my order?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Every order includes a 2-hour live modification window. Simply visit evermarkprints.com/track within 2 hours of checkout to edit your headline, dedication, date, or coordinates before your piece enters production.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Can I bundle a second copy for family or add a matching candle to my order?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Yes. You can add multiple customized gifts to your Order Bag before checkout, add a second identical copy at 25% off for parents or grandparents, or add matching keepsakes onto an existing order from your order confirmation or tracking page.',
+            },
+          },
+        ],
+      },
+    ],
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8 md:py-14 space-y-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homePageJsonLd) }}
+      />
       {/* Warm Heritage Editorial Hero Banner */}
       <section className="rounded-none bg-gradient-to-br from-[#1B3027] via-[#223B30] to-[#261A13] text-[#F7F4ED] border border-[#D8AE64]/40 p-7 sm:p-12 shadow-xl">
         <div className="grid lg:grid-cols-12 gap-8 items-center">
@@ -193,6 +255,62 @@ export default function EvermarkHomePage() {
           </p>
         </div>
       </section>
+
+      {/* Studio Frequently Asked Questions (SEO + Buyer Confidence) */}
+      <section className="space-y-8 border-t border-[#CBB89F] pt-14">
+        <div className="space-y-2 max-w-2xl">
+          <p className="text-[11px] font-mono-tech uppercase tracking-[0.2em] text-[#9E472A] font-semibold">
+            STUDIO CONCIERGE &amp; BUYER GUIDE
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-editorial font-semibold text-[#261A13]">
+            Frequently Asked Questions
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-[#FDFBF7] border border-[#CBB89F] p-6 space-y-2">
+            <h3 className="text-lg font-editorial font-semibold text-[#261A13]">
+              How accurate are Evermark Prints custom night sky star maps?
+            </h3>
+            <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
+              Every star map is calculated using the NASA and Hipparcos astronomical star catalog for the exact calendar date, time, and GPS latitude and longitude you enter in our Live Studio Customizer.
+            </p>
+          </div>
+
+          <div className="bg-[#FDFBF7] border border-[#CBB89F] p-6 space-y-2">
+            <h3 className="text-lg font-editorial font-semibold text-[#261A13]">
+              How fast is US shipping on framed prints, blankets, and stone slates?
+            </h3>
+            <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
+              All 12 custom physical keepsakes are crafted to order in our domestic US studios and ship complimentary via tracked USPS, UPS, or FedEx with typical delivery in 3 to 5 business days across all 50 US states.
+            </p>
+          </div>
+
+          <div className="bg-[#FDFBF7] border border-[#CBB89F] p-6 space-y-2">
+            <h3 className="text-lg font-editorial font-semibold text-[#261A13]">
+              What if I notice a typo on my keepsake after placing my order?
+            </h3>
+            <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
+              Every order includes a 2-hour live modification window. Simply visit{' '}
+              <Link href="/track" className="underline font-semibold text-[#1B3027]">
+                evermarkprints.com/track
+              </Link>{' '}
+              within 2 hours of checkout to edit your headline, dedication, date, or coordinates before your piece enters production.
+            </p>
+          </div>
+
+          <div className="bg-[#FDFBF7] border border-[#CBB89F] p-6 space-y-2">
+            <h3 className="text-lg font-editorial font-semibold text-[#261A13]">
+              Can I bundle a second copy for family or add a matching candle to my order?
+            </h3>
+            <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
+              Yes. You can add multiple customized gifts to your Order Bag before checkout, add a second identical copy at 25% off for parents or grandparents, or add matching keepsakes onto an existing order from your order confirmation or tracking page.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <AdUnit slot="6291847510" fallbackVariant="candle" />
     </div>
   )
 }
