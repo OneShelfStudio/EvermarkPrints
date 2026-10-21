@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font
 import { Analytics } from '@vercel/analytics/react'
 import Link from 'next/link'
 import StudioConciergeBot from '@/components/StudioConciergeBot'
+import OrderBagDrawer from '@/components/OrderBagDrawer'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -124,9 +125,10 @@ export default function RootLayout({
               >
                 Track Order
               </Link>
+              <OrderBagDrawer />
               <Link
                 href="/#live-studio"
-                className="px-4 sm:px-5 py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.15em] font-semibold transition shadow-sm"
+                className="hidden sm:inline-block px-4 sm:px-5 py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.15em] font-semibold transition shadow-sm"
               >
                 Design Your Print
               </Link>
@@ -211,32 +213,32 @@ export default function RootLayout({
                 <ul className="space-y-2 text-[#D8CFC0]">
                   <li>
                     <Link href="/create/family-tree-botanical-print" className="hover:text-white transition">
-                      Family Garden Botanical Print
+                      Woven Botanical Throw Blanket
                     </Link>
                   </li>
                   <li>
                     <Link href="/create/custom-coordinates-print" className="hover:text-white transition">
-                      First Home &amp; Latitude Print
+                      First Home Watercolor Stone Slate
                     </Link>
                   </li>
                   <li>
                     <Link href="/create/coastal-bathymetry-chart" className="hover:text-white transition">
-                      Coastal Bathymetry &amp; Harbor Chart
+                      Harbor Map Chiseled Stone Slate
                     </Link>
                   </li>
                   <li>
                     <Link href="/create/patent-architectural-triptych" className="hover:text-white transition">
-                      Horological &amp; Patent Blueprint
+                      Mountain Wood-Topped Wall Tapestry
                     </Link>
                   </li>
                   <li>
                     <Link href="/create/marathon-finisher-route-print" className="hover:text-white transition">
-                      Marathon &amp; Race Finisher Print
+                      Starlight Constellation Acrylic Block
                     </Link>
                   </li>
                   <li>
                     <Link href="/create/custom-book-stack-print" className="hover:text-white transition">
-                      Custom Literary Book Stack
+                      Bespoke Scented Soy Candle
                     </Link>
                   </li>
                 </ul>

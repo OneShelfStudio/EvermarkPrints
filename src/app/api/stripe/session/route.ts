@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import { getEvermarkProductBySlug, FORMAT_TIERS, FRAME_FINISHES } from '@/lib/catalog'
+import { getEvermarkProductBySlug, FRAME_FINISHES, EVERMARK_CATALOG } from '@/lib/catalog'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,31 +17,35 @@ export async function GET(req: Request) {
     const meta = session.metadata || {}
 
     const productSlug = meta.productSlug || 'custom-star-map'
-    const product = getEvermarkProductBySlug(productSlug)
-    const formatObj = FORMAT_TIERS.find((f) => f.id === meta.formatId) || FORMAT_TIERS[0]
+    const product = getEvermarkProductBySlug(productSlug) || EVERMARK_CATALOG[0]
+    const variantObj =
+      product.variants.find((v) => v.id === meta.formatId) ||
+      product.variants.find((v) => v.badge === 'Most Popular') ||
+      product.variants[0]
     const frameObj = FRAME_FINISHES.find((f) => f.id === meta.frameFinishId) || FRAME_FINISHES[0]
 
     return NextResponse.json({
       sessionId: session.id,
       paymentStatus: session.payment_status,
-      amountTotalUsd: session.amount_total ? session.amount_total / 100 : formatObj.priceUsd,
+      amountTotalUsd: session.amount_total ? session.amount_total / 100 : variantObj.priceUsd,
       customerEmail: session.customer_details?.email || '',
       customerName: session.customer_details?.name || '',
       design: {
         productSlug,
-        productTitle: product?.title || 'Evermark Custom Archival Print',
-        mode: product?.mode || 'starmap',
-        plateNumber: product?.plateNumber || 'PLATE NO. 01',
-        headline: meta.headline || product?.defaultHeadline || 'THE NIGHT OUR STORY BEGAN',
-        subline: meta.subline || product?.defaultSubline || '',
-        locationText: meta.locationText || product?.defaultLocation || '',
-        dateText: meta.dateText || product?.defaultDateText || '',
-        coordsText: meta.coordsText || product?.defaultCoords || '',
-        colorwayId: meta.colorwayId || product?.defaultColorway || 'midnight_gold',
-        frameFinishId: meta.frameFinishId || product?.defaultFrame || 'walnut',
-        formatId: meta.formatId || 'framed-16x20',
-        formatLabel: `${formatObj.label} (${frameObj.label})`,
-        includedDigitalBump: meta.includedDigitalBump === 'yes',
+        productTitle: product.title,
+        mode: product.mode,
+        plateNumber: product.plateNumber,
+        headline: meta.headline || product.defaultHeadline,
+        subline: meta.subline || product.defaultSubline,
+        locationText: meta.locationText || product.defaultLocation,
+        dateText: meta.dateText || product.defaultDateText,
+        coordsText: meta.coordsText || product.defaultCoords,
+        colorwayId: meta.colorwayId || product.defaultColorway,
+        frameFinishId: meta.frameFinishId || product.defaultFrame,
+        formatId: variantObj.id,
+        formatLabel: product.supportsFrameFinish
+          ? `${variantObj.label} (${frameObj.label})`
+          : variantObj.label,
         giftNote: meta.giftNote || '',
         customPeaks: meta.customPeaks || '',
       },

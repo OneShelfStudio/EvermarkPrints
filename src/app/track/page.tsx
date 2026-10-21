@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { COMPANION_ADD_ONS } from '@/lib/catalog'
 import type { TrackedOrderRecord } from '@/app/api/orders/lookup/route'
 
 export default function TrackOrderPage() {
@@ -19,6 +20,7 @@ export default function TrackOrderPage() {
   const [editDate, setEditDate] = useState('')
   const [editCoords, setEditCoords] = useState('')
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null)
+  const [addingAddOnId, setAddingAddOnId] = useState<string | null>(null)
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -73,9 +75,8 @@ export default function TrackOrderPage() {
       }
       setEditingOrderId(null)
       setSaveSuccessMsg(
-        'Your inscription has been updated and your unwatermarked master file has been regenerated.'
+        'Your inscription has been updated and synced with our US production studio.'
       )
-      // Refresh list
       const r2 = await fetch(`/api/orders/lookup?q=${encodeURIComponent(query.trim())}`)
       const d2 = await r2.json()
       if (d2.orders) setOrders(d2.orders)
@@ -84,10 +85,67 @@ export default function TrackOrderPage() {
     }
   }
 
+  async function handleAddCompanionToExistingOrder(
+    order: TrackedOrderRecord,
+    addOn: (typeof COMPANION_ADD_ONS)[number]
+  ) {
+    setAddingAddOnId(`${order.orderId}-${addOn.id}`)
+    try {
+      const origin =
+        typeof window !== 'undefined' ? window.location.origin : 'https://www.evermarkprints.com'
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: `evermark_addon_${addOn.targetProductSlug}`,
+          returnUrl: `${origin}/success?product=${encodeURIComponent(
+            addOn.targetProductSlug
+          )}&addon=1`,
+          collectUsShipping: true,
+          lineItems: [
+            {
+              name: `${addOn.title.replace('+ Add ', '')} (Added to Order ${order.orderId.slice(
+                0,
+                10
+              )})`,
+              description: `Matching Inscription: "${order.headline}" (${order.locationText} · ${order.dateText})`,
+              amountCents: addOn.priceUsd * 100,
+              quantity: 1,
+            },
+          ],
+          metadata: {
+            brand: 'Evermark Prints',
+            parentOrderSessionId: order.orderId.slice(0, 64),
+            isExistingOrderAddOn: 'yes',
+            productSlug: addOn.targetProductSlug,
+            printifyProductId: addOn.printifyProductId,
+            printifyBlueprintId: String(addOn.printifyBlueprintId),
+            printifyVariantId: String(addOn.printifyVariantId),
+            colorwayId: order.colorwayId || 'midnight_gold',
+            frameFinishId: order.frameFinishId || 'walnut',
+            headline: order.headline.slice(0, 120),
+            subline: order.subline.slice(0, 180),
+            locationText: order.locationText.slice(0, 120),
+            dateText: order.dateText.slice(0, 120),
+            coordsText: order.coordsText.slice(0, 120),
+          },
+        }),
+      })
+      const data = await res.json()
+      if (data?.url) {
+        window.location.href = data.url
+      } else {
+        setAddingAddOnId(null)
+      }
+    } catch {
+      setAddingAddOnId(null)
+    }
+  }
+
   const STAGES = [
     '1. Commission Verified',
     '2. 2-Hour Proof Window',
-    '3. Framing in US Studio',
+    '3. Crafting in US Studio',
     '4. Shipped via USPS/UPS',
   ]
 
@@ -95,14 +153,14 @@ export default function TrackOrderPage() {
     <div className="max-w-4xl mx-auto px-5 sm:px-8 py-12 md:py-20 space-y-10">
       <div className="border-b border-[#D8C9B6] pb-6 space-y-2">
         <p className="text-[11px] font-mono-tech uppercase tracking-[0.18em] text-[#9E472A] font-semibold">
-          LIVE STUDIO STATUS · 2-HOUR PROOF MODIFICATION · DIGITAL DOWNLOADS
+          LIVE STUDIO STATUS · 2-HOUR PROOF MODIFICATION · ADD ON TO EXISTING ORDER
         </p>
         <h1 className="text-4xl sm:text-5xl font-editorial font-semibold text-[#261A13]">
           Track Your Commission
         </h1>
         <p className="text-xs sm:text-sm text-[#5C4D42]">
           Enter the email address used at checkout (or your Stripe Order Reference{' '}
-          <span className="font-mono-tech">cs_live_...</span>) to check live framing progress, view USPS/UPS tracking links, download digital masters, or adjust a typo within 2 hours of ordering.
+          <span className="font-mono-tech">cs_live_...</span>) to check live studio production progress, view USPS/UPS tracking links, adjust a typo within 2 hours of ordering, or bundle additional matching keepsakes onto your order.
         </p>
       </div>
 
@@ -311,7 +369,7 @@ export default function TrackOrderPage() {
                     {order.locationText} · {order.dateText}
                   </p>
                   <p>
-                    <strong className="text-[#261A13]">Coordinates / Line:</strong>{' '}
+                    <strong className="text-[#261A13]">Bottom Line / Coordinates:</strong>{' '}
                     <span className="font-mono-tech">{order.coordsText}</span>
                   </p>
 
@@ -325,21 +383,52 @@ export default function TrackOrderPage() {
                         ✎ Fix a Typo ({Math.max(1, 120 - order.minutesSinceOrder)}m Left in Window)
                       </button>
                     )}
-
-                    {(!order.isPhysical || order.includedDigitalBump) && (
-                      <a
-                        href={order.masterRenderUrl}
-                        download={`Evermark-Master-${order.productSlug}.svg`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-[#1B3027] hover:bg-[#254236] text-[#F7F4ED] font-mono-tech uppercase text-[11px] transition"
-                      >
-                        ⬇ Download Unwatermarked Digital Master
-                      </a>
-                    )}
                   </div>
                 </>
               )}
+            </div>
+          </div>
+
+          {/* Add Companion Keepsakes Onto Existing Order */}
+          <div className="p-4 bg-[#F3E9DA] border border-[#CBB89F] space-y-3">
+            <span className="text-[11px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold block">
+              + ADD MATCHING KEEPSAKE ONTO THIS EXISTING ORDER (FREE COMBINED US SHIPPING):
+            </span>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {COMPANION_ADD_ONS.map((addOn) => {
+                const isBusy = addingAddOnId === `${order.orderId}-${addOn.id}`
+                return (
+                  <div
+                    key={addOn.id}
+                    className="p-3 bg-[#FDFBF7] border border-[#D8C9B6] flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={addOn.previewImage}
+                        alt={addOn.title}
+                        className="w-11 h-11 object-cover border border-[#D8C9B6] shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <span className="text-xs font-semibold text-[#261A13] block truncate">
+                          {addOn.title.replace('+ Add ', '')}
+                        </span>
+                        <span className="text-[11px] text-[#1B3027] font-semibold">
+                          +${addOn.priceUsd} (Reg. ${addOn.compareAtUsd})
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={() => handleAddCompanionToExistingOrder(order, addOn)}
+                      className="px-3 py-2 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[10px] font-mono-tech uppercase tracking-wider shrink-0"
+                    >
+                      {isBusy ? 'Adding...' : '+ Add Onto Order'}
+                    </button>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

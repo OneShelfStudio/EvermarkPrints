@@ -134,10 +134,10 @@ export default function EvermarkHomePage() {
               <div className="px-6 py-4 bg-[#F3E9DA] border-t border-[#D8C9B6] flex items-center justify-between gap-4">
                 <div>
                   <span className="text-base font-semibold text-[#261A13] block">
-                    ${item.popularPriceUsd} Physical Edition
+                    From ${item.startingPriceUsd} Physical Edition
                   </span>
                   <span className="text-[11px] text-[#6E5A4C] block">
-                    or ${item.startingPriceUsd} Instant Digital Master
+                    Most Popular Size: ${item.popularPriceUsd} · Free US Shipping
                   </span>
                 </div>
 
@@ -189,7 +189,7 @@ export default function EvermarkHomePage() {
             Stress-Free Custom Ordering
           </h3>
           <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
-            Spot a typo after ordering? Visit our <Link href="/track" className="underline font-semibold text-[#1B3027]">Live Order Tracker</Link> within 2 hours of checkout to edit your wording instantly, download unwatermarked digital files, or track your USPS/UPS shipment.
+            Spot a typo after ordering? Visit our <Link href="/track" className="underline font-semibold text-[#1B3027]">Live Order Tracker</Link> within 2 hours of checkout to edit your wording instantly, add matching keepsakes onto your existing order, or track your USPS/UPS shipment.
           </p>
         </div>
       </section>

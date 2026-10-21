@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     if (!message) {
       return NextResponse.json({
         reply:
-          'Welcome to the Evermark Studio Concierge. I can check your live order & framing status (just type your checkout email or Order ID), help with a 2-hour typo edit, or answer questions about our hardwood frames, photo/audio uploads, and 3–5 day US shipping.',
+          'Welcome to the Evermark Studio Concierge. I can check your live order & US production status (just type your checkout email or Order ID), help you add additional items onto an existing order, or answer questions about our 12 physical keepsakes.',
       })
     }
 
@@ -55,11 +55,11 @@ export async function POST(req: Request) {
       const statusText =
         mins <= 120
           ? `Your commission ("${
-              meta.headline || 'Custom Print'
-            }") was verified ${mins} minutes ago and is currently in our 2-Hour Proof Window. You can still edit any typo directly at https://www.evermarkprints.com/track using "${lookupKey}".`
+              meta.headline || 'Custom Keepsake'
+            }") was verified ${mins} minutes ago and is currently in our 2-Hour Proof Window. You can edit any typo OR add matching keepsakes onto your order with free combined shipping at https://www.evermarkprints.com/track using "${lookupKey}".`
           : `Your commission ("${
-              meta.headline || 'Custom Print'
-            }") is currently in our US Archival Framing Studio. Tracked USPS/UPS delivery arrives in 3–5 business days. You can view your live proof & download links anytime at https://www.evermarkprints.com/track.`
+              meta.headline || 'Custom Keepsake'
+            }") is currently in our US Printify Studio. Tracked USPS/UPS delivery arrives in 3–5 business days. You can view your live proof or add companion items at https://www.evermarkprints.com/track.`
 
       return NextResponse.json({
         reply: statusText,
@@ -80,19 +80,36 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({
         reply:
-          'You can attach both a custom Photo (.JPG/.PNG) and a Voice/Song recording (.MP3/.M4A/.WAV — or record 5 seconds live from your microphone!) right inside Step 03 of the customizer on any print. For photos, you can also toggle between Warm Archival Color, Black & White Film, and Charcoal Sketch filters live!',
+          'Photo Upload is available on our Portrait Keepsakes (Pet Portrait Birch Plaque, First Home Stone Slate, Newborn Nursery Print, and First Dance Vinyl Canvas). Voice & Song Audio Upload (+ live 5s mic recording!) is available on our Voice Soundwave Acrylic Block and First Dance Vinyl Song Canvas!',
       })
     }
 
-    // 3. Watermark / Download Questions
-    if (lower.includes('watermark') || lower.includes('dpi') || lower.includes('download')) {
+    // 3. Adding to Existing Order / Multi-Item Bundle Questions
+    if (
+      lower.includes('add') ||
+      lower.includes('bundle') ||
+      lower.includes('existing') ||
+      lower.includes('another') ||
+      lower.includes('bag') ||
+      lower.includes('cart')
+    ) {
       return NextResponse.json({
         reply:
-          'The security watermark mesh is shown only on the live preview before checkout to protect our artists’ custom plates. Your physical framed print and your purchased Digital Master file are 100% clean and unwatermarked!',
+          'You can bundle multiple items in two ways: (1) Click "+ Add to Order Bag & Customize Another Item" while designing to combine multiple products into a single checkout, or (2) Visit /track after ordering to add a 2nd copy (25% off), Matching Scented Soy Candle (+$34), or Acrylic Desk Stand (+$49) directly onto your existing order with free combined shipping!',
+        actionUrl: '/track',
+        actionLabel: 'Add to Existing Order →',
       })
     }
 
-    // 4. Shipping / Delivery Speed / Gift Questions
+    // 4. Watermark Questions
+    if (lower.includes('watermark') || lower.includes('proof')) {
+      return NextResponse.json({
+        reply:
+          'The Guilloché security watermark mesh is shown only on the live browser preview before checkout to protect our studio artwork plates. Your physical keepsake is crafted 100% clean and unwatermarked!',
+      })
+    }
+
+    // 5. Shipping / Delivery Speed / Gift Questions
     if (
       lower.includes('ship') ||
       lower.includes('long') ||
@@ -102,11 +119,11 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({
         reply:
-          'All physical framed editions ship FREE from our US archival workshops and arrive in 3–5 business days via tracked USPS/UPS. Every package ships gift-ready with zero retail prices on the packing slip, and you can check "This Commission is a Gift" above checkout to include a complimentary gift note!',
+          'All 12 physical keepsake editions ship FREE from our US studios and arrive in 3–5 business days via tracked USPS/UPS. Every package ships gift-ready with zero retail prices on the packing slip!',
       })
     }
 
-    // 5. Refund / Damaged / Typo Questions
+    // 6. Refund / Damaged / Typo Questions
     if (
       lower.includes('refund') ||
       lower.includes('return') ||
@@ -117,13 +134,13 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({
         reply:
-          'Every order includes our 100% Damaged-or-Defective Replacement Guarantee (free expedited reprint or full Stripe refund if damaged in transit). Plus, if you spot a typo within 2 hours of ordering, you can fix it yourself instantly on our /track page!',
+          'Every order includes our 100% Damaged-or-Defective Replacement Guarantee (free expedited replacement or full Stripe refund if damaged in transit). Plus, if you spot a typo within 2 hours of ordering, you can fix it yourself instantly on our /track page!',
         actionUrl: '/track',
         actionLabel: 'Go to Order Tracker / Typo Editor →',
       })
     }
 
-    // 6. Discount / Promo Code Questions
+    // 7. Discount / Promo Code Questions
     if (
       lower.includes('discount') ||
       lower.includes('promo') ||
@@ -133,14 +150,13 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({
         reply:
-          'You can enter promo code WELCOME15 at Stripe Checkout for 15% off your first custom print—or select our Two-Print Collector Pair to save $29 automatically with free Priority US delivery!',
+          'You can enter promo code WELCOME15 at Stripe Checkout for 15% off your order—or add a 2nd duplicate copy for grandparents/family at 25% off right inside the customizer!',
       })
     }
 
-    // Default helpful response
     return NextResponse.json({
       reply:
-        'I can help you customize any of our 12 archival prints, check a live order status (just reply with your checkout email address!), or answer questions about our solid Walnut, Warm Oak, and Matte Black frames. You can also use code WELCOME15 at checkout for 15% off today!',
+        'I can help you customize any of our 12 physical keepsakes (framed prints, woven blankets, stone slates, acrylic blocks, 3-panel triptychs, and soy candles), bundle items into your Order Bag, or check a live order status (just reply with your checkout email!).',
     })
   } catch {
     return NextResponse.json({

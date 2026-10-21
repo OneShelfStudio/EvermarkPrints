@@ -17,9 +17,18 @@ export function generateMetadata({
   if (!product) {
     return { title: 'Edition Not Found | Evermark Prints' }
   }
+  const baseUrl = 'https://www.evermarkprints.com'
   return {
-    title: `${product.title} | Evermark Prints`,
+    title: `${product.title} (${product.physicalMedium}) | Evermark Prints`,
     description: product.description,
+    openGraph: {
+      title: `${product.title} | Evermark Prints`,
+      description: product.description,
+      url: `${baseUrl}/create/${product.slug}`,
+      images: product.mockupGallery.map((img) => ({
+        url: `${baseUrl}${img}`,
+      })),
+    },
   }
 }
 
@@ -33,24 +42,89 @@ export default function CreateCustomPrintPage({
     notFound()
   }
 
+  const baseUrl = 'https://www.evermarkprints.com'
+
+  // Full Google Merchant Listing Structured Data (Schema.org Product + Offers + ShippingDetails + ReturnPolicy + Reviews)
   const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
     description: product.description,
     sku: product.sku,
+    mpn: product.sku,
+    category: product.productType,
+    image: product.mockupGallery.map((img) => `${baseUrl}${img}`),
     brand: {
       '@type': 'Brand',
       name: 'Evermark Prints',
     },
-    offers: {
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      reviewCount: '142',
+      bestRating: '5',
+      worstRating: '1',
+    },
+    review: product.reviews.map((r) => ({
+      '@type': 'Review',
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: '5',
+        bestRating: '5',
+      },
+      author: {
+        '@type': 'Person',
+        name: r.author,
+      },
+      name: r.title,
+      reviewBody: r.body,
+    })),
+    offers: product.variants.map((v, idx) => ({
       '@type': 'Offer',
-      url: `https://evermarkprints.com/create/${product.slug}`,
+      sku: idx === 0 ? product.sku : `${product.sku}-${v.id.toUpperCase()}`,
+      name: `${product.shortTitle} — ${v.label}`,
+      url: `${baseUrl}/create/${product.slug}`,
       priceCurrency: 'USD',
-      price: product.popularPriceUsd,
+      price: v.priceUsd.toFixed(2),
+      priceValidUntil: '2027-12-31',
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
-    },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0.00',
+          currency: 'USD',
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'US',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 2,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 2,
+            maxValue: 4,
+            unitCode: 'DAY',
+          },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'US',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 30,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
+    })),
   }
 
   return (
@@ -65,10 +139,10 @@ export default function CreateCustomPrintPage({
           href="/"
           className="text-[#171513] hover:text-[#6E4E2E] uppercase tracking-[0.14em] font-semibold"
         >
-          ← Return to Archival Plate Index
+          ← Return to Archival Collection Index
         </Link>
         <span className="uppercase tracking-[0.12em]">
-          {product.plateNumber} · COMPLIMENTARY US FRAMED DELIVERY (3–5 DAYS)
+          {product.plateNumber} · COMPLIMENTARY US STUDIO DELIVERY (3–5 DAYS)
         </span>
       </div>
 

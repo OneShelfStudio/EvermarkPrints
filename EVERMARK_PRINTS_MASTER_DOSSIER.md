@@ -100,3 +100,25 @@
   2. `evermark_02_voice_soundwave.mp4`
   3. `evermark_03_home_coordinates.mp4`
 - We can re-render these in our new **Warm Cotton-Rag & Walnut Gallery Aesthetic** and publish them across **TikTok, YouTube Shorts, Facebook Reels, and Pinterest**!
+
+
+---
+
+## 6. Live Printify Shop `29416532` Product & Blueprint Ledger (v4 Overhaul)
+
+All 12 products are registered live inside **Printify Shop `29416532`** (`Evermark Prints`) with real US print providers, 3D studio camera mockups (`/mockups/*.webp`), and museum-grade painterly base plates (`/art-plates/*.webp`):
+
+| Catalog Slug | SKU | Printify Product ID | Blueprint ID | US Print Provider | Physical Medium | Painterly Plate |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `custom-star-map` | `EVM-STAR-01` | `6ad8f84503c69a814e0ab4ad` | `#492` | Print Pigeons (`36`) | Museum Framed 310gsm Fine Art Print | `/art-plates/celestial-nebula.webp` |
+| `custom-soundwave-art` | `EVM-ACRYL-02` | `6ad8f84762370ee3a30e10ce` | `#1303` | Posterflow (`220`) | Crystal Acrylic Plaque + Hardwood Stand | `/art-plates/gold-vinyl-luxe.webp` |
+| `family-tree-botanical-print` | `EVM-BLANKET-08` | `6ad8f84962370ee3a30e10cf` | `#1626` | Printify Choice (`99`) | 100% Cotton Jacquard Woven Fringed Blanket | `/art-plates/botanical-bouquet.webp` |
+| `coastal-bathymetry-chart` | `EVM-SLATE-09` | `6ad8f84b62370ee3a30e10d0` | `#5344` | Printify Choice (`99`) | Hand-Chiseled Natural Stone Slate Plaque | `/art-plates/coastal-harbor-map.webp` |
+| `met-engaged-married-triptych` | `EVM-TRIP-07` | `6ad8f84c38e3bd079b02d04c` | `#961` | Printify Choice (`99`) | 3-Panel Split 0.25" Optical Acrylic Triptych | `/art-plates/mountain-horizon-watercolor.webp` |
+| `patent-architectural-triptych` | `EVM-TAPESTRY-10` | `6ad8f84e7f85ecd3f8022c8a` | `#1489` | MWW On Demand (`10`) | Solid Wood Dowel Bar + Woven Wall Tapestry | `/art-plates/coastal-harbor-map.webp` |
+| `custom-book-stack-print` | `EVM-CANDLE-12` | `6ad8f84f03c69a814e0ab4b5` | `#1468` | Printify Choice (`99`) | Apothecary Amber Jar · 100% Soy Candle | `/art-plates/botanical-bouquet.webp` |
+| `custom-vinyl-song-portrait` | `EVM-CANVAS-03` | `6ad8f85138e3bd079b02d052` | `#944` | Printify Choice (`99`) | 1.25" Floating Framed Gallery Matte Canvas | `/art-plates/gold-vinyl-luxe.webp` |
+| `custom-pet-memorial` | `EVM-WOOD-04` | `6ad8f85347ba3c9e05033638` | `#1530` | Printify Choice (`99`) | 0.75" Solid Birch Hardwood Wall Plaque | `/art-plates/pet-portrait-watercolor.webp` |
+| `custom-coordinates-print` | `EVM-HOMESLATE-05` | `6ad8f85538e3bd079b02d057` | `#5344` | Printify Choice (`99`) | Chiseled Natural Stone Slate Home Plaque | `/art-plates/home-architecture-watercolor.webp` |
+| `newborn-birth-stat-portrait` | `EVM-BIRTH-06` | `6ad8f8567f85ecd3f8022c92` | `#492` | Print Pigeons (`36`) | Nursery Hardwood Framed 310gsm Fine Art Print | `/art-plates/nursery-moon-watercolor.webp` |
+| `marathon-finisher-route-print` | `EVM-STARACRYL-11` | `6ad8f8580481ae630e072c79` | `#1303` | Posterflow (`220`) | Crystal Acrylic Nightstand Plaque + Stand | `/art-plates/celestial-nebula.webp` |
