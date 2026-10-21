@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import Link from 'next/link'
+import StudioConciergeBot from '@/components/StudioConciergeBot'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -24,13 +25,13 @@ const jetbrains = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Evermark Prints | Archival Custom Star Maps, Acoustic Monographs & Coordinate Art',
+  title: 'Evermark Prints | Custom Night Sky Star Maps, Photo & Voice Keepsakes — Framed in USA',
   description:
-    'Bespoke astronomical night sky charts, voice & song waveform monographs, topographic home coordinates, and heirloom keepsake prints. Printed on 310gsm cotton rag and framed in solid American hardwood.',
+    'Bespoke astronomical night sky charts, custom photo & vinyl song prints, voice waveform monographs, pet portraits, and home coordinate art. Printed on 310gsm cotton rag and framed in solid American hardwood.',
   openGraph: {
     title: 'Evermark Prints | Bespoke Archival Custom Prints — USA',
     description:
-      'Commission custom astronomical night sky maps, acoustic waveform monographs, and architectural coordinate prints with real-time gallery framing preview.',
+      'Commission custom night sky maps, photo & song vinyl prints, voice waveforms, and pet portraits with live gallery wall preview.',
     url: 'https://evermarkprints.com',
     siteName: 'Evermark Prints',
     locale: 'en_US',
@@ -56,152 +57,220 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className="bg-[#F7F4ED] text-[#171513] font-sans-clean min-h-screen flex flex-col selection:bg-[#171513] selection:text-[#F7F4ED]">
-        {/* Editorial Top Archival Bar */}
-        <div className="bg-[#171513] text-[#F4EFE6] text-[11px] tracking-[0.16em] uppercase py-2.5 px-4 text-center font-medium border-b border-[#2C2824]">
-          Complimentary Tracked US Delivery (3–5 Business Days) on All Framed Editions &nbsp;·&nbsp; Save $29 on Two-Print Collector Pairs
+      <body className="text-[#261A13] font-sans-clean min-h-screen flex flex-col selection:bg-[#1B3027] selection:text-[#F7F4ED]">
+        {/* Warm Heritage Forest & Burnished Brass Announcement Ribbon */}
+        <div className="bg-[#1B3027] text-[#F7F4ED] text-[11px] tracking-[0.15em] uppercase py-2.5 px-4 text-center font-medium border-b border-[#D8AE64]/30">
+          Complimentary Tracked US Delivery (3–5 Days) on All Framed Editions &nbsp;·&nbsp;{' '}
+          <span className="text-[#E5C178] font-semibold">
+            Use Code WELCOME15 for 15% Off or Save $29 on Two-Print Gift Pairs
+          </span>
         </div>
 
         {/* Fine Print House Header */}
-        <header className="sticky top-0 z-50 bg-[#F7F4ED]/95 backdrop-blur-md border-b border-[#DDD5C7]">
-          <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between gap-6">
+        <header className="sticky top-0 z-40 bg-[#F6EFE4]/95 backdrop-blur-md border-b border-[#D8C9B6]">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
             <Link href="/" className="flex flex-col group">
-              <span className="text-2xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#171513]">
+              <span className="text-2xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition">
                 EVERMARK PRINTS
               </span>
-              <span className="text-[10px] uppercase tracking-[0.24em] text-[#7A6F63] font-mono-tech">
+              <span className="text-[10px] uppercase tracking-[0.22em] text-[#9E472A] font-mono-tech font-semibold">
                 Bespoke Archival Press · United States
               </span>
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-8 text-xs uppercase tracking-[0.14em] font-medium text-[#4A443C]">
+            <nav className="hidden xl:flex items-center gap-6 text-xs uppercase tracking-[0.13em] font-medium text-[#4A3B31]">
               <Link
                 href="/create/custom-star-map"
-                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+                className="hover:text-[#9E472A] transition py-1"
               >
-                Night Sky Chart
+                Night Sky Map
+              </Link>
+              <Link
+                href="/create/custom-vinyl-song-portrait"
+                className="hover:text-[#9E472A] transition py-1"
+              >
+                Photo &amp; Vinyl Song
               </Link>
               <Link
                 href="/create/custom-soundwave-art"
-                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+                className="hover:text-[#9E472A] transition py-1"
               >
-                Acoustic Monograph
-              </Link>
-              <Link
-                href="/create/custom-coordinates-print"
-                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
-              >
-                Meridian Coordinates
+                Voice Waveform
               </Link>
               <Link
                 href="/create/custom-pet-memorial"
-                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+                className="hover:text-[#9E472A] transition py-1"
               >
-                Companion Tribute
+                Pet Portrait
               </Link>
               <Link
-                href="/create/coastal-bathymetry-chart"
-                className="hover:text-[#171513] transition py-1 border-b border-transparent hover:border-[#171513]"
+                href="/create/newborn-birth-stat-portrait"
+                className="hover:text-[#9E472A] transition py-1"
               >
-                Coastal Survey
+                Newborn Keepsake
+              </Link>
+              <Link
+                href="/track"
+                className="text-[#1B3027] font-semibold hover:text-[#9E472A] transition py-1 border-b border-[#1B3027]/40"
+              >
+                Track Order
               </Link>
             </nav>
 
-            <Link
-              href="/create/custom-star-map"
-              className="px-5 py-2.5 bg-[#171513] hover:bg-[#2E2925] text-[#F7F4ED] text-[11px] uppercase tracking-[0.16em] font-semibold transition shrink-0"
-            >
-              Commission a Print
-            </Link>
+            <div className="flex items-center gap-2.5 shrink-0">
+              <Link
+                href="/track"
+                className="xl:hidden px-3 py-2 border border-[#CBB89F] bg-[#FDFBF7] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold"
+              >
+                Track Order
+              </Link>
+              <Link
+                href="/#live-studio"
+                className="px-4 sm:px-5 py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.15em] font-semibold transition shadow-sm"
+              >
+                Design Your Print
+              </Link>
+            </div>
           </div>
         </header>
 
         <main className="flex-grow">{children}</main>
 
-        {/* Architectural Editorial Footer */}
-        <footer className="border-t border-[#DDD5C7] bg-[#EFEAE0] text-[#4A443C] py-16 mt-24">
+        {/* Warm Heritage Footer */}
+        <footer className="border-t border-[#CBB89F] bg-[#1B3027] text-[#E6DDD0] py-16 mt-24">
           <div className="max-w-7xl mx-auto px-5 sm:px-8 grid sm:grid-cols-2 lg:grid-cols-12 gap-10 text-xs">
-            <div className="lg:col-span-5 space-y-4">
-              <p className="text-2xl font-editorial font-semibold tracking-tight text-[#171513]">
+            <div className="lg:col-span-4 space-y-4">
+              <p className="text-2xl font-editorial font-semibold tracking-tight text-[#F7F4ED]">
                 EVERMARK PRINTS
               </p>
-              <p className="leading-relaxed max-w-sm text-[#5C554D] text-sm">
-                Custom astronomical star charts, acoustic waveform monographs, meridian home coordinates, and heirloom tributes. Printed on 310gsm cotton rag and framed in kiln-dried American hardwood.
+              <p className="leading-relaxed text-[#D0C5B4] text-sm">
+                Custom astronomical star charts, photo &amp; vinyl song records, voice waveform monographs, pet portraits, and family keepsakes. Printed on 310gsm cotton rag and framed in solid American hardwood.
               </p>
-              <p className="text-xs text-[#5C554D] pt-1 font-mono-tech">
-                CONCIERGE &amp; BESPOKE COMMISSIONS:{' '}
-                <a
-                  href="mailto:ryanb@digital-dads-llc.com"
-                  className="text-[#171513] underline underline-offset-4 font-medium"
-                >
-                  ryanb@digital-dads-llc.com
-                </a>
-              </p>
+              <div className="pt-2 space-y-1.5 font-mono-tech text-[11px]">
+                <p className="text-[#E5C178]">
+                  LIVE ORDER TRACKER &amp; 2-HOUR TYPO EDITOR:{' '}
+                  <Link href="/track" className="underline text-white">
+                    evermarkprints.com/track
+                  </Link>
+                </p>
+                <p className="text-[#D0C5B4]">
+                  STUDIO CONCIERGE:{' '}
+                  <a
+                    href="mailto:ryanb@digital-dads-llc.com"
+                    className="text-white underline underline-offset-4"
+                  >
+                    ryanb@digital-dads-llc.com
+                  </a>
+                </p>
+              </div>
             </div>
 
-            <div className="lg:col-span-4 space-y-3">
-              <p className="font-mono-tech text-[11px] uppercase tracking-[0.18em] text-[#171513] font-semibold">
-                Archival Plate Index
-              </p>
-              <ul className="space-y-2.5 text-[#5C554D]">
-                <li>
-                  <Link href="/create/custom-star-map" className="hover:text-[#171513] transition">
-                    Plate 01 — The Exact Night Sky Star Map
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/create/custom-soundwave-art" className="hover:text-[#171513] transition">
-                    Plate 02 — Voice &amp; Song Acoustic Waveform
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/create/custom-coordinates-print" className="hover:text-[#171513] transition">
-                    Plate 03 — Latitude &amp; Homestead Meridian
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/create/custom-pet-memorial" className="hover:text-[#171513] transition">
-                    Plate 04 — Heirloom Companion Monograph
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/create/patent-architectural-triptych" className="hover:text-[#171513] transition">
-                    Plate 05 — Horological &amp; Engineering Blueprint
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/create/coastal-bathymetry-chart" className="hover:text-[#171513] transition">
-                    Plate 06 — Coastal Bathymetry &amp; Harbor Chart
-                  </Link>
-                </li>
-              </ul>
+            <div className="lg:col-span-5 grid grid-cols-2 gap-6">
+              <div className="space-y-2.5">
+                <p className="font-mono-tech text-[11px] uppercase tracking-[0.18em] text-[#E5C178] font-semibold">
+                  Signature Keepsakes
+                </p>
+                <ul className="space-y-2 text-[#D8CFC0]">
+                  <li>
+                    <Link href="/create/custom-star-map" className="hover:text-white transition">
+                      The Exact Night Sky Star Map
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/custom-vinyl-song-portrait" className="hover:text-white transition">
+                      Photo &amp; First Dance Vinyl Print
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/custom-soundwave-art" className="hover:text-white transition">
+                      Voice &amp; Song Waveform Print
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/custom-pet-memorial" className="hover:text-white transition">
+                      Custom Pet Portrait Monograph
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/newborn-birth-stat-portrait" className="hover:text-white transition">
+                      Newborn Birth Stat &amp; Portrait
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/met-engaged-married-triptych" className="hover:text-white transition">
+                      Met · Engaged · Married Triptych
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-2.5">
+                <p className="font-mono-tech text-[11px] uppercase tracking-[0.18em] text-[#E5C178] font-semibold">
+                  Home, Family &amp; Study
+                </p>
+                <ul className="space-y-2 text-[#D8CFC0]">
+                  <li>
+                    <Link href="/create/family-tree-botanical-print" className="hover:text-white transition">
+                      Family Garden Botanical Print
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/custom-coordinates-print" className="hover:text-white transition">
+                      First Home &amp; Latitude Print
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/coastal-bathymetry-chart" className="hover:text-white transition">
+                      Coastal Bathymetry &amp; Harbor Chart
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/patent-architectural-triptych" className="hover:text-white transition">
+                      Horological &amp; Patent Blueprint
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/marathon-finisher-route-print" className="hover:text-white transition">
+                      Marathon &amp; Race Finisher Print
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/create/custom-book-stack-print" className="hover:text-white transition">
+                      Custom Literary Book Stack
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div className="lg:col-span-3 space-y-4 lg:text-right">
-              <p className="font-mono-tech text-[11px] uppercase tracking-[0.18em] text-[#171513] font-semibold">
-                Materials &amp; Provenance
+              <p className="font-mono-tech text-[11px] uppercase tracking-[0.18em] text-[#E5C178] font-semibold">
+                Guarantee &amp; Governance
               </p>
-              <p className="text-[#5C554D] leading-relaxed">
-                310gsm acid-free cotton rag, 8-ply museum mat framing, and archival pigment inks rated for 100+ years of lightfast permanence. Shipped complimentary across all 50 US states.
+              <p className="text-[#D0C5B4] leading-relaxed">
+                310gsm acid-free cotton rag, 8-ply museum mat framing, and archival pigment inks rated for 100+ years of permanence. Shipped complimentary across all 50 US states.
               </p>
-              <div className="flex flex-wrap lg:justify-end gap-4 pt-2 text-[11px] font-mono-tech uppercase tracking-[0.12em] text-[#171513]">
+              <div className="flex flex-wrap lg:justify-end gap-4 pt-2 text-[11px] font-mono-tech uppercase tracking-[0.12em] text-[#E5C178]">
+                <Link href="/track" className="hover:underline underline-offset-4">
+                  Track Order
+                </Link>
                 <Link href="/refunds" className="hover:underline underline-offset-4">
-                  Refund &amp; Replacement Policy
+                  Refund Policy
                 </Link>
                 <Link href="/privacy" className="hover:underline underline-offset-4">
-                  Privacy Policy
+                  Privacy
                 </Link>
                 <Link href="/terms" className="hover:underline underline-offset-4">
-                  Terms of Service
+                  Terms
                 </Link>
               </div>
-              <p className="text-[11px] text-[#7A6F63] pt-4 border-t border-[#DDD5C7]">
+              <p className="text-[11px] text-[#A99E8E] pt-4 border-t border-white/15">
                 © {new Date().getFullYear()} Evermark Prints. Part of{' '}
                 <a
                   href="https://digital-dads-llc.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#171513] underline underline-offset-4"
+                  className="text-white underline underline-offset-4"
                 >
                   Digital Dads LLC
                 </a>
@@ -210,6 +279,8 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+
+        <StudioConciergeBot />
         <Analytics />
       </body>
     </html>

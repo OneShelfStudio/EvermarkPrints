@@ -34,13 +34,12 @@ export async function GET(req: Request) {
   const locationText = (searchParams.get('location') || product?.defaultLocation || '').toUpperCase().slice(0, 42)
   const dateText = (searchParams.get('date') || product?.defaultDateText || '').toUpperCase().slice(0, 38)
   const coordsText = (searchParams.get('coords') || product?.defaultCoords || '').slice(0, 46)
-  const plateNumber = product?.plateNumber || 'PLATE NO. 01'
   const mode = product?.mode || 'starmap'
 
   const W = 2400
   const H = 3000
   const cx = W / 2
-  const cy = 1170
+  const cy = 1145
   const R = 760
   const seed = hashSeed(`${headline}|${locationText}|${dateText}|${coordsText}`)
 
@@ -98,15 +97,12 @@ export async function GET(req: Request) {
   <rect width="${W}" height="${H}" fill="${colorway.bgHex}" />
   <rect x="130" y="130" width="${W - 260}" height="${H - 260}" fill="none" stroke="${colorway.accentHex}" stroke-width="5" stroke-opacity="0.55" />
   <rect x="160" y="160" width="${W - 320}" height="${H - 320}" fill="none" stroke="${colorway.accentHex}" stroke-width="2.5" stroke-opacity="0.22" />
-  <text x="210" y="230" fill="${colorway.mutedHex}" font-family="monospace" font-size="30" opacity="0.75">${escapeXml(plateNumber)}</text>
-  <text x="${W - 210}" y="230" text-anchor="end" fill="${colorway.mutedHex}" font-family="monospace" font-size="30" opacity="0.75">ARCHIVE EDITION · 300 DPI</text>
   ${artworkSvg}
   <line x1="${cx - 325}" y1="2125" x2="${cx + 325}" y2="2125" stroke="${colorway.accentHex}" stroke-width="3.5" stroke-opacity="0.65" />
   <text x="${cx}" y="2270" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="80">${escapeXml(headline)}</text>
-  <text x="${cx}" y="2385" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-style="italic" font-size="52" opacity="0.85">${escapeXml(subline)}</text>
+  <text x="${cx}" y="2385" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-style="italic" font-size="52" opacity="0.88">${escapeXml(subline)}</text>
   <text x="${cx}" y="2540" text-anchor="middle" fill="${colorway.accentHex}" font-family="sans-serif" font-weight="bold" font-size="42">${escapeXml(locationText)}   ·   ${escapeXml(dateText)}</text>
   <text x="${cx}" y="2635" text-anchor="middle" fill="${colorway.mutedHex}" font-family="monospace" font-size="37" opacity="0.9">${escapeXml(coordsText)}</text>
-  <text x="${cx}" y="2795" text-anchor="middle" fill="${colorway.mutedHex}" font-family="monospace" font-size="27" opacity="0.48">EVERMARK ARCHIVAL PRESS  ·  310GSM MUSEUM COTTON RAG</text>
 </svg>`
 
   return new NextResponse(svg, {

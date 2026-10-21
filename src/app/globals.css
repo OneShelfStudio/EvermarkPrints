@@ -3,17 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --bg-gallery: #f7f4ed;
-  --bg-stone: #efeae0;
-  --bg-paper: #fcfbf8;
-  --ink-primary: #171513;
-  --ink-secondary: #5c554d;
-  --border-hairline: #ddd5c7;
-  --accent-brass: #8a643b;
+  --bg-gallery: #f4ecdf;
+  --bg-stone: #e9decb;
+  --bg-paper: #fdfbf7;
+  --ink-primary: #261a13;
+  --ink-secondary: #5c4d42;
+  --border-hairline: #d8c9b6;
+  --accent-forest: #1b3027;
+  --accent-terracotta: #9e472a;
+  --accent-brass: #c59b5f;
 }
 
 body {
   background-color: var(--bg-gallery);
+  background-image: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255, 250, 240, 0.75) 0%,
+    rgba(244, 236, 223, 0.4) 60%,
+    rgba(232, 219, 200, 0.55) 100%
+  );
   color: var(--ink-primary);
   font-feature-settings: "kern" 1, "liga" 1;
   -webkit-font-smoothing: antialiased;
@@ -31,10 +39,10 @@ body {
   font-family: var(--font-jetbrains), monospace;
 }
 
-/* Subtle sunlit gallery wall texture for room staging */
+/* Warm golden-hour sunlit gallery wall texture for room staging */
 .gallery-wall-surface {
-  background-color: #ece6da;
+  background-color: #e6d8c3;
   background-image:
-    linear-gradient(128deg, rgba(255, 252, 245, 0.72) 0%, rgba(236, 230, 218, 0.2) 48%, rgba(212, 203, 188, 0.45) 100%),
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.65), transparent 55%);
+    linear-gradient(128deg, rgba(255, 249, 238, 0.82) 0%, rgba(232, 216, 194, 0.25) 48%, rgba(196, 174, 146, 0.52) 100%),
+    radial-gradient(circle at 18% 12%, rgba(255, 252, 244, 0.75), transparent 55%);
 }
