@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
+import { processCompletedEvermarkOrder } from '@/lib/printify'
 import Stripe from 'stripe'
 import { headers } from 'next/headers'
 
@@ -35,6 +36,7 @@ export async function POST(req: Request) {
     console.log(
       `[Evermark Webhook] Completed Order: ${session.id} | SKU: ${session.metadata?.sku} | Headline: ${session.metadata?.headline}`
     )
+    await processCompletedEvermarkOrder(session)
   }
 
   return NextResponse.json({ received: true })

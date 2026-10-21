@@ -19,6 +19,29 @@ interface LivePrintCustomizerProps {
   compactHeroMode?: boolean
 }
 
+const FAST_US_COORDS: Record<string, string> = {
+  'charleston, sc': '32.7765° N · 79.9311° W',
+  'charleston, south carolina': '32.7765° N · 79.9311° W',
+  'new york, ny': '40.7128° N · 74.0060° W',
+  'boston, ma': '42.3601° N · 71.0589° W',
+  'boston, massachusetts': '42.3601° N · 71.0589° W',
+  'nashville, tn': '36.1627° N · 86.7816° W',
+  'savannah, ga': '32.0809° N · 81.0912° W',
+  'savannah, georgia': '32.0809° N · 81.0912° W',
+  'austin, tx': '30.2672° N · 97.7431° W',
+  'denver, co': '39.7392° N · 104.9903° W',
+  'seattle, wa': '47.6062° N · 122.3321° W',
+  'chicago, il': '41.8781° N · 87.6298° W',
+  'san diego, ca': '32.7157° N · 117.1611° W',
+  'san francisco, ca': '37.7749° N · 122.4194° W',
+  'nantucket, ma': '41.2835° N · 70.0995° W',
+  'newport, ri': '41.4901° N · 71.3128° W',
+  'providence, ri': '41.8240° N · 71.4128° W',
+  'providence, rhode island': '41.8240° N · 71.4128° W',
+  'miami, fl': '25.7617° N · 80.1918° W',
+  'charlotte, nc': '35.2271° N · 80.8431° W',
+}
+
 function hashSeed(input: string): number {
   let h = 2166136261
   for (let i = 0; i < input.length; i++) {
@@ -28,11 +51,18 @@ function hashSeed(input: string): number {
   return Math.abs(h)
 }
 
+function formatDurationClock(sec: number): string {
+  const m = Math.floor(sec / 60)
+  const s = Math.max(1, Math.round(sec % 60))
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
 export default function LivePrintCustomizer({
   product,
   compactHeroMode = false,
 }: LivePrintCustomizerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const audioInputRef = useRef<HTMLInputElement | null>(null)
 
   const [headline, setHeadline] = useState(product.defaultHeadline)
   const [subline, setSubline] = useState(product.defaultSubline)
@@ -44,6 +74,15 @@ export default function LivePrintCustomizer({
   const [viewMode, setViewMode] = useState<'room' | 'studio'>('room')
   const [selectedFormatId, setSelectedFormatId] = useState<string>('framed-16x20')
   const [includeDigitalBump, setIncludeDigitalBump] = useState<boolean>(true)
+  const [isGiftOrder, setIsGiftOrder] = useState<boolean>(false)
+  const [giftNote, setGiftNote] = useState<string>('')
+
+  // Real audio waveform peaks (for Plate 02 Soundwave) & GPS Lookup state
+  const [customAudioPeaks, setCustomAudioPeaks] = useState<number[] | null>(null)
+  const [uploadedAudioName, setUploadedAudioName] = useState<string | null>(null)
+  const [isLookingUpGps, setIsLookingUpGps] = useState<boolean>(false)
+  const [gpsStatusMsg, setGpsStatusMsg] = useState<string | null>(null)
+
   const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
@@ -79,8 +118,8 @@ export default function LivePrintCustomizer({
     ctx.fillStyle = colorway.inkHex
     ctx.globalAlpha = 0.022
     for (let g = 0; g < 600; g++) {
-      const gx = ((g * 7919) % W)
-      const gy = ((g * 6271) % H)
+      const gx = (g * 7919) % W
+      const gy = (g * 6271) % H
       ctx.fillRect(gx, gy, 1.5, 1.5)
     }
     ctx.globalAlpha = 1
@@ -112,7 +151,6 @@ export default function LivePrintCustomizer({
     // 3. Mathematical Artwork Renderer by Mode
     ctx.save()
     if (product.mode === 'starmap') {
-      // Outer celestial degree ring
       ctx.strokeStyle = colorway.accentHex
       ctx.lineWidth = 2.2
       ctx.beginPath()
@@ -125,7 +163,6 @@ export default function LivePrintCustomizer({
       ctx.arc(cx, cy, R - 15, 0, Math.PI * 2)
       ctx.stroke()
 
-      // 72 degree tick marks
       for (let i = 0; i < 72; i++) {
         const ang = (i * Math.PI * 2) / 72
         const inner = i % 6 === 0 ? R - 15 : R - 7
@@ -135,7 +172,6 @@ export default function LivePrintCustomizer({
         ctx.stroke()
       }
 
-      // Cardinal markers N / E / S / W
       ctx.fillStyle = colorway.accentHex
       ctx.globalAlpha = 0.85
       ctx.font = '600 13px Georgia, serif'
@@ -145,7 +181,6 @@ export default function LivePrintCustomizer({
       ctx.fillText('E', cx + R + 16, cy + 4)
       ctx.fillText('W', cx - R - 16, cy + 4)
 
-      // Celestial Equator & Ecliptic rings
       ctx.globalAlpha = 0.22
       ctx.beginPath()
       ctx.arc(cx, cy, R * 0.68, 0, Math.PI * 2)
@@ -156,18 +191,16 @@ export default function LivePrintCustomizer({
         cy,
         R * 0.82,
         R * 0.52,
-        (((seed % 180) * Math.PI) / 180),
+        ((seed % 180) * Math.PI) / 180,
         0,
         Math.PI * 2
       )
       ctx.stroke()
 
-      // Clip inside celestial disc
       ctx.beginPath()
       ctx.arc(cx, cy, R - 17, 0, Math.PI * 2)
       ctx.clip()
 
-      // Plot 190 magnitude-calibrated stars
       ctx.fillStyle = colorway.inkHex
       for (let s = 0; s < 190; s++) {
         const sSeed = hashSeed(`${seed}-star-${s}`)
@@ -182,7 +215,6 @@ export default function LivePrintCustomizer({
         ctx.fill()
       }
 
-      // Plot 5 Major Constellations rotated by Date/Location seed
       const rotOffset = ((seed % 360) * Math.PI) / 180
       const constellations = [
         [
@@ -263,15 +295,21 @@ export default function LivePrintCustomizer({
       ctx.stroke()
 
       for (let i = 0; i <= bars; i++) {
-        const bSeed = hashSeed(`${seed}-bar-${i}`)
-        const env = Math.sin((i / bars) * Math.PI)
-        const mod =
-          0.35 +
-          0.45 * Math.abs(Math.sin(i * 0.28 + (seed % 17))) +
-          0.2 * ((bSeed % 100) / 100)
-        const amp = Math.max(8, env * mod * 235)
-        const x = startX + i * stepX
+        let amp: number
+        if (customAudioPeaks && customAudioPeaks.length > 0) {
+          const peakVal = customAudioPeaks[i % customAudioPeaks.length] || 0.15
+          amp = Math.max(8, peakVal * 245)
+        } else {
+          const bSeed = hashSeed(`${seed}-bar-${i}`)
+          const env = Math.sin((i / bars) * Math.PI)
+          const mod =
+            0.35 +
+            0.45 * Math.abs(Math.sin(i * 0.28 + (seed % 17))) +
+            0.2 * ((bSeed % 100) / 100)
+          amp = Math.max(8, env * mod * 235)
+        }
 
+        const x = startX + i * stepX
         ctx.strokeStyle = i % 4 === 0 ? colorway.accentHex : colorway.inkHex
         ctx.globalAlpha = i % 4 === 0 ? 0.95 : 0.78
         ctx.lineWidth = 3.0
@@ -402,7 +440,6 @@ export default function LivePrintCustomizer({
     // 4. Museum Typography Block Below Artwork
     ctx.textAlign = 'center'
 
-    // Divider rule
     ctx.strokeStyle = colorway.accentHex
     ctx.globalAlpha = 0.65
     ctx.lineWidth = 1.5
@@ -411,31 +448,26 @@ export default function LivePrintCustomizer({
     ctx.lineTo(cx + 130, 850)
     ctx.stroke()
 
-    // Primary Headline
     ctx.globalAlpha = 1
     ctx.fillStyle = colorway.inkHex
     ctx.font = '600 32px Georgia, serif'
     ctx.fillText(headline.toUpperCase().slice(0, 42), cx, 908)
 
-    // Personal Dedication / Subtitle
     ctx.fillStyle = colorway.inkHex
     ctx.globalAlpha = 0.85
     ctx.font = 'italic 21px Georgia, serif'
     ctx.fillText(subline.slice(0, 68), cx, 954)
 
-    // Location & Date
     ctx.fillStyle = colorway.accentHex
     ctx.globalAlpha = 0.95
     ctx.font = '600 17px sans-serif'
     ctx.fillText(`${locationText.toUpperCase()}   ·   ${dateText.toUpperCase()}`, cx, 1016)
 
-    // Coordinates / Technical Footnote
     ctx.fillStyle = colorway.mutedHex
     ctx.globalAlpha = 0.9
     ctx.font = '500 15px monospace'
     ctx.fillText(coordsText, cx, 1054)
 
-    // Archival Colophon at Bottom
     ctx.globalAlpha = 0.48
     ctx.font = '500 11px monospace'
     ctx.fillText('EVERMARK ARCHIVAL PRESS  ·  310GSM MUSEUM COTTON RAG', cx, 1118)
@@ -446,6 +478,7 @@ export default function LivePrintCustomizer({
     dateText,
     coordsText,
     colorway,
+    customAudioPeaks,
     product.mode,
     product.plateNumber,
   ])
@@ -456,6 +489,96 @@ export default function LivePrintCustomizer({
     setLocationText(preset.location)
     setDateText(preset.dateText)
     setCoordsText(preset.coords)
+    setCustomAudioPeaks(null)
+    setUploadedAudioName(null)
+  }
+
+  // 1-Click City/Address -> GPS Coordinates Auto-Lookup
+  async function handleLookupCoordinates() {
+    const query = locationText.trim()
+    if (!query) return
+
+    setIsLookingUpGps(true)
+    setGpsStatusMsg(null)
+
+    const normalized = query.toLowerCase()
+    if (FAST_US_COORDS[normalized]) {
+      setCoordsText(FAST_US_COORDS[normalized])
+      setGpsStatusMsg('Exact coordinates plotted.')
+      setIsLookingUpGps(false)
+      return
+    }
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
+          query
+        )}`
+      )
+      const data = await res.json()
+      if (Array.isArray(data) && data.length > 0) {
+        const lat = parseFloat(data[0].lat)
+        const lon = parseFloat(data[0].lon)
+        const latDir = lat >= 0 ? 'N' : 'S'
+        const lonDir = lon >= 0 ? 'E' : 'W'
+        const formatted = `${Math.abs(lat).toFixed(4)}° ${latDir} · ${Math.abs(lon).toFixed(
+          4
+        )}° ${lonDir}`
+        setCoordsText(formatted)
+        setGpsStatusMsg('Exact GPS coordinates plotted from location.')
+      } else {
+        setGpsStatusMsg('Location not found — try "City, State" format.')
+      }
+    } catch {
+      setGpsStatusMsg('Unable to reach coordinate service — you may type coordinates directly.')
+    } finally {
+      setIsLookingUpGps(false)
+    }
+  }
+
+  // Real Voice Note / Song Audio File Waveform Extractor (Web Audio API)
+  async function handleAudioFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const audioCtx = new AudioCtx()
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
+      const rawData = audioBuffer.getChannelData(0)
+
+      const bars = 97
+      const blockSize = Math.max(1, Math.floor(rawData.length / bars))
+      const peaks: number[] = []
+      let maxPeak = 0.01
+
+      for (let i = 0; i < bars; i++) {
+        let sum = 0
+        const start = i * blockSize
+        for (let j = 0; j < blockSize; j++) {
+          const sample = rawData[start + j] || 0
+          sum += sample * sample
+        }
+        const rms = Math.sqrt(sum / blockSize)
+        if (rms > maxPeak) maxPeak = rms
+        peaks.push(rms)
+      }
+
+      const normalized = peaks.map((p) =>
+        Math.min(1, Math.max(0.08, Math.pow(p / maxPeak, 0.75)))
+      )
+      setCustomAudioPeaks(normalized)
+      setUploadedAudioName(file.name)
+      setCoordsText(`00:00 —————————●———— ${formatDurationClock(audioBuffer.duration)}`)
+      await audioCtx.close()
+    } catch {
+      setErrorMsg(
+        'Could not decode that audio file. Please upload a standard .mp3, .wav, or .m4a file.'
+      )
+    }
   }
 
   function handleDownloadSamplePreview() {
@@ -473,6 +596,10 @@ export default function LivePrintCustomizer({
     setErrorMsg(null)
 
     try {
+      const serializedPeaks = customAudioPeaks
+        ? customAudioPeaks.map((n) => Math.round(n * 100)).join(',')
+        : ''
+
       if (typeof window !== 'undefined') {
         const canvas = canvasRef.current
         const previewDataUrl = canvas ? canvas.toDataURL('image/png') : ''
@@ -481,6 +608,8 @@ export default function LivePrintCustomizer({
           JSON.stringify({
             productSlug: product.slug,
             productTitle: product.title,
+            mode: product.mode,
+            plateNumber: product.plateNumber,
             headline,
             subline,
             locationText,
@@ -489,6 +618,8 @@ export default function LivePrintCustomizer({
             colorwayId,
             frameFinishId,
             formatLabel: `${activeFormat.label} (${frameFinish.label})`,
+            giftNote: isGiftOrder ? giftNote : '',
+            customPeaks: serializedPeaks,
             previewDataUrl,
           })
         )
@@ -543,6 +674,8 @@ export default function LivePrintCustomizer({
             locationText: locationText.slice(0, 120),
             dateText: dateText.slice(0, 120),
             coordsText: coordsText.slice(0, 120),
+            giftNote: isGiftOrder ? giftNote.slice(0, 240) : '',
+            customPeaks: serializedPeaks.slice(0, 350),
             includedDigitalBump: showBump && includeDigitalBump ? 'yes' : 'no',
           },
         }),
@@ -607,7 +740,6 @@ export default function LivePrintCustomizer({
                 : 'bg-[#EFEAE0] py-8 px-4 sm:px-10'
             }`}
           >
-            {/* Architectural Diagonal Window Light Overlay in Room Mode */}
             {viewMode === 'room' && (
               <>
                 <div
@@ -617,7 +749,6 @@ export default function LivePrintCustomizer({
                       'linear-gradient(125deg, rgba(255,253,248,0.85) 0%, rgba(255,253,248,0.0) 46%, rgba(160,146,126,0.22) 100%)',
                   }}
                 />
-                {/* Top Left Scale Spec Tag */}
                 <div className="relative z-10 flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#6E655B] mb-6">
                   <span>LIVE COMMISSION PREVIEW</span>
                   <span>{activeFormat.dimensions}</span>
@@ -640,7 +771,6 @@ export default function LivePrintCustomizer({
                 border: `2px solid ${frameFinish.lipHex}`,
               }}
             >
-              {/* Inner Hardwood Frame Lip */}
               <div
                 style={{
                   border: `2px solid ${frameFinish.innerHex}`,
@@ -648,7 +778,6 @@ export default function LivePrintCustomizer({
                   padding: viewMode === 'room' ? '16px' : '22px',
                 }}
               >
-                {/* 8-Ply Beveled Archival Mat Opening */}
                 <div
                   className="p-[2px]"
                   style={{
@@ -661,7 +790,6 @@ export default function LivePrintCustomizer({
               </div>
             </div>
 
-            {/* Architectural Chair Rail & Walnut Credenza in Room Mode */}
             {viewMode === 'room' && (
               <>
                 <div className="pointer-events-none absolute bottom-10 left-0 right-0 h-[3px] bg-[#D5CBB9] border-b border-[#FAF7F2]" />
@@ -808,6 +936,43 @@ export default function LivePrintCustomizer({
               03. Enter Your Inscription (Updates Live)
             </label>
 
+            {/* Real Audio File Waveform Uploader for Plate 02 */}
+            {product.mode === 'soundwave' && (
+              <div className="p-3.5 bg-[#F3EFE6] border border-[#D5CCBC] space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-mono-tech uppercase tracking-[0.12em] text-[#6E4E2E] font-semibold">
+                    Optional: Upload Real Voice Note or Song File
+                  </span>
+                  {uploadedAudioName && (
+                    <span className="text-[11px] font-mono-tech text-[#171513] truncate max-w-[140px]">
+                      ✓ {uploadedAudioName}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#5C554D]">
+                  Upload an <span className="font-mono-tech">.mp3</span>,{' '}
+                  <span className="font-mono-tech">.m4a</span>, or{' '}
+                  <span className="font-mono-tech">.wav</span> clip from your phone or computer to plot the exact acoustic amplitudes onto your print.
+                </p>
+                <input
+                  ref={audioInputRef}
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleAudioFileUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => audioInputRef.current?.click()}
+                  className="px-3.5 py-2 bg-[#171513] hover:bg-[#2E2925] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-[0.14em] transition"
+                >
+                  {uploadedAudioName
+                    ? 'Replace Audio Recording...'
+                    : 'Select Audio File (.MP3 / .M4A / .WAV)'}
+                </button>
+              </div>
+            )}
+
             <div className="space-y-1">
               <span className="text-xs text-[#4A443C] font-medium block">
                 Primary Title / Heading
@@ -838,9 +1003,23 @@ export default function LivePrintCustomizer({
 
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <span className="text-xs text-[#4A443C] font-medium block">
-                  City, Place or Harbor
-                </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-[#4A443C] font-medium">
+                    City, Place or Address
+                  </span>
+                  {(product.mode === 'starmap' ||
+                    product.mode === 'coordinates' ||
+                    product.mode === 'coastal_chart') && (
+                    <button
+                      type="button"
+                      disabled={isLookingUpGps}
+                      onClick={handleLookupCoordinates}
+                      className="text-[11px] font-mono-tech uppercase tracking-wider text-[#6E4E2E] hover:text-[#171513] underline underline-offset-2 font-semibold"
+                    >
+                      {isLookingUpGps ? 'Plotting...' : 'Auto-Find GPS ⌖'}
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={locationText}
@@ -865,9 +1044,16 @@ export default function LivePrintCustomizer({
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs text-[#4A443C] font-medium block">
-                Coordinates or Technical Colophon
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[#4A443C] font-medium">
+                  Coordinates or Technical Colophon
+                </span>
+                {gpsStatusMsg && (
+                  <span className="text-[11px] font-mono-tech text-[#6E4E2E]">
+                    {gpsStatusMsg}
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 value={coordsText}
@@ -950,6 +1136,35 @@ export default function LivePrintCustomizer({
             </div>
           )}
 
+          {/* Gift Order & Complimentary Gift Note Option */}
+          <div className="p-3.5 bg-[#FCFBF8] border border-[#DDD5C7] space-y-2.5">
+            <label className="flex items-center justify-between gap-3 cursor-pointer text-xs">
+              <span className="flex items-center gap-2.5 font-medium text-[#171513]">
+                <input
+                  type="checkbox"
+                  checked={isGiftOrder}
+                  onChange={(e) => setIsGiftOrder(e.target.checked)}
+                  className="h-4 w-4 accent-[#171513] cursor-pointer"
+                />
+                This Commission is a Gift (Add Complimentary Gift Note)
+              </span>
+              <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#6E4E2E]">
+                No Prices on Packing Slip
+              </span>
+            </label>
+
+            {isGiftOrder && (
+              <textarea
+                rows={2}
+                value={giftNote}
+                onChange={(e) => setGiftNote(e.target.value)}
+                maxLength={220}
+                placeholder="Write your personal gift message here (included on your printable gift presentation card & order dossier)..."
+                className="w-full border border-[#CFC6B6] bg-[#F7F4ED] px-3 py-2 text-xs text-[#171513] focus:border-[#171513] focus:outline-none"
+              />
+            )}
+          </div>
+
           {errorMsg && (
             <div className="p-3 bg-rose-50 border border-rose-300 text-xs text-rose-900">
               {errorMsg}
@@ -973,7 +1188,7 @@ export default function LivePrintCustomizer({
             </button>
 
             <p className="text-[11px] text-[#6E655B] text-center font-mono-tech">
-              COMPLIMENTARY US FRAMED DELIVERY (3–5 DAYS) · 310GSM MUSEUM COTTON RAG
+              COMPLIMENTARY US FRAMED DELIVERY (3–5 DAYS) · SHIPS GIFT-READY WITH ZERO PRICE TAGS
             </p>
             <p className="text-[11px] text-[#7A6F63] text-center">
               Protected by our{' '}

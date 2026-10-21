@@ -50,6 +50,15 @@ export async function POST(req: Request) {
 
     const separator = returnUrl.includes('?') ? '&' : '?'
 
+    const cleanMetadata: Record<string, string> = {
+      projectId: String(projectId || 'evermark_prints_order'),
+    }
+    for (const [k, v] of Object.entries(metadata)) {
+      if (v !== undefined && v !== null) {
+        cleanMetadata[k] = String(v).slice(0, 490)
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: formattedLineItems,
@@ -60,14 +69,18 @@ export async function POST(req: Request) {
             shipping_address_collection: {
               allowed_countries: ['US'],
             },
+            phone_number_collection: {
+              enabled: true,
+            },
           }
         : {}),
+      payment_intent_data: {
+        statement_descriptor_suffix: 'EVERMARK',
+        metadata: cleanMetadata,
+      },
       success_url: `${returnUrl}${separator}success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${returnUrl}${separator}canceled=true`,
-      metadata: {
-        projectId: projectId || 'evermark_prints_order',
-        ...metadata,
-      },
+      metadata: cleanMetadata,
     })
 
     return NextResponse.json({ url: session.url })
