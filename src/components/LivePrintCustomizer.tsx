@@ -62,6 +62,42 @@ function formatDurationClock(sec: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
+export interface FamilyMemberFlower {
+  id: string
+  name: string
+  month: string
+}
+
+export const BIRTH_FLOWERS_DICT: Record<string, { flower: string; symbol: string }> = {
+  January: { flower: 'Carnation', symbol: '🌸' },
+  February: { flower: 'Iris', symbol: '🌿' },
+  March: { flower: 'Daffodil', symbol: '🌼' },
+  April: { flower: 'Daisy', symbol: '🌺' },
+  May: { flower: 'Lily of the Valley', symbol: '🌱' },
+  June: { flower: 'Rose', symbol: '🌹' },
+  July: { flower: 'Water Lily', symbol: '🪷' },
+  August: { flower: 'Poppy', symbol: '🌾' },
+  September: { flower: 'Morning Glory', symbol: '🌻' },
+  October: { flower: 'Marigold', symbol: '🍂' },
+  November: { flower: 'Chrysanthemum', symbol: '🍁' },
+  December: { flower: 'Holly', symbol: '❄️' },
+}
+
+export const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
 export default function LivePrintCustomizer({
   product: initialProduct,
   compactHeroMode = false,
@@ -96,6 +132,27 @@ export default function LivePrintCustomizer({
 
   const [isGiftOrder, setIsGiftOrder] = useState<boolean>(false)
   const [giftNote, setGiftNote] = useState<string>('')
+
+  const [familyMembers, setFamilyMembers] = useState<FamilyMemberFlower[]>([
+    { id: '1', name: 'Emma', month: 'July' },
+    { id: '2', name: 'Liam', month: 'October' },
+    { id: '3', name: 'Olivia', month: 'April' },
+  ])
+  const [familyNote, setFamilyNote] = useState('Established 1984 · Three Generations')
+
+  function syncFamilyMembersToCanvas(members: FamilyMemberFlower[], note: string) {
+    const formatted = members
+      .filter((m) => m.name.trim().length > 0)
+      .map(
+        (m) =>
+          `${m.name.trim()} (${m.month.slice(0, 3)} · ${
+            BIRTH_FLOWERS_DICT[m.month]?.flower || 'Rose'
+          })`
+      )
+      .join('  •  ')
+    setLocationText(formatted || 'Family Botanical Garden')
+    setCoordsText(note || 'LOVE GROWS HERE FOREVER')
+  }
 
   // Loaded Painterly Base Plate Image & Watercolor Portrait Backdrop
   const [basePlateEl, setBasePlateEl] = useState<HTMLImageElement | null>(null)
@@ -156,6 +213,9 @@ export default function LivePrintCustomizer({
     setColorwayId(nextProd.defaultColorway)
     setFrameFinishId(nextProd.defaultFrame)
     setSelectedVariantId(nextDefaultVar.id)
+    if (newSlug === 'family-tree-botanical-print') {
+      syncFamilyMembersToCanvas(familyMembers, familyNote)
+    }
     if (!nextProd.supportsPhotoUpload) {
       setUploadedPhotoEl(null)
       setUploadedPhotoName(null)
@@ -1522,53 +1582,421 @@ export default function LivePrintCustomizer({
             </div>
           )}
 
-          {/* STEP 3: Personalize Inscription */}
-          <div className="space-y-3.5 pt-1">
-            <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-              Personalize Your Inscription (Updates Live on Canvas)
-            </label>
-
-            <div className="space-y-1">
-              <span className="text-xs text-[#4A3B31] font-medium block">
-                Primary Title / Heading
+          {/* STEP 3: Contextual Inscription & Personalization */}
+          <div className="space-y-4 pt-1">
+            <div className="flex items-center justify-between border-b border-[#D8C9B6] pb-2">
+              <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
+                {product.slug === 'family-tree-botanical-print'
+                  ? 'Personalize Family Bouquet & Birth Flowers'
+                  : product.slug === 'newborn-birth-stat-portrait'
+                  ? 'Personalize Baby Name & Birth Stats'
+                  : product.slug === 'custom-book-stack-print'
+                  ? 'Personalize Apothecary Candle Label'
+                  : product.slug === 'custom-pet-memorial'
+                  ? 'Personalize Pet Name & Memorial Tribute'
+                  : product.slug === 'custom-coordinates-print'
+                  ? 'Personalize First Home Address & Year'
+                  : product.slug === 'met-engaged-married-triptych'
+                  ? 'Personalize Couple Names & 3 Milestones'
+                  : 'Personalize Your Inscription (Live Canvas Proof)'}
+              </label>
+              <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A]">
+                Updates Live On Artwork
               </span>
-              <input
-                type="text"
-                value={headline}
-                onChange={(e) => {
-                  setActiveMockupUrl(null)
-                  setHeadline(e.target.value)
-                }}
-                maxLength={42}
-                className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                placeholder="e.g., THE NIGHT OUR STORY BEGAN"
-              />
             </div>
 
-            <div className="space-y-1">
-              <span className="text-xs text-[#4A3B31] font-medium block">
-                Dedication / Subtitle Line
-              </span>
-              <input
-                type="text"
-                value={subline}
-                onChange={(e) => {
-                  setActiveMockupUrl(null)
-                  setSubline(e.target.value)
-                }}
-                maxLength={68}
-                className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                placeholder="e.g., Underneath these exact stars, everything changed."
-              />
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#4A3B31] font-medium">
-                    City, Place or Names
+            {/* 1. FAMILY BIRTH FLOWER BOUQUET BLANKET */}
+            {product.slug === 'family-tree-botanical-print' ? (
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Family Title / Blanket Heading
                   </span>
-                  {product.supportsGpsLookup && (
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setHeadline(e.target.value)
+                    }}
+                    maxLength={42}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., THE MILLER FAMILY GARDEN"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Dedication Subtitle Line
+                  </span>
+                  <input
+                    type="text"
+                    value={subline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setSubline(e.target.value)
+                    }}
+                    maxLength={68}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., Rooted in love, blooming together through every season."
+                  />
+                </div>
+
+                {/* Interactive Birth Flower Stems Selector */}
+                <div className="space-y-3 p-4 bg-[#F8F3EA] border border-[#D8C9B6]">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#D8C9B6] pb-2.5">
+                    <div>
+                      <span className="text-xs font-semibold text-[#1B3027] uppercase tracking-wider block">
+                        Family Members &amp; Birth Flowers ({familyMembers.length} of 6 Stems)
+                      </span>
+                      <span className="text-[11px] text-[#5C4D42]">
+                        Select each person&apos;s birth month to bloom their authentic watercolor botanical flower.
+                      </span>
+                    </div>
+                    {familyMembers.length < 6 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextMonth = MONTH_NAMES[familyMembers.length % 12]
+                          const updated = [
+                            ...familyMembers,
+                            { id: String(Date.now()), name: '', month: nextMonth },
+                          ]
+                          setFamilyMembers(updated)
+                          syncFamilyMembersToCanvas(updated, familyNote)
+                        }}
+                        className="px-2.5 py-1 bg-[#1B3027] hover:bg-[#254236] text-[#F7F4ED] text-[10px] font-mono-tech uppercase tracking-wider transition"
+                      >
+                        + Add Member
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    {familyMembers.map((member, idx) => {
+                      const flowerInfo =
+                        BIRTH_FLOWERS_DICT[member.month] || BIRTH_FLOWERS_DICT['July']
+                      return (
+                        <div
+                          key={member.id}
+                          className="flex items-center gap-2 p-2 bg-[#FDFBF7] border border-[#D8C9B6]"
+                        >
+                          <span className="text-[10px] font-mono-tech text-[#8C583A] w-6 shrink-0 font-bold">
+                            #{idx + 1}
+                          </span>
+                          <input
+                            type="text"
+                            value={member.name}
+                            onChange={(e) => {
+                              const updated = [...familyMembers]
+                              updated[idx].name = e.target.value
+                              setFamilyMembers(updated)
+                              syncFamilyMembersToCanvas(updated, familyNote)
+                            }}
+                            placeholder="Name (e.g. Emma, Mom, Nana)"
+                            maxLength={18}
+                            className="flex-1 min-w-0 border border-[#CBB89F] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                          />
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <select
+                              value={member.month}
+                              onChange={(e) => {
+                                const updated = [...familyMembers]
+                                updated[idx].month = e.target.value
+                                setFamilyMembers(updated)
+                                syncFamilyMembersToCanvas(updated, familyNote)
+                              }}
+                              className="border border-[#CBB89F] bg-white px-2 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none font-medium"
+                            >
+                              {MONTH_NAMES.map((m) => {
+                                const f = BIRTH_FLOWERS_DICT[m]
+                                return (
+                                  <option key={m} value={m}>
+                                    {m} · {f.flower} {f.symbol}
+                                  </option>
+                                )
+                              })}
+                            </select>
+                            {familyMembers.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = familyMembers.filter((_, i) => i !== idx)
+                                  setFamilyMembers(updated)
+                                  syncFamilyMembersToCanvas(updated, familyNote)
+                                }}
+                                className="text-[#9E472A] hover:text-[#7A331E] text-xs px-1.5 font-bold"
+                                title="Remove member"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="pt-2 space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Family Heritage / Established Note
+                    </span>
+                    <input
+                      type="text"
+                      value={familyNote}
+                      onChange={(e) => {
+                        setFamilyNote(e.target.value)
+                        syncFamilyMembersToCanvas(familyMembers, e.target.value)
+                      }}
+                      placeholder="e.g., Established 1984 · Three Generations of Love"
+                      maxLength={48}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : product.slug === 'newborn-birth-stat-portrait' ? (
+              /* 2. STORYBOOK SLEEPING MOON & BABY BIRTH STATS */
+              <div className="space-y-3.5">
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Baby&apos;s Full Name
+                  </span>
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setHeadline(e.target.value)
+                    }}
+                    maxLength={42}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., LEO ALEXANDER BROOKS"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Welcome &amp; Dedication Line
+                  </span>
+                  <input
+                    type="text"
+                    value={subline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setSubline(e.target.value)
+                    }}
+                    maxLength={68}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., Loved Beyond Measure From Your Very First Breath"
+                  />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Birth Date &amp; Time
+                    </span>
+                    <input
+                      type="text"
+                      value={dateText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setDateText(e.target.value)
+                      }}
+                      maxLength={38}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., August 19, 2025 at 4:18 AM"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Birth Weight &amp; Length
+                    </span>
+                    <input
+                      type="text"
+                      value={coordsText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setCoordsText(e.target.value)
+                      }}
+                      maxLength={34}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., 7 LBS 11 OZ · 20.5 INCHES"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Birthplace City &amp; Hospital
+                  </span>
+                  <input
+                    type="text"
+                    value={locationText}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setLocationText(e.target.value)
+                    }}
+                    maxLength={42}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., Boston, Massachusetts · St. Luke's"
+                  />
+                </div>
+              </div>
+            ) : product.slug === 'custom-book-stack-print' ? (
+              /* 3. BOTANICAL SCENTED SOY CANDLE */
+              <div className="space-y-3.5">
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Candle Label Title / Recipient
+                  </span>
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setHeadline(e.target.value)
+                    }}
+                    maxLength={42}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., MOM'S COZY CORNER"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Dedication Quote or Blend Note
+                  </span>
+                  <input
+                    type="text"
+                    value={subline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setSubline(e.target.value)
+                    }}
+                    maxLength={68}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., Warmth, Light &amp; Peace in Every Season"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Dedicated By &amp; Special Date
+                  </span>
+                  <input
+                    type="text"
+                    value={coordsText}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setCoordsText(e.target.value)
+                    }}
+                    maxLength={44}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., With all our love, Sarah &amp; Michael · 2024"
+                  />
+                </div>
+              </div>
+            ) : product.slug === 'custom-pet-memorial' ? (
+              /* 4. SOLID BIRCH WOOD PET MEMORIAL */
+              <div className="space-y-3.5">
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Pet&apos;s Name
+                  </span>
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setHeadline(e.target.value)
+                    }}
+                    maxLength={32}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., BARNABY"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Loving Tribute Quote
+                  </span>
+                  <input
+                    type="text"
+                    value={subline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setSubline(e.target.value)
+                    }}
+                    maxLength={68}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., The best boy on every trail, always in our hearts."
+                  />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Years of Life / Memory Dates
+                    </span>
+                    <input
+                      type="text"
+                      value={dateText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setDateText(e.target.value)
+                      }}
+                      maxLength={30}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., 2014 to 2026"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Family Dedication
+                    </span>
+                    <input
+                      type="text"
+                      value={coordsText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setCoordsText(e.target.value)
+                      }}
+                      maxLength={38}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., THE HEART OF OUR HOME"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : product.slug === 'custom-coordinates-print' ? (
+              /* 5. OUR FIRST HOME CHISELED SLATE */
+              <div className="space-y-3.5">
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Home / Family Heading
+                  </span>
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setHeadline(e.target.value)
+                    }}
+                    maxLength={42}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., OUR FIRST HOME"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-[#4A3B31] font-medium">
+                      Street Address &amp; Town
+                    </span>
                     <button
                       type="button"
                       disabled={isLookingUpGps}
@@ -1577,61 +2005,284 @@ export default function LivePrintCustomizer({
                     >
                       {isLookingUpGps ? 'Plotting...' : 'Auto-Find GPS ⌖'}
                     </button>
-                  )}
+                  </div>
+                  <input
+                    type="text"
+                    value={locationText}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setLocationText(e.target.value)
+                    }}
+                    maxLength={42}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., 742 Evergreen Terrace · Charleston, SC"
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={locationText}
-                  onChange={(e) => {
-                    setActiveMockupUrl(null)
-                    setLocationText(e.target.value)
-                  }}
-                  maxLength={38}
-                  className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                />
-              </div>
 
-              <div className="space-y-1">
-                <span className="text-xs text-[#4A3B31] font-medium block">
-                  Date / Time / Year
-                </span>
-                <input
-                  type="text"
-                  value={dateText}
-                  onChange={(e) => {
-                    setActiveMockupUrl(null)
-                    setDateText(e.target.value)
-                  }}
-                  maxLength={34}
-                  className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                />
-              </div>
-            </div>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Established Year / Family Line
+                    </span>
+                    <input
+                      type="text"
+                      value={dateText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setDateText(e.target.value)
+                      }}
+                      maxLength={34}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., The Harrington Family · Est. 2024"
+                    />
+                  </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-[#4A3B31] font-medium">
-                  {product.supportsGpsLookup
-                    ? 'Exact Coordinates or Bottom Line'
-                    : 'Bottom Inscription Line'}
-                </span>
-                {gpsStatusMsg && (
-                  <span className="text-[11px] font-mono-tech text-[#1B3027]">
-                    {gpsStatusMsg}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#4A3B31] font-medium">
+                        GPS Coordinates
+                      </span>
+                      {gpsStatusMsg && (
+                        <span className="text-[10px] font-mono-tech text-[#1B3027]">
+                          {gpsStatusMsg}
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={coordsText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setCoordsText(e.target.value)
+                      }}
+                      maxLength={44}
+                      className="w-full border border-[#CBB89F] bg-[#F6EFE4] px-3.5 py-2 text-xs font-mono-tech text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Dedication Subtitle
                   </span>
-                )}
+                  <input
+                    type="text"
+                    value={subline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setSubline(e.target.value)
+                    }}
+                    maxLength={68}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., Where loud mornings, warm dinners, and lifelong memories are made."
+                  />
+                </div>
               </div>
-              <input
-                type="text"
-                value={coordsText}
-                onChange={(e) => {
-                  setActiveMockupUrl(null)
-                  setCoordsText(e.target.value)
-                }}
-                maxLength={44}
-                className="w-full border border-[#CBB89F] bg-[#F6EFE4] px-3.5 py-2 text-xs font-mono-tech text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-              />
-            </div>
+            ) : product.slug === 'met-engaged-married-triptych' ? (
+              /* 6. THREE MILESTONES ACRYLIC TRIPTYCH */
+              <div className="space-y-3.5">
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Couple Names / Heading
+                  </span>
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setHeadline(e.target.value)
+                    }}
+                    maxLength={36}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., SARAH &amp; MICHAEL"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Triptych Dedication Line
+                  </span>
+                  <input
+                    type="text"
+                    value={subline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setSubline(e.target.value)
+                    }}
+                    maxLength={68}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., Every mountain path brought us to this moment."
+                  />
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-2.5 pt-1">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
+                      Panel 1: Met
+                    </span>
+                    <input
+                      type="text"
+                      value={locationText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setLocationText(e.target.value)
+                      }}
+                      maxLength={32}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="DENVER · JUNE 2018"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
+                      Panel 2: Engaged
+                    </span>
+                    <input
+                      type="text"
+                      value={dateText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setDateText(e.target.value)
+                      }}
+                      maxLength={32}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="ASPEN · OCT 2021"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
+                      Panel 3: Married
+                    </span>
+                    <input
+                      type="text"
+                      value={coordsText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setCoordsText(e.target.value)
+                      }}
+                      maxLength={32}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="VAIL · SEPT 2023"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* 7. CELESTIAL / CARTOGRAPHIC / ACOUSTIC EDITIONS (Star Map, Soundwave, Nautical Chart, Tapestry) */
+              <div className="space-y-3.5">
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    {product.supportsAudioUpload
+                      ? 'Song Title & Artist / Audio Title'
+                      : 'Primary Title / Milestone Heading'}
+                  </span>
+                  <input
+                    type="text"
+                    value={headline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setHeadline(e.target.value)
+                    }}
+                    maxLength={42}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., THE NIGHT OUR STORY BEGAN"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    {product.supportsAudioUpload
+                      ? 'Wedding Vows or Special Dedication'
+                      : 'Dedication / Subtitle Line'}
+                  </span>
+                  <input
+                    type="text"
+                    value={subline}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setSubline(e.target.value)
+                    }}
+                    maxLength={68}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., Underneath these exact stars, everything changed."
+                  />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#4A3B31] font-medium">
+                        {product.supportsAudioUpload
+                          ? 'City, Venue or Place'
+                          : 'City, Place or Port'}
+                      </span>
+                      {product.supportsGpsLookup && (
+                        <button
+                          type="button"
+                          disabled={isLookingUpGps}
+                          onClick={handleLookupCoordinates}
+                          className="text-[11px] font-mono-tech uppercase tracking-wider text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
+                        >
+                          {isLookingUpGps ? 'Plotting...' : 'Auto-Find GPS ⌖'}
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={locationText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setLocationText(e.target.value)
+                      }}
+                      maxLength={38}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Date / Time / Anniversary
+                    </span>
+                    <input
+                      type="text"
+                      value={dateText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setDateText(e.target.value)
+                      }}
+                      maxLength={34}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-[#4A3B31] font-medium">
+                      {product.supportsGpsLookup
+                        ? 'Exact Coordinates or Bottom Line'
+                        : 'Bottom Line / Audio Duration'}
+                    </span>
+                    {gpsStatusMsg && (
+                      <span className="text-[11px] font-mono-tech text-[#1B3027]">
+                        {gpsStatusMsg}
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={coordsText}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setCoordsText(e.target.value)
+                    }}
+                    maxLength={44}
+                    className="w-full border border-[#CBB89F] bg-[#F6EFE4] px-3.5 py-2 text-xs font-mono-tech text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* STEP 4: Select Real Product Size / Scent / Variant */}
