@@ -254,7 +254,7 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     console.error('[Evermark Inscription Edit Error]:', err)
     return NextResponse.json(
-      { error: 'Unable to update inscription. Please email ryanb@digital-dads-llc.com.' },
+      { error: 'Unable to update inscription. Please email concierge@evermarkprints.com.' },
       { status: 500 }
     )
   }

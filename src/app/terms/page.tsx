@@ -61,8 +61,8 @@ export default function TermsOfServicePage() {
               Live Order Tracker (/track)
             </Link>{' '}
             or email{' '}
-            <a href="mailto:ryanb@digital-dads-llc.com" className="underline text-[#171513] font-semibold">
-              ryanb@digital-dads-llc.com
+            <a href="mailto:concierge@evermarkprints.com" className="underline text-[#171513] font-semibold">
+              concierge@evermarkprints.com
             </a>{' '}
             within <strong>2 hours of purchase</strong> so we can update your file before it enters physical production.
           </p>
@@ -101,8 +101,8 @@ export default function TermsOfServicePage() {
           </h2>
           <p>
             Questions regarding these Terms of Service may be directed to{' '}
-            <a href="mailto:ryanb@digital-dads-llc.com" className="underline text-[#171513] font-semibold">
-              ryanb@digital-dads-llc.com
+            <a href="mailto:concierge@evermarkprints.com" className="underline text-[#171513] font-semibold">
+              concierge@evermarkprints.com
             </a>.
           </p>
         </section>

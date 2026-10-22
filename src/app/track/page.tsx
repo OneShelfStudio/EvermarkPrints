@@ -205,10 +205,10 @@ export default function TrackOrderPage() {
           <p className="text-xs text-[#5C4D42] max-w-md mx-auto">
             Please double-check the email address entered during Stripe Checkout, or reach out to our studio concierge at{' '}
             <a
-              href="mailto:ryanb@digital-dads-llc.com"
+              href="mailto:concierge@evermarkprints.com"
               className="underline text-[#9E472A] font-semibold"
             >
-              ryanb@digital-dads-llc.com
+              concierge@evermarkprints.com
             </a>.
           </p>
         </div>

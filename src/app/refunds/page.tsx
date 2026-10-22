@@ -55,8 +55,8 @@ export default function RefundPolicyPage() {
           <ul className="list-disc pl-5 space-y-2">
             <li>
               Email{' '}
-              <a href="mailto:ryanb@digital-dads-llc.com" className="underline text-[#171513] font-semibold">
-                ryanb@digital-dads-llc.com
+              <a href="mailto:concierge@evermarkprints.com" className="underline text-[#171513] font-semibold">
+                concierge@evermarkprints.com
               </a>{' '}
               within <strong>30 days of delivery</strong> with your order email and a quick photo of the damage.
             </li>
@@ -72,8 +72,8 @@ export default function RefundPolicyPage() {
           </h2>
           <p>
             Because our production queue begins rendering and transmitting orders to our US workshops shortly after checkout, you may perform a <strong>free text modification on our <Link href="/track" className="underline text-[#171513] font-semibold">Order Tracker (/track)</Link> or request a full cancellation refund within 2 hours of placing your order</strong> by emailing{' '}
-            <a href="mailto:ryanb@digital-dads-llc.com" className="underline text-[#171513] font-semibold">
-              ryanb@digital-dads-llc.com
+            <a href="mailto:concierge@evermarkprints.com" className="underline text-[#171513] font-semibold">
+              concierge@evermarkprints.com
             </a>.
           </p>
         </section>

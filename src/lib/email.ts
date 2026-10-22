@@ -111,7 +111,7 @@ export async function sendOrderAlertEmail(data: OrderNotificationData) {
 
       <div style="border-top: 1px solid #DDD5C7; padding-top: 16px; font-size: 12px; color: #7A6F63; text-align: center;">
         Complimentary Tracked US Delivery (3 to 5 business days).<br />
-        Questions? Reply to this email or contact us at <a href="mailto:ryanb@digital-dads-llc.com" style="color: #9E472A;">ryanb@digital-dads-llc.com</a>.
+        Questions? Reply to this email or contact us at <a href="mailto:concierge@evermarkprints.com" style="color: #9E472A;">concierge@evermarkprints.com</a>.
       </div>
     </div>
   `

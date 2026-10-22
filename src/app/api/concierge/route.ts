@@ -161,7 +161,7 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({
       reply:
-        'Our studio concierge is here to help! Enter your email address to track an order, or email ryanb@digital-dads-llc.com for personal assistance.',
+        'Our studio concierge is here to help! Enter your email address to track an order, or email concierge@evermarkprints.com for personal assistance.',
     })
   }
 }

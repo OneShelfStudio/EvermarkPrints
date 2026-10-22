@@ -42,7 +42,7 @@ export default function StudioConciergeBot() {
           role: 'assistant',
           text:
             data.reply ||
-            'Please visit /track to check your order status or email ryanb@digital-dads-llc.com.',
+            'Please visit /track to check your order status or email concierge@evermarkprints.com.',
           actionUrl: data.actionUrl,
           actionLabel: data.actionLabel,
         },
@@ -52,7 +52,7 @@ export default function StudioConciergeBot() {
         ...prev,
         {
           role: 'assistant',
-          text: 'You can track orders or edit inscriptions at /track, or email ryanb@digital-dads-llc.com.',
+          text: 'You can track orders or edit inscriptions at /track, or email concierge@evermarkprints.com.',
         },
       ])
     } finally {

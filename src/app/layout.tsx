@@ -104,7 +104,7 @@ const organizationJsonLd = {
       image: 'https://www.evermarkprints.com/mockups/custom-star-map/mockup-1.jpg',
       description:
         'Bespoke American archival studio crafting custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveforms, and pet portraits.',
-      email: 'ryanb@digital-dads-llc.com',
+      email: 'concierge@evermarkprints.com',
       priceRange: '$$',
       address: {
         '@type': 'PostalAddress',
@@ -261,10 +261,10 @@ export default function RootLayout({
                 <p className="text-[#D0C5B4]">
                   STUDIO CONCIERGE:{' '}
                   <a
-                    href="mailto:ryanb@digital-dads-llc.com"
+                    href="mailto:concierge@evermarkprints.com"
                     className="text-white underline underline-offset-4"
                   >
-                    ryanb@digital-dads-llc.com
+                    concierge@evermarkprints.com
                   </a>
                 </p>
               </div>

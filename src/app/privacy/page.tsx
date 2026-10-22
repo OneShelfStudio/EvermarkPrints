@@ -95,8 +95,8 @@ export default function PrivacyPolicyPage() {
           </h2>
           <p>
             Residents of California and other US states with applicable consumer privacy laws have the right to request access to, correction of, or deletion of personal information we hold about them (subject to legal record-keeping exceptions for completed tax and accounting transactions). To submit a privacy request, email us at{' '}
-            <a href="mailto:ryanb@digital-dads-llc.com" className="underline text-[#171513] font-semibold">
-              ryanb@digital-dads-llc.com
+            <a href="mailto:concierge@evermarkprints.com" className="underline text-[#171513] font-semibold">
+              concierge@evermarkprints.com
             </a>.
           </p>
         </section>
@@ -109,8 +109,8 @@ export default function PrivacyPolicyPage() {
             <strong>Evermark Prints (A Division of Digital Dads LLC)</strong>
             <br />
             Email:{' '}
-            <a href="mailto:ryanb@digital-dads-llc.com" className="underline text-[#171513] font-semibold">
-              ryanb@digital-dads-llc.com
+            <a href="mailto:concierge@evermarkprints.com" className="underline text-[#171513] font-semibold">
+              concierge@evermarkprints.com
             </a>
             <br />
             Website:{' '}

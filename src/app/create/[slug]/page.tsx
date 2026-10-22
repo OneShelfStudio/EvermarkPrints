@@ -103,6 +103,7 @@ export default function CreateCustomPrintPage({
       priceCurrency: 'USD',
       price: v.priceUsd.toFixed(2),
       priceValidUntil: '2027-12-31',
+      validFrom: '2026-01-01',
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
       shippingDetails: {
