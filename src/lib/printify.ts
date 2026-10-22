@@ -1,5 +1,6 @@
 import Stripe from 'stripe'
 import { getEvermarkProductBySlug, EVERMARK_CATALOG } from '@/lib/catalog'
+import { sendOrderAlertEmail } from '@/lib/email'
 
 const PRINTIFY_BASE_URL = 'https://api.printify.com/v1'
 
@@ -91,16 +92,35 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
       const firstName = parts[0] || 'Evermark'
       const lastName = parts.slice(1).join(' ') || 'Collector'
 
+      let lineItemsPayload = [
+        {
+          product_id: meta.printifyProductId || product.printifyProductId,
+          variant_id: variantIdNum,
+          quantity: 1,
+        },
+      ]
+
+      if (meta.orderItemsJson) {
+        try {
+          const parsed = JSON.parse(meta.orderItemsJson)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            lineItemsPayload = parsed.map(
+              (item: { pid?: string; vid?: number; qty?: number }) => ({
+                product_id: item.pid || meta.printifyProductId || product.printifyProductId,
+                variant_id: Number(item.vid) || variantIdNum,
+                quantity: Number(item.qty) || 1,
+              })
+            )
+          }
+        } catch {
+          // Fall back to default primary line item
+        }
+      }
+
       const orderPayload = {
         external_id: session.id.slice(0, 48),
         label: `${product.sku} - ${meta.headline || product.shortTitle}`.slice(0, 48),
-        line_items: [
-          {
-            product_id: meta.printifyProductId || product.printifyProductId,
-            variant_id: variantIdNum,
-            quantity: 1,
-          },
-        ],
+        line_items: lineItemsPayload,
         shipping_method: 1,
         is_printify_express: false,
         send_shipping_notification: false,
@@ -186,6 +206,29 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
     } catch (err) {
       console.error('[Evermark Sanity Order Log Error]:', err)
     }
+  }
+
+  // 3. Dispatch automated owner alert and customer confirmation emails
+  try {
+    await sendOrderAlertEmail({
+      orderId: session.id,
+      customerName: session.customer_details?.name || 'Collector',
+      customerEmail: session.customer_details?.email || '',
+      productTitle: product.title,
+      formatLabel: meta.formatLabel || product.variants[0].label,
+      amountUsd: session.amount_total ? session.amount_total / 100 : 0,
+      headline: meta.headline || '',
+      subline: meta.subline || '',
+      locationText: meta.locationText || '',
+      dateText: meta.dateText || '',
+      coordsText: meta.coordsText || '',
+      giftNote: meta.giftNote || '',
+      shippingAddress: addr || null,
+      printifyOrderId,
+      masterRenderUrl,
+    })
+  } catch (err) {
+    console.error('[Evermark Email Dispatch Error]:', err)
   }
 
   return {

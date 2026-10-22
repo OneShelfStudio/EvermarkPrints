@@ -151,6 +151,7 @@ export default function OrderBagDrawer() {
       const orderItemsSummary = JSON.stringify(
         bagItems.map((b) => ({
           sku: b.sku,
+          pid: b.printifyProductId,
           bp: b.printifyBlueprintId,
           pp: b.printifyProviderId,
           vid: b.printifyVariantId,

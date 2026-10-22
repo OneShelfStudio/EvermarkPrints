@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { COMPANION_ADD_ONS, EVERMARK_CATALOG } from '@/lib/catalog'
 import { saveStoredBag } from '@/components/OrderBagDrawer'
+import AdUnit from '@/components/AdUnit'
 
 interface SavedCustomPrint {
   productSlug: string
@@ -383,6 +384,10 @@ function SuccessContent() {
             </Link>
           </div>
         </div>
+      </div>
+
+      <div className="pt-2">
+        <AdUnit slot="4800798822" fallbackVariant="bundle" />
       </div>
     </div>
   )
