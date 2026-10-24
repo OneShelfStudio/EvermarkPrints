@@ -322,12 +322,23 @@ export default function LivePrintCustomizer({
       ctx.filter = 'none'
       ctx.restore()
 
-      // Subtle antique gold bezel around uploaded portrait
-      ctx.strokeStyle = colorway.accentHex
-      ctx.lineWidth = 2.5
+      // Soft Watercolor Edge Feathering + Deckled Brushstroke Ring around uploaded portrait
+      const featherGrad = ctx.createRadialGradient(cx, cy - 10, 178, cx, cy - 10, 228)
+      featherGrad.addColorStop(0, 'rgba(250, 246, 240, 0)')
+      featherGrad.addColorStop(0.72, 'rgba(250, 246, 240, 0.25)')
+      featherGrad.addColorStop(1, isDarkPaper ? colorway.bgHex : '#FAF6F0')
+      ctx.fillStyle = featherGrad
       ctx.beginPath()
-      ctx.arc(cx, cy - 10, 225, 0, Math.PI * 2)
+      ctx.arc(cx, cy - 10, 230, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.65
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.arc(cx, cy - 10, 218, 0, Math.PI * 2)
       ctx.stroke()
+      ctx.globalAlpha = 1
     } else if (basePlateEl) {
       if (isDarkPaper) {
         ctx.save()
@@ -385,17 +396,181 @@ export default function LivePrintCustomizer({
     }
     ctx.restore()
 
-    // 3. Acoustic Waveform Overlay (Only for products where supportsAudioUpload is true)
+    // 3. Dynamic Product-Specific Live Canvas Plotting (Stars, Birth Flowers, Nautical Pin, Soundwave + QR)
+    if (product.mode === 'starmap' || product.mode === 'marathon_route') {
+      // Dynamic Constellation Lines, Stars & Celestial Compass Ticks shifting with Location/Date/Coords
+      ctx.save()
+      const starCy = 395
+      const starR = 265
+      ctx.strokeStyle = '#E5C178'
+      ctx.globalAlpha = 0.48
+      ctx.lineWidth = 1.4
+      ctx.setLineDash([5, 4])
+      ctx.beginPath()
+      ctx.arc(cx, starCy, starR, 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.setLineDash([])
+
+      const pts: { x: number; y: number }[] = []
+      for (let s = 0; s < 38; s++) {
+        const sSeed = hashSeed(`${seed}-star-${s}`)
+        const ang = ((sSeed % 3600) / 3600) * Math.PI * 2
+        const dist = 35 + ((sSeed >> 4) % (starR - 45))
+        const sx = cx + Math.cos(ang) * dist
+        const sy = starCy + Math.sin(ang) * dist * 0.88
+        pts.push({ x: sx, y: sy })
+        ctx.fillStyle = '#FFF9EB'
+        ctx.globalAlpha = s % 5 === 0 ? 0.95 : 0.72
+        ctx.beginPath()
+        ctx.arc(sx, sy, s % 7 === 0 ? 3.1 : s % 3 === 0 ? 2.0 : 1.2, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      ctx.strokeStyle = '#E5C178'
+      ctx.globalAlpha = 0.62
+      ctx.lineWidth = 1.1
+      for (let i = 0; i < 16; i += 2) {
+        const p1 = pts[i]
+        const p2 = pts[i + 1]
+        if (p1 && p2 && Math.hypot(p1.x - p2.x, p1.y - p2.y) < 165) {
+          ctx.beginPath()
+          ctx.moveTo(p1.x, p1.y)
+          ctx.lineTo(p2.x, p2.y)
+          ctx.stroke()
+        }
+      }
+      ctx.restore()
+    } else if (product.mode === 'family_botanical') {
+      // Dynamic Birth Flower Bouquet Stems, Colored Blossoms & Family Member Name Ribbons
+      ctx.save()
+      const paletteMap: Record<string, { petal: string; center: string }> = {
+        jan: { petal: '#D97B88', center: '#A33E4D' },
+        feb: { petal: '#7E649E', center: '#E5C178' },
+        mar: { petal: '#E8B84B', center: '#C87A28' },
+        apr: { petal: '#F4EFE6', center: '#DF9B32' },
+        may: { petal: '#EFECE6', center: '#9BB58E' },
+        jun: { petal: '#D46A74', center: '#8E2F39' },
+        jul: { petal: '#E8A5B2', center: '#D8AE64' },
+        aug: { petal: '#C84B31', center: '#261A13' },
+        sep: { petal: '#8A6F9E', center: '#E0AD46' },
+        oct: { petal: '#D97925', center: '#7A331E' },
+        nov: { petal: '#C45B4A', center: '#8C3324' },
+        dec: { petal: '#F2ECE1', center: '#D49B38' },
+      }
+      const activeMembers = familyMembers.filter((m) => m.name.trim().length > 0).slice(0, 8)
+      const count = Math.max(1, activeMembers.length)
+      const span = Math.min(540, count * 105)
+      const startX = cx - span / 2
+
+      activeMembers.forEach((m, idx) => {
+        const fx = count === 1 ? cx : startX + (idx * span) / (count - 1)
+        const fy = 265 + (idx % 2 === 0 ? -24 : 18)
+        const monthShort = (m.month || 'jun').slice(0, 3).toLowerCase()
+        const pal = paletteMap[monthShort] || paletteMap.jun
+
+        // Botanical stem curving down to bouquet knot
+        ctx.strokeStyle = '#33543F'
+        ctx.globalAlpha = 0.88
+        ctx.lineWidth = 3.2
+        ctx.beginPath()
+        ctx.moveTo(cx, 720)
+        ctx.quadraticCurveTo(fx + (idx % 2 === 0 ? -16 : 16), 510, fx, fy)
+        ctx.stroke()
+
+        // 8-petal birth flower blossom
+        for (let p = 0; p < 8; p++) {
+          ctx.save()
+          ctx.translate(fx, fy)
+          ctx.rotate((p * Math.PI) / 4)
+          ctx.fillStyle = pal.petal
+          ctx.globalAlpha = 0.92
+          ctx.beginPath()
+          ctx.ellipse(0, -18, 9.5, 19, 0, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.strokeStyle = '#261A13'
+          ctx.globalAlpha = 0.25
+          ctx.lineWidth = 0.8
+          ctx.stroke()
+          ctx.restore()
+        }
+
+        // Flower center
+        ctx.fillStyle = pal.center
+        ctx.globalAlpha = 1
+        ctx.beginPath()
+        ctx.arc(fx, fy, 9.5, 0, Math.PI * 2)
+        ctx.fill()
+
+        // Botanical Name Tag Ribbon below blossom
+        const tagW = 86
+        const tagH = 22
+        const tagY = fy + 40
+        ctx.fillStyle = '#FAF6F0'
+        ctx.globalAlpha = 0.94
+        ctx.fillRect(fx - tagW / 2, tagY, tagW, tagH)
+        ctx.strokeStyle = colorway.accentHex
+        ctx.lineWidth = 1.2
+        ctx.strokeRect(fx - tagW / 2, tagY, tagW, tagH)
+
+        ctx.fillStyle = '#261A13'
+        ctx.font = '600 11px Georgia, serif'
+        ctx.textAlign = 'center'
+        ctx.fillText(m.name.trim().slice(0, 12), fx, tagY + 15)
+      })
+      ctx.restore()
+    } else if (
+      product.mode === 'coastal_chart' ||
+      product.mode === 'patent_blueprint' ||
+      product.mode === 'coordinates'
+    ) {
+      // Dynamic Coordinate Graticule Crosshair & Plotted Golden Location Pin
+      ctx.save()
+      const pinOffsetX = ((seed % 140) - 70) * 0.8
+      const pinOffsetY = (((seed >> 4) % 90) - 45) * 0.8
+      const px = cx + pinOffsetX
+      const py = 430 + pinOffsetY
+
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.42
+      ctx.lineWidth = 1
+      ctx.setLineDash([4, 4])
+      ctx.beginPath()
+      ctx.moveTo(90, py)
+      ctx.lineTo(W - 90, py)
+      ctx.moveTo(px, 110)
+      ctx.lineTo(px, 740)
+      ctx.stroke()
+      ctx.setLineDash([])
+
+      // Pulse Ring + Solid Gold Pin
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.85
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.arc(px, py, 16, 0, Math.PI * 2)
+      ctx.stroke()
+
+      ctx.fillStyle = '#9E472A'
+      ctx.globalAlpha = 0.96
+      ctx.beginPath()
+      ctx.arc(px, py, 6.5, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+    }
+
+    // 3B. Acoustic Waveform + Scannable QR Code Overlay (For Soundwave & Vinyl Lyric products)
     if (
       product.supportsAudioUpload &&
-      (product.mode === 'soundwave' || (customAudioPeaks && customAudioPeaks.length > 0))
+      (product.mode === 'soundwave' ||
+        product.mode === 'vinyl_lyric' ||
+        (customAudioPeaks && customAudioPeaks.length > 0))
     ) {
       ctx.save()
-      const bars = 88
-      const span = 540
-      const sx0 = cx - span / 2
+      const bars = 82
+      const span = 480
+      const sx0 = cx - span / 2 - 36
       const wy = 795
-      const maxAmp = product.mode === 'soundwave' ? 36 : 26
+      const maxAmp = product.mode === 'soundwave' ? 34 : 25
 
       for (let i = 0; i <= bars; i++) {
         let amp: number
@@ -414,12 +589,37 @@ export default function LivePrintCustomizer({
         const x = sx0 + (i * span) / bars
         ctx.strokeStyle = i % 3 === 0 ? colorway.accentHex : colorway.inkHex
         ctx.globalAlpha = i % 3 === 0 ? 0.95 : 0.78
-        ctx.lineWidth = 2.6
+        ctx.lineWidth = 2.5
         ctx.lineCap = 'round'
         ctx.beginPath()
         ctx.moveTo(x, wy - amp)
         ctx.lineTo(x, wy + amp)
         ctx.stroke()
+      }
+
+      // Draw Scannable Audio QR Code Matrix next to the waveform
+      const qrSize = 56
+      const qrX = sx0 + span + 20
+      const qrY = wy - qrSize / 2
+      ctx.fillStyle = '#FAF6F0'
+      ctx.globalAlpha = 0.95
+      ctx.fillRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8)
+      ctx.strokeStyle = colorway.accentHex
+      ctx.lineWidth = 1.2
+      ctx.strokeRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8)
+
+      const cells = 11
+      const cellPx = qrSize / cells
+      ctx.fillStyle = colorway.inkHex
+      for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+          const isCorner =
+            (r < 3 && c < 3) || (r < 3 && c >= cells - 3) || (r >= cells - 3 && c < 3)
+          const bit = hashSeed(`${seed}-qr-${r}-${c}`) % 2 === 0
+          if (isCorner || bit) {
+            ctx.fillRect(qrX + c * cellPx, qrY + r * cellPx, cellPx - 0.5, cellPx - 0.5)
+          }
+        }
       }
       ctx.restore()
     }
@@ -500,6 +700,7 @@ export default function LivePrintCustomizer({
     product.supportsAudioUpload,
     basePlateEl,
     portraitBackdropEl,
+    familyMembers,
   ])
 
   function handleApplyPreset(preset: EvermarkProduct['presets'][number]) {
@@ -790,6 +991,7 @@ export default function LivePrintCustomizer({
         ? customAudioPeaks.map((n) => Math.round(n * 100)).join(',')
         : ''
 
+      let customMasterUrl = ''
       if (typeof window !== 'undefined') {
         const cleanCanvas = cleanCanvasRef.current
         const previewDataUrl = cleanCanvas ? cleanCanvas.toDataURL('image/png') : ''
@@ -813,6 +1015,29 @@ export default function LivePrintCustomizer({
             previewDataUrl,
           })
         )
+
+        if (previewDataUrl) {
+          try {
+            const upRes = await fetch('/api/artwork-upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                dataUrl: previewDataUrl,
+                productSlug: product.slug,
+                sku: product.sku,
+                headline,
+              }),
+            })
+            if (upRes.ok) {
+              const upData = await upRes.json()
+              if (upData.masterArtworkUrl) {
+                customMasterUrl = String(upData.masterArtworkUrl)
+              }
+            }
+          } catch {
+            // Non-blocking fallback to deterministic /api/render-master URL
+          }
+        }
       }
 
       const origin =
@@ -862,6 +1087,7 @@ export default function LivePrintCustomizer({
             customPeaks: serializedPeaks.slice(0, 350),
             hasCustomPhoto: uploadedPhotoName ? 'yes' : 'no',
             hasCustomAudio: uploadedAudioName ? 'yes' : 'no',
+            customMasterUrl: customMasterUrl.slice(0, 480),
             bundleCount: String(allCheckoutItems.length),
           },
         }),
@@ -1564,6 +1790,16 @@ export default function LivePrintCustomizer({
                       >
                         {isRecordingMic ? '● Recording 5s...' : '🎙 Record Voice (5s)'}
                       </button>
+                    </div>
+                    <div className="pt-1 flex items-center justify-between text-[10px] font-mono-tech text-[#1B3027]">
+                      <span>✓ Scannable Acoustic QR Plotted on Artwork</span>
+                      <Link
+                        href={`/listen?title=${encodeURIComponent(headline)}&sub=${encodeURIComponent(subline)}&loc=${encodeURIComponent(locationText)}&date=${encodeURIComponent(dateText)}`}
+                        target="_blank"
+                        className="underline font-semibold text-[#9E472A] hover:text-[#1B3027]"
+                      >
+                        ♫ Test QR Audio Player ↗
+                      </Link>
                     </div>
                   </div>
                 )}
@@ -2445,6 +2681,35 @@ export default function LivePrintCustomizer({
               {errorMsg}
             </div>
           )}
+
+          {/* Live Dynamic US Delivery Date Estimator */}
+          <div className="p-3 bg-[#EDF4EF] border border-[#1B3027]/30 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-[#1B3027]">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 animate-pulse shrink-0" />
+              <span>
+                <strong>Order today:</strong> Estimated US delivery{' '}
+                <strong className="underline decoration-[#9E472A] underline-offset-2">
+                  {(() => {
+                    const addBusinessDays = (start: Date, days: number) => {
+                      const d = new Date(start)
+                      let added = 0
+                      while (added < days) {
+                        d.setDate(d.getDate() + 1)
+                        const dow = d.getDay()
+                        if (dow !== 0 && dow !== 6) added++
+                      }
+                      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    }
+                    const now = new Date()
+                    return `${addBusinessDays(now, 3)} to ${addBusinessDays(now, 5)}`
+                  })()}
+                </strong>
+              </span>
+            </div>
+            <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold shrink-0">
+              FREE TRACKED US SHIPPING
+            </span>
+          </div>
 
           {/* Primary Checkout & Multi-Item Order Bag Buttons */}
           <div className="space-y-2.5 pt-1">

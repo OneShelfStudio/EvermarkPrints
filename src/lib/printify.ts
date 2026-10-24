@@ -62,7 +62,7 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
   const variantIdNum =
     Number(meta.printifyVariantId) || product.variants[0].printifyVariantId
 
-  const masterRenderUrl = `https://www.evermarkprints.com/api/render-master?slug=${encodeURIComponent(
+  const defaultRenderUrl = `https://www.evermarkprints.com/api/render-master?slug=${encodeURIComponent(
     product.slug
   )}&colorway=${encodeURIComponent(
     meta.colorwayId || product.defaultColorway
@@ -71,6 +71,11 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
   )}&location=${encodeURIComponent(meta.locationText || '')}&date=${encodeURIComponent(
     meta.dateText || ''
   )}&coords=${encodeURIComponent(meta.coordsText || '')}`
+
+  const masterRenderUrl =
+    meta.customMasterUrl && meta.customMasterUrl.startsWith('http')
+      ? meta.customMasterUrl
+      : defaultRenderUrl
 
   let printifyOrderId: string | null = null
 

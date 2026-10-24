@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { EVERMARK_CATALOG } from '@/lib/catalog'
 import LivePrintCustomizer from '@/components/LivePrintCustomizer'
+import OccasionCatalogGrid from '@/components/OccasionCatalogGrid'
 import AdUnit from '@/components/AdUnit'
 
 export default function EvermarkHomePage() {
@@ -129,91 +130,8 @@ export default function EvermarkHomePage() {
         <LivePrintCustomizer product={flagshipStarMap} compactHeroMode />
       </section>
 
-      {/* Curated Gallery Catalog: All 12 Bespoke Studio Keepsakes */}
-      <section id="collection" className="space-y-10 border-t border-[#CBB89F] pt-16">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <p className="text-[11px] font-mono-tech uppercase tracking-[0.2em] text-[#9E472A] font-semibold">
-              THE COMPLETE ARCHIVE · 12 BESPOKE PHYSICAL EDITIONS
-            </p>
-            <h2 className="text-3xl sm:text-5xl font-editorial font-semibold text-[#261A13]">
-              Explore Our Twelve Custom Keepsakes
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-[#5C4D42] max-w-md">
-            Each edition is crafted to order in our American studios, featuring real 3D studio photography, custom photo and voice uploads, and complimentary 3 to 5 day US shipping.
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {EVERMARK_CATALOG.map((item) => (
-            <article
-              key={item.slug}
-              className="bg-[#FDFBF7] border border-[#CBB89F] hover:border-[#1B3027] shadow-sm hover:shadow-xl flex flex-col justify-between transition group"
-            >
-              <div>
-                {/* Real Printify 3D Studio Product Photograph */}
-                <Link
-                  href={`/create/${item.slug}`}
-                  className="block aspect-square w-full overflow-hidden bg-[#F5EFE6] border-b border-[#D8C9B6] relative"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={item.previewImage}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-[1.03] transition duration-700"
-                  />
-                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-[#1B3027] text-[#F7F4ED] text-[10px] font-mono-tech uppercase tracking-[0.14em] shadow">
-                    {item.badge}
-                  </span>
-                  <span className="absolute bottom-3 right-3 px-2.5 py-1 bg-[#261A13]/90 text-[#E5C178] text-[10px] font-mono-tech uppercase tracking-wider">
-                    {item.physicalMedium}
-                  </span>
-                </Link>
-
-                <div className="p-6 space-y-3">
-                  <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#9E472A] font-semibold">
-                    <span>{item.categoryLabel}</span>
-                    <span className="text-[#1B3027]">★★★★★ 4.9</span>
-                  </div>
-
-                  <Link href={`/create/${item.slug}`}>
-                    <h3 className="text-2xl font-editorial font-semibold text-[#261A13] group-hover:text-[#9E472A] transition">
-                      {item.title}
-                    </h3>
-                  </Link>
-
-                  <p className="text-xs sm:text-sm text-[#5C4D42] leading-relaxed">
-                    {item.description}
-                  </p>
-
-                  <p className="text-[11px] font-mono-tech text-[#7A6858] pt-1">
-                    {item.paperSpec}
-                  </p>
-                </div>
-              </div>
-
-              <div className="px-6 py-4 bg-[#F3E9DA] border-t border-[#D8C9B6] flex items-center justify-between gap-4">
-                <div>
-                  <span className="text-base font-semibold text-[#261A13] block">
-                    From ${item.startingPriceUsd} Physical Edition
-                  </span>
-                  <span className="text-[11px] text-[#6E5A4C] block">
-                    Most Popular Size: ${item.popularPriceUsd} · Free US Shipping
-                  </span>
-                </div>
-
-                <Link
-                  href={`/create/${item.slug}`}
-                  className="px-4 py-2.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-[0.14em] font-medium transition shrink-0"
-                >
-                  Customize →
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      {/* Curated Gallery Catalog: Occasion & Recipient Filters + Verified Collector Homes */}
+      <OccasionCatalogGrid />
 
       <AdUnit slot="4800798822" />
 
