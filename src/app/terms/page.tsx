@@ -103,7 +103,8 @@ export default function TermsOfServicePage() {
             Questions regarding these Terms of Service may be directed to{' '}
             <a href="mailto:concierge@evermarkprints.com" className="underline text-[#171513] font-semibold">
               concierge@evermarkprints.com
-            </a>.
+            </a>{' '}
+            or by mail to <strong>Digital Dads LLC (Evermark Prints)</strong>, 1321 Upland Dr. PMB 4136, Houston, TX 77043, United States.
           </p>
         </section>
       </div>

@@ -43,53 +43,43 @@ export async function GET(req: Request) {
   const R = 760
   const seed = hashSeed(`${headline}|${locationText}|${dateText}|${coordsText}`)
 
+  const baseUrl = 'https://www.evermarkprints.com'
+  const plateUrl = product?.artworkPlate
+    ? `${baseUrl}${product.artworkPlate}`
+    : `${baseUrl}/art-plates/celestial-nebula.webp`
+
   let artworkSvg = ''
 
-  if (mode === 'starmap') {
-    const stars: string[] = []
-    for (let s = 0; s < 190; s++) {
-      const sSeed = hashSeed(`${seed}-star-${s}`)
-      const rNorm = Math.sqrt((sSeed % 1000) / 1000) * (R - 55)
-      const theta = ((sSeed >> 4) % 3600) * (Math.PI / 1800)
-      const sx = (cx + Math.cos(theta) * rNorm).toFixed(1)
-      const sy = (cy + Math.sin(theta) * rNorm).toFixed(1)
-      const mag = s % 15 === 0 ? 7.5 : s % 5 === 0 ? 4.8 : 2.8
-      const op = s % 15 === 0 ? 0.96 : 0.65
-      stars.push(`<circle cx="${sx}" cy="${sy}" r="${mag}" fill="${colorway.inkHex}" fill-opacity="${op}" />`)
-    }
-    artworkSvg = `
-      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${colorway.accentHex}" stroke-width="5.5" />
-      <circle cx="${cx}" cy="${cy}" r="${R - 36}" fill="none" stroke="${colorway.accentHex}" stroke-width="2.5" stroke-opacity="0.55" />
-      <circle cx="${cx}" cy="${cy}" r="${(R * 0.68).toFixed(1)}" fill="none" stroke="${colorway.accentHex}" stroke-width="2" stroke-opacity="0.24" />
-      ${stars.join('\n')}
-    `
-  } else if (mode === 'soundwave') {
-    const bars = 96
-    const waveW = 1680
+  if (mode === 'soundwave') {
+    const bars = 88
+    const waveW = 1480
     const startX = (W - waveW) / 2
     const stepX = waveW / bars
     const lines: string[] = []
     for (let i = 0; i <= bars; i++) {
       const bSeed = hashSeed(`${seed}-bar-${i}`)
       const env = Math.sin((i / bars) * Math.PI)
-      const mod = 0.35 + 0.45 * Math.abs(Math.sin(i * 0.28 + (seed % 17))) + 0.2 * ((bSeed % 100) / 100)
-      const amp = Math.max(20, env * mod * 580)
+      const mod =
+        0.35 +
+        0.45 * Math.abs(Math.sin(i * 0.28 + (seed % 17))) +
+        0.2 * ((bSeed % 100) / 100)
+      const amp = Math.max(12, env * mod * 95)
       const x = (startX + i * stepX).toFixed(1)
-      const col = i % 4 === 0 ? colorway.accentHex : colorway.inkHex
-      lines.push(`<line x1="${x}" y1="${(cy - amp).toFixed(1)}" x2="${x}" y2="${(cy + amp).toFixed(1)}" stroke="${col}" stroke-width="7.5" stroke-linecap="round" />`)
+      const col = i % 3 === 0 ? colorway.accentHex : colorway.inkHex
+      lines.push(
+        `<line x1="${x}" y1="${(1960 - amp).toFixed(1)}" x2="${x}" y2="${(1960 + amp).toFixed(
+          1
+        )}" stroke="${col}" stroke-width="6.5" stroke-linecap="round" />`
+      )
     }
     artworkSvg = `
-      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${colorway.accentHex}" stroke-width="3" stroke-opacity="0.28" />
+      <image href="${escapeXml(plateUrl)}" x="180" y="180" width="${W - 360}" height="1680" preserveAspectRatio="xMidYMid slice" />
       ${lines.join('\n')}
     `
   } else {
-    const rings: string[] = []
-    for (let ring = 1; ring <= 7; ring++) {
-      const rx = ((R / 7) * ring).toFixed(1)
-      const ry = ((R / 7) * ring * 0.84).toFixed(1)
-      rings.push(`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="${colorway.accentHex}" stroke-width="${ring === 7 ? 5 : 2.5}" stroke-opacity="${ring === 7 ? 0.85 : 0.32}" />`)
-    }
-    artworkSvg = rings.join('\n')
+    artworkSvg = `
+      <image href="${escapeXml(plateUrl)}" x="180" y="180" width="${W - 360}" height="1840" preserveAspectRatio="xMidYMid slice" />
+    `
   }
 
   const svg = `<?xml version="1.0" encoding="UTF-8"?>

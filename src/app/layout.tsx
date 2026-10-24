@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/mockups/custom-star-map/mockup-1.jpg',
+        url: '/mockups/custom-star-map-1.webp',
         width: 1200,
         height: 1200,
         alt: 'Evermark Prints Custom Night Sky Star Map Framed in Solid American Hardwood',
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     title: 'Evermark Prints | Custom Star Maps, Woven Blankets & Heirloom Gifts',
     description:
       'Design custom star maps, voice waveforms, woven blankets, stone slates, and pet portraits with live interactive preview and free 3 to 5 day US delivery.',
-    images: ['/mockups/custom-star-map/mockup-1.jpg'],
+    images: ['/mockups/custom-star-map-1.webp'],
   },
 }
 
@@ -100,14 +100,18 @@ const organizationJsonLd = {
       name: 'Evermark Prints',
       legalName: 'Digital Dads LLC',
       url: 'https://www.evermarkprints.com',
-      logo: 'https://www.evermarkprints.com/mockups/custom-star-map/mockup-1.jpg',
-      image: 'https://www.evermarkprints.com/mockups/custom-star-map/mockup-1.jpg',
+      logo: 'https://www.evermarkprints.com/mockups/custom-star-map-1.webp',
+      image: 'https://www.evermarkprints.com/mockups/custom-star-map-1.webp',
       description:
         'Bespoke American archival studio crafting custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveforms, and pet portraits.',
       email: 'concierge@evermarkprints.com',
       priceRange: '$$',
       address: {
         '@type': 'PostalAddress',
+        streetAddress: '1321 Upland Dr. PMB 4136',
+        addressLocality: 'Houston',
+        addressRegion: 'TX',
+        postalCode: '77043',
         addressCountry: 'US',
       },
       hasMerchantReturnPolicy: {
@@ -370,7 +374,7 @@ export default function RootLayout({
                 </Link>
               </div>
               <p className="text-[11px] text-[#A99E8E] pt-4 border-t border-white/15">
-                © {new Date().getFullYear()} Evermark Prints. Part of{' '}
+                © {new Date().getFullYear()} Evermark Prints · Part of{' '}
                 <a
                   href="https://digital-dads-llc.com"
                   target="_blank"
@@ -378,8 +382,8 @@ export default function RootLayout({
                   className="text-white underline underline-offset-4"
                 >
                   Digital Dads LLC
-                </a>
-                .
+                </a>{' '}
+                · 1321 Upland Dr. PMB 4136, Houston, TX 77043
               </p>
             </div>
           </div>

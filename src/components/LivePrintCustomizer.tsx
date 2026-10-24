@@ -473,64 +473,17 @@ export default function LivePrintCustomizer({
     ctx.restore()
 
     // =========================================================================
-    // PASS 2: Copy to Visible Preview Canvas + Overlay Anti-AI Security Watermark
+    // PASS 2: Copy to Visible Preview Canvas + Subtle Archival Proof Seal
     // =========================================================================
     vCtx.clearRect(0, 0, W, H)
     vCtx.drawImage(cleanCanvas, 0, 0)
 
     vCtx.save()
-    // 1. Intersecting sinusoidal Guilloché waves crossing high-frequency artwork & text edges
-    for (let wIdx = 0; wIdx < 14; wIdx++) {
-      const baseY = 120 + wIdx * 76
-      vCtx.beginPath()
-      for (let x = 60; x <= W - 60; x += 8) {
-        const y1 =
-          baseY +
-          Math.sin(x * 0.022 + wIdx * 0.7) * 28 +
-          Math.cos(x * 0.055 - wIdx) * 10
-        if (x === 60) vCtx.moveTo(x, y1)
-        else vCtx.lineTo(x, y1)
-      }
-      vCtx.strokeStyle = wIdx % 2 === 0 ? colorway.accentHex : colorway.inkHex
-      vCtx.globalAlpha = 0.16
-      vCtx.lineWidth = 1.35
-      vCtx.stroke()
-    }
-
-    // 2. Diagonal Cross-Hatching Security Grid over Center Artwork & Typography
-    vCtx.translate(W / 2, H / 2)
-    vCtx.rotate(-0.42)
     vCtx.textAlign = 'center'
-    vCtx.font = 'bold 19px monospace'
-
-    for (let row = -520; row <= 520; row += 105) {
-      for (let col = -420; col <= 420; col += 360) {
-        vCtx.fillStyle = colorway.inkHex
-        vCtx.globalAlpha = 0.18
-        vCtx.fillText(
-          'EVERMARK PRINTS · PROOF ONLY · DO NOT COPY',
-          col + (row % 210 === 0 ? 90 : 0),
-          row
-        )
-        vCtx.fillStyle = colorway.accentHex
-        vCtx.globalAlpha = 0.16
-        vCtx.fillText(
-          'EVERMARK PRINTS · PROOF ONLY · DO NOT COPY',
-          col + 1.5 + (row % 210 === 0 ? 90 : 0),
-          row + 1.5
-        )
-      }
-    }
-
-    // 3. Central Security Seal Ring over Focal Point
-    vCtx.rotate(0.42)
-    vCtx.strokeStyle = colorway.accentHex
-    vCtx.globalAlpha = 0.24
-    vCtx.lineWidth = 2
-    vCtx.setLineDash([8, 6])
-    vCtx.beginPath()
-    vCtx.arc(0, -142, 168, 0, Math.PI * 2)
-    vCtx.stroke()
+    vCtx.font = '500 13px monospace'
+    vCtx.fillStyle = colorway.mutedHex
+    vCtx.globalAlpha = 0.35
+    vCtx.fillText('EVERMARK PRINTS · LIVE STUDIO PROOF', cx, H - 64)
     vCtx.restore()
   }, [
     headline,
@@ -1237,8 +1190,44 @@ export default function LivePrintCustomizer({
                       </div>
                     </div>
                   </div>
+                ) : product.formFactor === 'birch-plaque' ? (
+                  /* 0.75" Solid Birch Hardwood Wall Plaque + Braided Jute Hanging Cord */
+                  <div className="flex flex-col items-center">
+                    {/* Brass Wall Peg + Braided Jute Hanging Cord */}
+                    <div className="w-32 h-11 relative flex justify-center">
+                      <div className="w-3.5 h-3.5 rounded-full bg-[#B8924A] border border-[#7A5C22] shadow z-10 -mt-1" />
+                      <svg
+                        viewBox="0 0 128 44"
+                        className="absolute inset-0 w-full h-full stroke-[#9A7B4F]"
+                        fill="none"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                      >
+                        <path d="M 64 3 L 26 44 M 64 3 L 102 44" />
+                      </svg>
+                    </div>
+                    {/* Solid Natural Birch Wood Plaque Edge */}
+                    <div
+                      className="w-full p-[12px] rounded-xl relative"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, #E6D3B3 0%, #D5BC94 48%, #C4A77D 100%)',
+                        boxShadow:
+                          '18px 28px 48px rgba(38, 24, 14, 0.34), inset 0 0 0 2px #B39366',
+                      }}
+                    >
+                      <div className="rounded-lg overflow-hidden shadow-inner bg-[#FAF6F0]">
+                        <canvas
+                          ref={canvasRef}
+                          onContextMenu={(e) => e.preventDefault()}
+                          draggable={false}
+                          className="w-full h-auto block pointer-events-none select-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 ) : (
-                  /* Museum Solid Hardwood Frame + 8-Ply Mat Board (Default Framed Print / Floating Canvas / Birch Plaque) */
+                  /* Museum Solid Hardwood Frame + 8-Ply Mat Board (Default Framed Print / Floating Canvas) */
                   <div
                     style={{
                       backgroundColor: frameFinish.outerHex,
