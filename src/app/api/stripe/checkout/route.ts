@@ -75,7 +75,6 @@ export async function POST(req: Request) {
           }
         : {}),
       payment_intent_data: {
-        statement_descriptor_suffix: 'EVERMARK',
         metadata: cleanMetadata,
       },
       success_url: `${returnUrl}${separator}success=true&session_id={CHECKOUT_SESSION_ID}`,
