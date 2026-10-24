@@ -32,10 +32,10 @@ const OCCASION_TABS: {
       [
         'custom-star-map',
         'custom-soundwave-art',
-        'custom-vinyl-record-lyrics',
+        'custom-vinyl-song-portrait',
         'met-engaged-married-triptych',
-        'custom-coastal-nautical-chart',
-        'custom-marathon-route-map',
+        'coastal-bathymetry-chart',
+        'marathon-finisher-route-print',
       ].includes(item.slug),
   },
   {
@@ -58,8 +58,8 @@ const OCCASION_TABS: {
       [
         'custom-coordinates-print',
         'custom-book-stack-print',
-        'custom-coastal-nautical-chart',
-        'vintage-patent-blueprint-art',
+        'coastal-bathymetry-chart',
+        'patent-architectural-triptych',
       ].includes(item.slug),
   },
   {
@@ -182,6 +182,28 @@ export default function OccasionCatalogGrid() {
               </button>
             )
           })}
+        </div>
+
+        {/* Dedicated SEO Gift Guide Links */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-mono-tech text-[#5C4D42] pt-1">
+          <span className="uppercase tracking-wider text-[#9E472A] font-semibold">
+            Curated Gift Guides:
+          </span>
+          <Link href="/gifts/anniversary-couples" className="underline hover:text-[#1B3027]">
+            Anniversary &amp; Wedding Guide →
+          </Link>
+          <Link href="/gifts/mom-and-grandma" className="underline hover:text-[#1B3027]">
+            Mom &amp; Grandma Guide →
+          </Link>
+          <Link href="/gifts/housewarming-first-home" className="underline hover:text-[#1B3027]">
+            First Home &amp; Closing Guide →
+          </Link>
+          <Link href="/gifts/pet-memorial-gifts" className="underline hover:text-[#1B3027]">
+            Pet Memorial Guide →
+          </Link>
+          <Link href="/gifts/newborn-nursery" className="underline hover:text-[#1B3027]">
+            Newborn &amp; Nursery Guide →
+          </Link>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">

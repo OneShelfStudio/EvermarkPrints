@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { EVERMARK_CATALOG } from '@/lib/catalog'
+import { OCCASION_GUIDES } from '@/lib/occasion-guides'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.evermarkprints.com'
@@ -17,6 +18,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.95,
     })),
+    ...OCCASION_GUIDES.map((g) => ({
+      url: `${baseUrl}/gifts/${g.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    })),
+    {
+      url: `${baseUrl}/listen`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
     {
       url: `${baseUrl}/track`,
       lastModified: new Date(),
