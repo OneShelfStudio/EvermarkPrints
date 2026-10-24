@@ -147,17 +147,19 @@ export default function OrderBagDrawer() {
         quantity: item.quantity,
       }))
 
-      // Compact JSON summary of all items for Printify multi-item fulfillment
+      // Compact JSON summary of all physical items for Printify multi-item fulfillment
       const orderItemsSummary = JSON.stringify(
-        bagItems.map((b) => ({
-          sku: b.sku,
-          pid: b.printifyProductId,
-          bp: b.printifyBlueprintId,
-          pp: b.printifyProviderId,
-          vid: b.printifyVariantId,
-          qty: b.quantity,
-          h: b.headline.slice(0, 40),
-        }))
+        bagItems
+          .filter((b) => !b.sku.endsWith('-VIP-PROOF'))
+          .map((b) => ({
+            sku: b.sku,
+            pid: b.printifyProductId,
+            bp: b.printifyBlueprintId,
+            pp: b.printifyProviderId,
+            vid: b.printifyVariantId,
+            qty: b.quantity,
+            h: b.headline.slice(0, 40),
+          }))
       ).slice(0, 480)
 
       const returnUrl = `${origin}/success?product=${encodeURIComponent(

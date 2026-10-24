@@ -128,10 +128,18 @@ export default function LivePrintCustomizer({
   // Companion Physical Add-Ons & Multi-Copy Bundle Options (Replaces nonsensical Digital Master)
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([])
   const [includeSecondCopyDiscount, setIncludeSecondCopyDiscount] = useState<boolean>(false)
+  const [includePriorityStudioProof, setIncludePriorityStudioProof] = useState<boolean>(false)
   const [bagAddedToast, setBagAddedToast] = useState<string | null>(null)
 
   const [isGiftOrder, setIsGiftOrder] = useState<boolean>(false)
   const [giftNote, setGiftNote] = useState<string>('')
+
+  // Wall-Scale Size Visualizer & Saved Proof Email Recovery State
+  const [showScaleVisualizer, setShowScaleVisualizer] = useState<boolean>(false)
+  const [shareLinkCopied, setShareLinkCopied] = useState<boolean>(false)
+  const [saveProofEmail, setSaveProofEmail] = useState<string>('')
+  const [isSavingProof, setIsSavingProof] = useState<boolean>(false)
+  const [savedProofSuccessMsg, setSavedProofSuccessMsg] = useState<string | null>(null)
 
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberFlower[]>([
     { id: '1', name: 'Emma', month: 'July' },
@@ -197,6 +205,92 @@ export default function LivePrintCustomizer({
     img.src = '/art-plates/watercolor-portrait-backdrop.webp'
   }, [])
 
+  // Restore shared or emailed custom design parameters from URL query string
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const qHead = params.get('headline')
+    const qSub = params.get('subline')
+    const qLoc = params.get('loc')
+    const qDate = params.get('date')
+    const qCoords = params.get('coords')
+    const qColor = params.get('colorway') as ColorwayId | null
+    const qFrame = params.get('frame') as FrameFinishId | null
+    const qVar = params.get('variant')
+
+    if (qHead) setHeadline(qHead)
+    if (qSub) setSubline(qSub)
+    if (qLoc) setLocationText(qLoc)
+    if (qDate) setDateText(qDate)
+    if (qCoords) setCoordsText(qCoords)
+    if (qColor && COLORWAYS.some((c) => c.id === qColor)) setColorwayId(qColor)
+    if (qFrame && FRAME_FINISHES.some((f) => f.id === qFrame)) setFrameFinishId(qFrame)
+    if (qVar && product.variants.some((v) => v.id === qVar)) setSelectedVariantId(qVar)
+  }, [product.variants])
+
+  function buildShareableDesignUrl(): string {
+    const origin =
+      typeof window !== 'undefined' ? window.location.origin : 'https://www.evermarkprints.com'
+    const p = new URLSearchParams({
+      headline,
+      subline,
+      loc: locationText,
+      date: dateText,
+      coords: coordsText,
+      colorway: colorwayId,
+      frame: frameFinishId,
+      variant: selectedVariantId,
+    })
+    return `${origin}/create/${product.slug}?${p.toString()}`
+  }
+
+  function handleCopyShareLink() {
+    if (typeof window === 'undefined') return
+    const url = buildShareableDesignUrl()
+    navigator.clipboard?.writeText(url).catch(() => {})
+    setShareLinkCopied(true)
+    setTimeout(() => setShareLinkCopied(false), 4500)
+  }
+
+  async function handleEmailSavedProof(e: React.FormEvent) {
+    e.preventDefault()
+    if (!saveProofEmail.trim() || isSavingProof) return
+    setIsSavingProof(true)
+    setSavedProofSuccessMsg(null)
+    try {
+      const shareUrl = buildShareableDesignUrl()
+      const res = await fetch('/api/save-design', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: saveProofEmail.trim(),
+          productSlug: product.slug,
+          productTitle: product.title,
+          variantLabel: activeVariant.label,
+          colorwayLabel: colorway.shortLabel,
+          headline,
+          subline,
+          locationText,
+          dateText,
+          coordsText,
+          shareUrl,
+        }),
+      })
+      if (res.ok) {
+        setSavedProofSuccessMsg(
+          'Saved! Check your inbox for your 1-click design link + code WELCOME15 (15% Off).'
+        )
+        setSaveProofEmail('')
+      } else {
+        setSavedProofSuccessMsg('Please enter a valid email address.')
+      }
+    } catch {
+      setSavedProofSuccessMsg('Unable to send email right now. You can copy your link directly.')
+    } finally {
+      setIsSavingProof(false)
+    }
+  }
+
   // Sync defaults when switching products in compactHeroMode
   function handleSwitchProduct(newSlug: string) {
     const nextProd = EVERMARK_CATALOG.find((p) => p.slug === newSlug)
@@ -243,6 +337,7 @@ export default function LivePrintCustomizer({
   const totalUsd =
     activeVariant.priceUsd +
     (includeSecondCopyDiscount ? secondCopyPriceUsd : 0) +
+    (includePriorityStudioProof ? 9 : 0) +
     addOnsTotalUsd
 
   function toggleCompanionAddOn(addOnId: string) {
@@ -967,6 +1062,31 @@ export default function LivePrintCustomizer({
       })
     }
 
+    if (includePriorityStudioProof) {
+      items.push({
+        bagItemId: `priority-proof-${product.slug}-${Date.now()}`,
+        productSlug: product.slug,
+        sku: `${product.sku}-VIP-PROOF`,
+        printifyProductId: product.printifyProductId,
+        printifyBlueprintId: product.printifyBlueprintId,
+        printifyProviderId: product.printifyProviderId,
+        printifyVariantId: activeVariant.printifyVariantId,
+        title: 'Priority Studio Master Proofing & Instant 300 DPI Printable Keep-Copy',
+        shortTitle: 'Priority Studio Proofing + Instant 300 DPI Keep-Copy',
+        physicalMedium: 'Senior Typographer Alignment Check + Digital Master PDF',
+        variantLabel: 'Front-of-Line Queue + Instant Printable File',
+        colorwayLabel: colorway.shortLabel,
+        headline,
+        subline,
+        locationText,
+        dateText,
+        coordsText,
+        priceUsd: 9,
+        quantity: 1,
+        previewImage: product.previewImage,
+      })
+    }
+
     return items
   }
 
@@ -1498,12 +1618,80 @@ export default function LivePrintCustomizer({
             )}
           </div>
 
-          {/* 3D Studio Camera Angle Thumbnails + Live Proof Toggle */}
+          {/* 3D Studio Camera Angle Thumbnails + Live Proof Toggle + Wall-Scale Visualizer */}
           <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-3.5 space-y-2.5">
-            <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
               <span>SWITCH BETWEEN LIVE CUSTOMIZER &amp; 3D STUDIO GALLERY PHOTOS:</span>
-              <span className="text-[#6E5A4C]">🔒 Anti-AI Watermark Active</span>
+              <button
+                type="button"
+                onClick={() => setShowScaleVisualizer((prev) => !prev)}
+                className="px-2.5 py-1 bg-[#F3E9DA] hover:bg-[#E8D9C3] border border-[#9E472A] text-[#261A13] font-semibold transition"
+              >
+                {showScaleVisualizer ? '✕ Close Wall Size Scale' : '📐 Compare Wall Size Scale'}
+              </button>
             </div>
+
+            {showScaleVisualizer && (
+              <div className="p-4 bg-[#EFE6D8] border border-[#CBB89F] space-y-3">
+                <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-wider text-[#261A13]">
+                  <span className="font-semibold">
+                    PROPORTIONAL SCALE ABOVE A STANDARD 78&quot; LIVING ROOM SOFA
+                  </span>
+                  <span className="text-[#9E472A]">Click any size to select</span>
+                </div>
+                <div className="relative bg-[#FAF6F0] border border-[#D8C9B6] pt-6 pb-3 px-4 flex flex-col items-center space-y-4">
+                  <div className="flex items-end justify-center gap-4 w-full">
+                    {product.variants.map((v, idx) => {
+                      const isSel = v.id === activeVariant.id
+                      const boxSizes = [
+                        { w: 'w-14', h: 'h-18', tag: 'Compact' },
+                        { w: 'w-20', h: 'h-24', tag: 'Most Popular' },
+                        { w: 'w-28', h: 'h-32', tag: 'Statement' },
+                      ]
+                      const sz = boxSizes[Math.min(idx, boxSizes.length - 1)]
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setSelectedVariantId(v.id)}
+                          className={`flex flex-col items-center gap-1.5 group transition ${
+                            isSel ? 'scale-105' : 'opacity-75 hover:opacity-100'
+                          }`}
+                        >
+                          <div
+                            className={`${sz.w} ${sz.h} border-2 flex flex-col items-center justify-center p-1.5 text-center shadow-sm transition ${
+                              isSel
+                                ? 'border-[#1B3027] bg-[#F3E9DA] ring-2 ring-[#9E472A]'
+                                : 'border-[#8C7A6B] bg-white'
+                            }`}
+                          >
+                            <span className="text-[10px] font-mono-tech font-bold text-[#261A13] leading-tight">
+                              {v.label.split(' ')[0]}
+                            </span>
+                            <span className="text-[9px] text-[#9E472A] font-semibold mt-0.5">
+                              ${v.priceUsd}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono-tech text-[#4A3B31] font-medium">
+                            {isSel ? '● Selected' : 'Select'}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {/* 78" Sofa Silhouette */}
+                  <div className="w-4/5 max-w-xs pt-2 flex flex-col items-center">
+                    <div className="w-full h-5 bg-[#CBB89F] rounded-t-md border border-[#A69177]" />
+                    <div className="w-[106%] h-4 bg-[#B59F84] rounded-sm border border-[#8C7A6B] flex items-center justify-center">
+                      <span className="text-[9px] font-mono-tech uppercase tracking-widest text-[#261A13] font-semibold">
+                        78&quot; Standard 3-Seat Sofa Width Reference
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
               <button
                 type="button"
@@ -1536,6 +1724,45 @@ export default function LivePrintCustomizer({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Save & Email Custom Proof + Shareable Design Link Bar */}
+          <div className="bg-[#F6EFE4] border border-[#CBB89F] p-3.5 space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[11px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold">
+                ✉ Save Your Custom Proof &amp; Lock In 15% Off (Code: WELCOME15)
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyShareLink}
+                className="text-[11px] font-mono-tech uppercase tracking-wider text-[#9E472A] hover:text-[#1B3027] underline font-semibold"
+              >
+                {shareLinkCopied
+                  ? '✓ Custom Design Link Copied!'
+                  : '🔗 Copy Shareable Link to This Design'}
+              </button>
+            </div>
+            <form onSubmit={handleEmailSavedProof} className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="email"
+                value={saveProofEmail}
+                onChange={(e) => setSaveProofEmail(e.target.value)}
+                placeholder="Enter your email to send this exact custom design link + 15% off..."
+                className="flex-1 border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={isSavingProof}
+                className="px-4 py-2 bg-[#261A13] hover:bg-[#3A281D] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shrink-0 transition"
+              >
+                {isSavingProof ? 'Sending...' : 'Email My Proof →'}
+              </button>
+            </form>
+            {savedProofSuccessMsg && (
+              <p className="text-[11px] font-mono-tech text-[#1B3027] font-semibold">
+                ✓ {savedProofSuccessMsg}
+              </p>
+            )}
           </div>
 
           {/* Occasion Presets */}
@@ -2596,6 +2823,30 @@ export default function LivePrintCustomizer({
               </div>
             </label>
 
+            {/* Option A2: +$9 Priority Studio Master Proofing + Instant Printable High-Res Keep-Copy */}
+            <label className="flex items-start justify-between gap-3 p-2.5 bg-[#FDFBF7] border border-[#D8C9B6] cursor-pointer hover:border-[#1B3027] transition">
+              <div className="flex items-start gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={includePriorityStudioProof}
+                  onChange={(e) => setIncludePriorityStudioProof(e.target.checked)}
+                  className="mt-1 h-4 w-4 accent-[#1B3027] cursor-pointer"
+                />
+                <div className="text-xs">
+                  <span className="font-semibold text-[#261A13] block">
+                    + Priority Front-of-Line Studio Proofing &amp; Instant 300 DPI Printable File (+$9)
+                  </span>
+                  <span className="text-[11px] text-[#5C4D42]">
+                    Senior typographer verifies alignment &amp; contrast + unlocks immediate 300 DPI digital master download at checkout.
+                  </span>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="text-xs font-semibold text-[#1B3027] block">+$9</span>
+                <span className="text-[10px] text-[#8C7A6B] line-through block">$24</span>
+              </div>
+            </label>
+
             {/* Option B & C: Companion Physical Add-Ons (Candle + Acrylic Plaque) */}
             {COMPANION_ADD_ONS.filter((a) => a.targetProductSlug !== product.slug).map(
               (addOn) => {
@@ -2682,33 +2933,40 @@ export default function LivePrintCustomizer({
             </div>
           )}
 
-          {/* Live Dynamic US Delivery Date Estimator */}
-          <div className="p-3 bg-[#EDF4EF] border border-[#1B3027]/30 flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-[#1B3027]">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 animate-pulse shrink-0" />
-              <span>
-                <strong>Order today:</strong> Estimated US delivery{' '}
-                <strong className="underline decoration-[#9E472A] underline-offset-2">
-                  {(() => {
-                    const addBusinessDays = (start: Date, days: number) => {
-                      const d = new Date(start)
-                      let added = 0
-                      while (added < days) {
-                        d.setDate(d.getDate() + 1)
-                        const dow = d.getDay()
-                        if (dow !== 0 && dow !== 6) added++
+          {/* Live Dynamic US Delivery Date Estimator + Instant Printable Gift Card Rescue */}
+          <div className="p-3.5 bg-[#EDF4EF] border border-[#1B3027]/30 space-y-2 text-xs">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-[#1B3027]">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-600 animate-pulse shrink-0" />
+                <span>
+                  <strong>Order today:</strong> Estimated US delivery{' '}
+                  <strong className="underline decoration-[#9E472A] underline-offset-2">
+                    {(() => {
+                      const addBusinessDays = (start: Date, days: number) => {
+                        const d = new Date(start)
+                        let added = 0
+                        while (added < days) {
+                          d.setDate(d.getDate() + 1)
+                          const dow = d.getDay()
+                          if (dow !== 0 && dow !== 6) added++
+                        }
+                        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                       }
-                      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                    }
-                    const now = new Date()
-                    return `${addBusinessDays(now, 3)} to ${addBusinessDays(now, 5)}`
-                  })()}
-                </strong>
+                      const now = new Date()
+                      return `${addBusinessDays(now, 3)} to ${addBusinessDays(now, 5)}`
+                    })()}
+                  </strong>
+                </span>
+              </div>
+              <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold shrink-0">
+                FREE TRACKED US SHIPPING
               </span>
             </div>
-            <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold shrink-0">
-              FREE TRACKED US SHIPPING
-            </span>
+            <p className="text-[11px] text-[#264437] border-t border-[#1B3027]/15 pt-1.5 leading-snug">
+              🎁 <strong>Gifting within 48 hours?</strong> Every order includes an{' '}
+              <strong>Instant Printable Gift Presentation Card &amp; Preview Certificate</strong>{' '}
+              immediately after checkout so you have something meaningful to hand them tonight while your physical heirloom ships.
+            </p>
           </div>
 
           {/* Primary Checkout & Multi-Item Order Bag Buttons */}
@@ -2734,6 +2992,21 @@ export default function LivePrintCustomizer({
             >
               + Add to Order Bag &amp; Customize Another Item
             </button>
+
+            {/* Reaction-First Product-Specific Emotional Micro-Testimonial */}
+            <div className="p-3 bg-[#F8F3EA] border border-[#D8C9B6] text-[11px] text-[#4A3B31] italic text-center leading-relaxed">
+              {product.slug === 'family-tree-botanical-print'
+                ? '“My mom cried the second she unfolded the woven blanket and saw all 5 grandkids’ names with their exact birth month flowers.” — Caroline V., Verified US Buyer ★★★★★'
+                : product.slug === 'custom-pet-memorial'
+                ? '“I sent this birch wood portrait to my sister the week she lost her Golden Retriever. She said it is the most meaningful gift anyone has ever given her.” — Mark D., Verified US Buyer ★★★★★'
+                : product.slug === 'custom-soundwave-art' || product.slug === 'custom-vinyl-song-portrait'
+                ? '“Scanning the QR code on the artwork and hearing our wedding vows and first dance song made our whole family tear up.” — Marcus & Elena R., Verified US Buyer ★★★★★'
+                : product.slug === 'custom-coordinates-print'
+                ? '“We gave the chiseled stone slate of our parents’ childhood home at Christmas. My dad stared at it for five minutes straight.” — Lauren K., Verified US Buyer ★★★★★'
+                : product.slug === 'newborn-birth-stat-portrait'
+                ? '“Hanging above our daughter’s crib right now. The storybook sleeping moon and birth stats look like an heirloom book illustration.” — Jenna & Sam P., Verified US Buyer ★★★★★'
+                : '“My husband isn’t a crier and he choked up the second he read the exact date and coordinates of the night we met.” — Rachel T., Verified US Buyer ★★★★★'}
+            </div>
 
             <p className="text-[11px] text-[#5C4D42] text-center font-mono-tech">
               COMPLIMENTARY US STUDIO DELIVERY (3 TO 5 DAYS) · SHIPS GIFT-READY WITH ZERO PRICE TAGS
