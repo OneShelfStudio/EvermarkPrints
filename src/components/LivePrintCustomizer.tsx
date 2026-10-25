@@ -11,6 +11,7 @@ import {
   PhotoFilterId,
   COMPANION_ADD_ONS,
   EVERMARK_CATALOG,
+  resolvePrintifyVariantId,
 } from '@/lib/catalog'
 import { loadStoredBag, saveStoredBag, OrderBagItem } from '@/components/OrderBagDrawer'
 import { buildCompactListenQrUrl, buildScannableQrMatrix } from '@/lib/qrcode'
@@ -125,6 +126,37 @@ export default function LivePrintCustomizer({
   const [viewMode, setViewMode] = useState<'room' | 'studio'>('room')
   const [activeMockupUrl, setActiveMockupUrl] = useState<string | null>(null)
   const [selectedVariantId, setSelectedVariantId] = useState<string>(defaultVariant.id)
+
+  // Interactive 2.2x Magnifier Loupe & Fullscreen High-Res Proof Lightbox State
+  const [isZoomedStage, setIsZoomedStage] = useState<boolean>(false)
+  const [zoomPos, setZoomPos] = useState<{ x: number; y: number }>({ x: 50, y: 50 })
+  const [isFullscreenModalOpen, setIsFullscreenModalOpen] = useState<boolean>(false)
+  const [fullscreenDataUrl, setFullscreenDataUrl] = useState<string>('')
+  const [isFullscreenZoomed, setIsFullscreenZoomed] = useState<boolean>(false)
+
+  function handleStagePointerMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!isZoomedStage) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100))
+    setZoomPos({ x, y })
+  }
+
+  function handleOpenFullscreenProof() {
+    if (activeMockupUrl) {
+      setFullscreenDataUrl(activeMockupUrl)
+    } else if (cleanCanvasRef.current) {
+      try {
+        setFullscreenDataUrl(cleanCanvasRef.current.toDataURL('image/png', 0.96))
+      } catch {
+        setFullscreenDataUrl(product.previewImage)
+      }
+    } else {
+      setFullscreenDataUrl(product.previewImage)
+    }
+    setIsFullscreenZoomed(false)
+    setIsFullscreenModalOpen(true)
+  }
 
   // Companion Physical Add-Ons & Multi-Copy Bundle Options (Replaces nonsensical Digital Master)
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([])
@@ -333,12 +365,22 @@ export default function LivePrintCustomizer({
   }
 
   const colorway = COLORWAYS.find((c) => c.id === colorwayId) || COLORWAYS[0]
+  const availableFrames = product.allowedFrames
+    ? FRAME_FINISHES.filter((f) => product.allowedFrames?.includes(f.id))
+    : FRAME_FINISHES
   const frameFinish =
-    FRAME_FINISHES.find((f) => f.id === frameFinishId) || FRAME_FINISHES[0]
+    availableFrames.find((f) => f.id === frameFinishId) ||
+    FRAME_FINISHES.find((f) => f.id === frameFinishId) ||
+    availableFrames[0] ||
+    FRAME_FINISHES[0]
   const activeVariant =
     product.variants.find((v) => v.id === selectedVariantId) ||
     product.variants.find((v) => v.badge === 'Most Popular') ||
     product.variants[0]
+  const resolvedPrintifyVariantId = resolvePrintifyVariantId(
+    activeVariant,
+    product.supportsFrameFinish ? frameFinish.id : undefined
+  )
 
   const secondCopyPriceUsd = Math.round(activeVariant.priceUsd * 0.75)
   const addOnsTotalUsd = selectedAddOnIds.reduce((sum, id) => {
@@ -1226,7 +1268,7 @@ export default function LivePrintCustomizer({
         printifyProductId: product.printifyProductId,
         printifyBlueprintId: product.printifyBlueprintId,
         printifyProviderId: product.printifyProviderId,
-        printifyVariantId: activeVariant.printifyVariantId,
+        printifyVariantId: resolvedPrintifyVariantId,
         title: product.title,
         shortTitle: product.shortTitle,
         physicalMedium: product.physicalMedium,
@@ -1255,7 +1297,7 @@ export default function LivePrintCustomizer({
         printifyProductId: product.printifyProductId,
         printifyBlueprintId: product.printifyBlueprintId,
         printifyProviderId: product.printifyProviderId,
-        printifyVariantId: activeVariant.printifyVariantId,
+        printifyVariantId: resolvedPrintifyVariantId,
         title: `${product.title} (2nd Gift Copy, 25% Off)`,
         shortTitle: `${product.shortTitle} (2nd Gift Copy, 25% Off)`,
         physicalMedium: product.physicalMedium,
@@ -1442,10 +1484,10 @@ export default function LivePrintCustomizer({
             sku: product.sku,
             printifyProductId: product.printifyProductId,
             printifyBlueprintId: String(product.printifyBlueprintId),
-            printifyVariantId: String(activeVariant.printifyVariantId),
+            printifyVariantId: String(resolvedPrintifyVariantId),
             formatId: activeVariant.id,
             colorwayId,
-            frameFinishId: product.supportsFrameFinish ? frameFinishId : 'standard',
+            frameFinishId: product.supportsFrameFinish ? frameFinish.id : 'standard',
             headline: headline.slice(0, 120),
             subline: subline.slice(0, 180),
             locationText: locationText.slice(0, 120),
@@ -1529,102 +1571,126 @@ export default function LivePrintCustomizer({
         </div>
       )}
 
-      <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        {/* LEFT COLUMN: INTERACTIVE FORM-FACTOR STAGE & PRINTIFY 3D STUDIO CAMERA VIEWS (7 Cols) */}
-        <div className="lg:col-span-7 lg:sticky lg:top-24 space-y-4">
-          {/* View Mode Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#D8C9B6] pb-3">
-            <div className="flex flex-wrap items-center gap-2">
+      <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+        {/* LEFT COLUMN: STICKY INTERACTIVE FORM-FACTOR STAGE & 2.2X DETAIL ZOOM (7 Cols) */}
+        <div className="lg:col-span-7 lg:sticky lg:top-20 self-start space-y-3">
+          {/* View Mode & Interactive Zoom Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#D8C9B6] pb-2.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => {
                   setActiveMockupUrl(null)
+                  setIsZoomedStage(false)
                   setViewMode('room')
                 }}
-                className={`px-3.5 py-1.5 text-xs uppercase tracking-[0.14em] font-semibold transition border ${
-                  !activeMockupUrl && viewMode === 'room'
+                className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border ${
+                  !activeMockupUrl && viewMode === 'room' && !isZoomedStage
                     ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                     : 'bg-[#FDFBF7] text-[#5C4D42] border-[#D8C9B6] hover:border-[#1B3027]'
                 }`}
               >
-                ✦ Live Interactive Customizer
+                ✦ Live Customizer
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setActiveMockupUrl(null)
-                  setViewMode('studio')
-                }}
-                className={`px-3.5 py-1.5 text-xs uppercase tracking-[0.14em] font-semibold transition border ${
-                  !activeMockupUrl && viewMode === 'studio'
-                    ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
-                    : 'bg-[#FDFBF7] text-[#5C4D42] border-[#D8C9B6] hover:border-[#1B3027]'
+                onClick={() => setIsZoomedStage((prev) => !prev)}
+                className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border ${
+                  isZoomedStage
+                    ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A] shadow-sm'
+                    : 'bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#9E472A]'
                 }`}
               >
-                Close-Up Artwork Proof
+                {isZoomedStage ? '🔍 2.2x Zoom Active (Click to Reset)' : '🔍 Zoom Detail (2.2x)'}
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenFullscreenProof}
+                className="px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027]"
+              >
+                ⛶ Fullscreen Proof
               </button>
               {product.mockupGallery.length > 0 && (
                 <button
                   type="button"
-                  onClick={() => setActiveMockupUrl(product.mockupGallery[0])}
-                  className={`px-3.5 py-1.5 text-xs uppercase tracking-[0.14em] font-semibold transition border ${
+                  onClick={() => {
+                    setIsZoomedStage(false)
+                    setActiveMockupUrl(product.mockupGallery[0])
+                  }}
+                  className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border ${
                     activeMockupUrl
-                      ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A]'
+                      ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                       : 'bg-[#FDFBF7] text-[#9E472A] border-[#D8C9B6] hover:border-[#9E472A]'
                   }`}
                 >
-                  📷 3D Studio Photos ({product.mockupGallery.length})
+                  📷 3D Photos ({product.mockupGallery.length})
                 </button>
               )}
             </div>
 
-            <span className="text-[11px] font-mono-tech uppercase tracking-[0.12em] text-[#7A331E] font-medium">
+            <span className="hidden xl:inline-block text-[10px] font-mono-tech uppercase tracking-[0.12em] text-[#7A331E] font-medium">
               {product.physicalMedium}
             </span>
           </div>
 
           {/* Interactive Gallery Wall Stage OR Real Printify 3D Camera Mockup Viewer */}
           <div
+            onMouseMove={handleStagePointerMove}
+            onClick={() => setIsZoomedStage((prev) => !prev)}
+            title={
+              isZoomedStage
+                ? 'Move cursor to pan 2.2x detail · Click to reset to 1x'
+                : 'Click anywhere on artwork to zoom in 2.2x and inspect fine details'
+            }
             className={`relative overflow-hidden border border-[#CBB89F] transition-all select-none ${
+              isZoomedStage ? 'cursor-zoom-out' : 'cursor-zoom-in'
+            } ${
               viewMode === 'room'
-                ? 'gallery-wall-surface pt-8 pb-16 px-6 sm:px-12'
-                : 'bg-[#E9DFCF] py-8 px-4 sm:px-10'
+                ? 'gallery-wall-surface pt-4 pb-8 px-4 sm:px-8'
+                : 'bg-[#E9DFCF] py-5 px-4 sm:px-8'
             }`}
             onContextMenu={(e) => e.preventDefault()}
           >
-            <div className="relative z-10 flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#5C4D42] mb-5">
+            <div className="relative z-20 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono-tech uppercase tracking-[0.14em] text-[#5C4D42] mb-3 pointer-events-none">
               <span>
                 {activeMockupUrl
                   ? `3D STUDIO GALLERY PHOTOGRAPH · ${product.physicalMedium.toUpperCase()}`
                   : `LIVE INTERACTIVE PROOF · ${product.physicalMedium.toUpperCase()}`}
               </span>
-              {activeMockupUrl && (
-                <button
-                  type="button"
-                  onClick={() => setActiveMockupUrl(null)}
-                  className="underline text-[#9E472A] font-semibold"
-                >
-                  ← Back to Live Customizer
-                </button>
-              )}
+              <span className="px-2 py-0.5 bg-[#FDFBF7]/90 border border-[#CBB89F] text-[#261A13] font-semibold">
+                {isZoomedStage
+                  ? '🔍 2.2x LOUPE ACTIVE · MOVE CURSOR TO PAN'
+                  : '🔍 CLICK ARTWORK TO ZOOM 2.2X'}
+              </span>
             </div>
 
-            {activeMockupUrl ? (
-              <div className="relative z-10 mx-auto max-w-[520px] bg-white border border-[#D8C9B6] shadow-2xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={activeMockupUrl}
-                  alt={product.title}
-                  className="w-full h-auto block"
-                />
-              </div>
-            ) : (
-              /* Authentic Physical Form-Factor Renderer Wrapping Live Canvas */
-              <div
-                className={`relative z-10 mx-auto transition-all duration-300 ${
-                  viewMode === 'room' ? 'max-w-[400px]' : 'max-w-[490px]'
-                }`}
-              >
+            <div
+              className="transition-transform duration-150 ease-out"
+              style={
+                isZoomedStage
+                  ? {
+                      transform: 'scale(2.2)',
+                      transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                    }
+                  : undefined
+              }
+            >
+              {activeMockupUrl ? (
+                <div className="relative z-10 mx-auto max-w-[420px] bg-white border border-[#D8C9B6] shadow-2xl overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={activeMockupUrl}
+                    alt={product.title}
+                    className="w-full h-auto block"
+                  />
+                </div>
+              ) : (
+                /* Authentic Physical Form-Factor Renderer Wrapping Live Canvas */
+                <div
+                  className={`relative z-10 mx-auto transition-all duration-300 ${
+                    viewMode === 'room' ? 'max-w-[355px]' : 'max-w-[430px]'
+                  }`}
+                >
                 {product.formFactor === 'acrylic-stand' ? (
                   /* Crystal Acrylic Block + Solid Carved Hardwood Stand */
                   <div className="flex flex-col items-center">
@@ -1866,30 +1932,40 @@ export default function LivePrintCustomizer({
                 )}
               </div>
             )}
+            </div>
           </div>
 
           {/* 3D Studio Camera Angle Thumbnails + Live Proof Toggle + Wall-Scale Visualizer */}
-          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-3.5 space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
-              <span>SWITCH BETWEEN LIVE CUSTOMIZER &amp; 3D STUDIO GALLERY PHOTOS:</span>
-              <button
-                type="button"
-                onClick={() => setShowScaleVisualizer((prev) => !prev)}
-                className="px-2.5 py-1 bg-[#F3E9DA] hover:bg-[#E8D9C3] border border-[#9E472A] text-[#261A13] font-semibold transition"
-              >
-                {showScaleVisualizer ? '✕ Close Wall Size Scale' : '📐 Compare Wall Size Scale'}
-              </button>
+          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-3 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
+              <span>SWITCH VIEW OR INSPECT DETAILS:</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleOpenFullscreenProof}
+                  className="px-2.5 py-1 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] font-semibold transition"
+                >
+                  ⛶ Open Fullscreen Hi-Res Proof
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowScaleVisualizer((prev) => !prev)}
+                  className="px-2.5 py-1 bg-[#F3E9DA] hover:bg-[#E8D9C3] border border-[#9E472A] text-[#261A13] font-semibold transition"
+                >
+                  {showScaleVisualizer ? '✕ Close Size Scale' : '📐 Size Scale'}
+                </button>
+              </div>
             </div>
 
             {showScaleVisualizer && (
-              <div className="p-4 bg-[#EFE6D8] border border-[#CBB89F] space-y-3">
-                <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-wider text-[#261A13]">
+              <div className="p-3 bg-[#EFE6D8] border border-[#CBB89F] space-y-2.5">
+                <div className="flex items-center justify-between text-[10px] font-mono-tech uppercase tracking-wider text-[#261A13]">
                   <span className="font-semibold">
                     PROPORTIONAL SCALE ABOVE A STANDARD 78&quot; LIVING ROOM SOFA
                   </span>
                   <span className="text-[#9E472A]">Click any size to select</span>
                 </div>
-                <div className="relative bg-[#FAF6F0] border border-[#D8C9B6] pt-6 pb-3 px-4 flex flex-col items-center space-y-4">
+                <div className="relative bg-[#FAF6F0] border border-[#D8C9B6] pt-4 pb-2.5 px-4 flex flex-col items-center space-y-3">
                   <div className="flex items-end justify-center gap-4 w-full">
                     {product.variants.map((v, idx) => {
                       const isSel = v.id === activeVariant.id
@@ -1904,7 +1980,7 @@ export default function LivePrintCustomizer({
                           key={v.id}
                           type="button"
                           onClick={() => setSelectedVariantId(v.id)}
-                          className={`flex flex-col items-center gap-1.5 group transition ${
+                          className={`flex flex-col items-center gap-1 group transition ${
                             isSel ? 'scale-105' : 'opacity-75 hover:opacity-100'
                           }`}
                         >
@@ -1930,10 +2006,10 @@ export default function LivePrintCustomizer({
                     })}
                   </div>
                   {/* 78" Sofa Silhouette */}
-                  <div className="w-4/5 max-w-xs pt-2 flex flex-col items-center">
-                    <div className="w-full h-5 bg-[#CBB89F] rounded-t-md border border-[#A69177]" />
-                    <div className="w-[106%] h-4 bg-[#B59F84] rounded-sm border border-[#8C7A6B] flex items-center justify-center">
-                      <span className="text-[9px] font-mono-tech uppercase tracking-widest text-[#261A13] font-semibold">
+                  <div className="w-4/5 max-w-xs pt-1 flex flex-col items-center">
+                    <div className="w-full h-4 bg-[#CBB89F] rounded-t-md border border-[#A69177]" />
+                    <div className="w-[106%] h-3.5 bg-[#B59F84] rounded-sm border border-[#8C7A6B] flex items-center justify-center">
+                      <span className="text-[8px] font-mono-tech uppercase tracking-widest text-[#261A13] font-semibold">
                         78&quot; Standard 3-Seat Sofa Width Reference
                       </span>
                     </div>
@@ -1942,11 +2018,11 @@ export default function LivePrintCustomizer({
               </div>
             )}
 
-            <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+            <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
               <button
                 type="button"
                 onClick={() => setActiveMockupUrl(null)}
-                className={`px-3 py-2 border text-xs font-semibold shrink-0 transition ${
+                className={`px-3 py-1.5 border text-xs font-semibold shrink-0 transition ${
                   !activeMockupUrl
                     ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                     : 'bg-[#F8F3EA] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027]'
@@ -1959,7 +2035,7 @@ export default function LivePrintCustomizer({
                   key={mUrl}
                   type="button"
                   onClick={() => setActiveMockupUrl(mUrl)}
-                  className={`relative w-14 h-14 border overflow-hidden shrink-0 transition ${
+                  className={`relative w-12 h-12 border overflow-hidden shrink-0 transition ${
                     activeMockupUrl === mUrl
                       ? 'border-[#9E472A] ring-2 ring-[#9E472A]'
                       : 'border-[#D8C9B6] opacity-80 hover:opacity-100'
@@ -1975,80 +2051,6 @@ export default function LivePrintCustomizer({
               ))}
             </div>
           </div>
-
-          {/* Save & Email Custom Proof + Shareable Design Link Bar */}
-          <div className="bg-[#F6EFE4] border border-[#CBB89F] p-3.5 space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[11px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold">
-                ✉ Save Your Custom Proof &amp; Lock In 15% Off (Code: WELCOME15)
-              </span>
-              <button
-                type="button"
-                onClick={handleCopyShareLink}
-                className="text-[11px] font-mono-tech uppercase tracking-wider text-[#9E472A] hover:text-[#1B3027] underline font-semibold"
-              >
-                {shareLinkCopied
-                  ? '✓ Custom Design Link Copied!'
-                  : '🔗 Copy Shareable Link to This Design'}
-              </button>
-            </div>
-            <form onSubmit={handleEmailSavedProof} className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                value={saveProofEmail}
-                onChange={(e) => setSaveProofEmail(e.target.value)}
-                placeholder="Enter your email to send this exact custom design link + 15% off..."
-                className="flex-1 border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={isSavingProof}
-                className="px-4 py-2 bg-[#261A13] hover:bg-[#3A281D] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shrink-0 transition"
-              >
-                {isSavingProof ? 'Sending...' : 'Email My Proof →'}
-              </button>
-            </form>
-            {savedProofSuccessMsg && (
-              <p className="text-[11px] font-mono-tech text-[#1B3027] font-semibold">
-                ✓ {savedProofSuccessMsg}
-              </p>
-            )}
-          </div>
-
-          {/* Occasion Presets */}
-          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono-tech text-[11px] uppercase tracking-[0.12em] text-[#7A331E] font-semibold">
-                Quick Occasion Presets:
-              </span>
-              {product.presets.map((preset, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleApplyPreset(preset)}
-                  className="px-2.5 py-1 border border-[#D8C9B6] hover:border-[#1B3027] bg-[#F8F3EA] text-[#261A13] text-[11px] font-medium transition"
-                >
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {!compactHeroMode && (
-            <div className="grid sm:grid-cols-2 gap-3 text-xs">
-              {product.highlights.map((h, i) => (
-                <div
-                  key={i}
-                  className="p-4 bg-[#FDFBF7] border border-[#D8C9B6] flex items-start gap-3 text-[#3D2E24]"
-                >
-                  <span className="font-mono-tech text-[#9E472A] font-semibold">
-                    0{i + 1}
-                  </span>
-                  <span className="leading-relaxed">{h}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* RIGHT COLUMN: BESPOKE STUDIO CONTROLS & CHECKOUT (5 Cols) */}
@@ -2093,6 +2095,25 @@ export default function LivePrintCustomizer({
                 Updates Live On Artwork
               </span>
             </div>
+
+            {/* 1-Click Occasion Presets Right Inside Step 01 */}
+            {product.presets.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 bg-[#F8F3EA] border border-[#D8C9B6] p-2.5">
+                <span className="font-mono-tech text-[10px] uppercase tracking-[0.1em] text-[#7A331E] font-semibold mr-1">
+                  Quick Examples:
+                </span>
+                {product.presets.map((preset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleApplyPreset(preset)}
+                    className="px-2 py-1 border border-[#CBB89F] hover:border-[#1B3027] bg-[#FDFBF7] text-[#261A13] text-[11px] font-medium transition"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {product.supportsAudioUpload && (
               <div className="p-3 bg-[#F6EFE4] border border-[#D8C9B6] flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-tech text-[#1B3027]">
@@ -2846,11 +2867,19 @@ export default function LivePrintCustomizer({
           {product.supportsFrameFinish && (
             <div className="space-y-2.5 pt-2">
               <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-                02. Select Solid Hardwood Finish (Frame / Stand / Trim)
+                02. Select Solid Hardwood Frame Finish
               </label>
-              <div className="grid grid-cols-3 gap-2.5">
-                {FRAME_FINISHES.map((f) => {
-                  const isSel = f.id === frameFinishId
+              <div
+                className={`grid gap-2.5 ${
+                  availableFrames.length === 2
+                    ? 'grid-cols-2'
+                    : availableFrames.length === 4
+                    ? 'grid-cols-2 sm:grid-cols-4'
+                    : 'grid-cols-3'
+                }`}
+              >
+                {availableFrames.map((f) => {
+                  const isSel = f.id === frameFinish.id
                   return (
                     <button
                       key={f.id}
@@ -3128,8 +3157,117 @@ export default function LivePrintCustomizer({
               </Link>
             </p>
           </div>
+
+          {/* Save & Email Custom Proof + Shareable Design Link Bar */}
+          <div className="bg-[#F6EFE4] border border-[#CBB89F] p-3.5 space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[11px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold">
+                ✉ Save Your Custom Proof &amp; Lock In 15% Off (Code: WELCOME15)
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyShareLink}
+                className="text-[11px] font-mono-tech uppercase tracking-wider text-[#9E472A] hover:text-[#1B3027] underline font-semibold"
+              >
+                {shareLinkCopied
+                  ? '✓ Custom Design Link Copied!'
+                  : '🔗 Copy Shareable Link'}
+              </button>
+            </div>
+            <form onSubmit={handleEmailSavedProof} className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="email"
+                value={saveProofEmail}
+                onChange={(e) => setSaveProofEmail(e.target.value)}
+                placeholder="Enter your email to save this exact design + 15% off..."
+                className="flex-1 border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={isSavingProof}
+                className="px-4 py-2 bg-[#261A13] hover:bg-[#3A281D] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shrink-0 transition"
+              >
+                {isSavingProof ? 'Sending...' : 'Email My Proof →'}
+              </button>
+            </form>
+            {savedProofSuccessMsg && (
+              <p className="text-[11px] font-mono-tech text-[#1B3027] font-semibold">
+                ✓ {savedProofSuccessMsg}
+              </p>
+            )}
+          </div>
+
+          {!compactHeroMode && (
+            <div className="grid sm:grid-cols-2 gap-2.5 text-xs pt-2 border-t border-[#E5D9C5]">
+              {product.highlights.map((h, i) => (
+                <div
+                  key={i}
+                  className="p-3 bg-[#F8F3EA] border border-[#D8C9B6] flex items-start gap-2.5 text-[#3D2E24]"
+                >
+                  <span className="font-mono-tech text-[#9E472A] font-semibold text-[11px]">
+                    0{i + 1}
+                  </span>
+                  <span className="leading-snug text-[11px]">{h}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* FULLSCREEN HIGH-RESOLUTION PROOF LIGHTBOX MODAL */}
+      {isFullscreenModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-[#14100D]/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 sm:p-8"
+          onClick={() => setIsFullscreenModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-4xl bg-[#FAF6F0] border border-[#CBB89F] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-[#1B3027] text-[#F7F4ED] border-b border-[#D8AE64]/30">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono-tech uppercase tracking-[0.16em] text-[#E5C178] font-semibold">
+                  HIGH-RESOLUTION STUDIO PROOF INSPECTOR
+                </span>
+                <span className="hidden sm:inline text-xs text-[#E2D9C8]">
+                  · {product.title}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreenZoomed((prev) => !prev)}
+                  className="px-3 py-1 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition"
+                >
+                  {isFullscreenZoomed ? '🔍 Reset to Fit (1x)' : '🔍 Zoom In (2x Hi-Res)'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreenModalOpen(false)}
+                  className="px-3 py-1 bg-white/15 hover:bg-white/25 text-white text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition"
+                >
+                  ✕ Close
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto p-6 sm:p-10 bg-[#E9DFCF] flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={fullscreenDataUrl}
+                alt={`${product.title} High-Resolution Proof`}
+                onClick={() => setIsFullscreenZoomed((prev) => !prev)}
+                className={`block bg-white shadow-2xl border border-[#CBB89F] transition-all duration-200 ${
+                  isFullscreenZoomed
+                    ? 'w-[960px] max-w-none cursor-zoom-out'
+                    : 'max-h-[74vh] w-auto cursor-zoom-in'
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {!compactHeroMode && (
         <>

@@ -1,5 +1,9 @@
 import Stripe from 'stripe'
-import { getEvermarkProductBySlug, EVERMARK_CATALOG } from '@/lib/catalog'
+import {
+  getEvermarkProductBySlug,
+  EVERMARK_CATALOG,
+  resolvePrintifyVariantId,
+} from '@/lib/catalog'
 import { sendOrderAlertEmail } from '@/lib/email'
 
 const PRINTIFY_BASE_URL = 'https://api.printify.com/v1'
@@ -59,8 +63,11 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
 
   const product =
     getEvermarkProductBySlug(meta.productSlug || 'custom-star-map') || EVERMARK_CATALOG[0]
+  const matchedVariant =
+    product.variants.find((v) => v.id === meta.formatId) || product.variants[0]
   const variantIdNum =
-    Number(meta.printifyVariantId) || product.variants[0].printifyVariantId
+    Number(meta.printifyVariantId) ||
+    resolvePrintifyVariantId(matchedVariant, meta.frameFinishId)
 
   const defaultRenderUrl = `https://www.evermarkprints.com/api/render-master?slug=${encodeURIComponent(
     product.slug
@@ -101,7 +108,43 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
       const firstName = parts[0] || 'Evermark'
       const lastName = parts.slice(1).join(' ') || 'Collector'
 
-      let lineItemsPayload = [
+      const hasRasterCustomMaster =
+        Boolean(meta.customMasterUrl && meta.customMasterUrl.startsWith('http')) &&
+        !meta.customMasterUrl.includes('/api/render-master')
+
+      const buildPrintAreaObject = (bpId: number, imgUrl: string) =>
+        bpId === 961
+          ? {
+              panel_one: imgUrl,
+              panel_two: imgUrl,
+              panel_three: imgUrl,
+            }
+          : {
+              front: imgUrl,
+            }
+
+      let lineItemsPayload: Record<string, unknown>[] = hasRasterCustomMaster
+        ? [
+            {
+              print_provider_id: product.printifyProviderId,
+              blueprint_id: product.printifyBlueprintId,
+              variant_id: variantIdNum,
+              quantity: 1,
+              print_areas: buildPrintAreaObject(
+                product.printifyBlueprintId,
+                masterRenderUrl
+              ),
+            },
+          ]
+        : [
+            {
+              product_id: meta.printifyProductId || product.printifyProductId,
+              variant_id: variantIdNum,
+              quantity: 1,
+            },
+          ]
+
+      const fallbackLineItemsPayload: Record<string, unknown>[] = [
         {
           product_id: meta.printifyProductId || product.printifyProductId,
           variant_id: variantIdNum,
@@ -114,11 +157,32 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
           const parsed = JSON.parse(meta.orderItemsJson)
           if (Array.isArray(parsed) && parsed.length > 0) {
             lineItemsPayload = parsed.map(
-              (item: { pid?: string; vid?: number; qty?: number }) => ({
-                product_id: item.pid || meta.printifyProductId || product.printifyProductId,
-                variant_id: Number(item.vid) || variantIdNum,
-                quantity: Number(item.qty) || 1,
-              })
+              (item: {
+                pid?: string
+                vid?: number
+                qty?: number
+                bpid?: number
+                ppid?: number
+                murl?: string
+              }) => {
+                const itemMaster = item.murl || (hasRasterCustomMaster ? masterRenderUrl : '')
+                const itemBp = Number(item.bpid) || product.printifyBlueprintId
+                const itemPp = Number(item.ppid) || product.printifyProviderId
+                if (itemMaster && !itemMaster.includes('/api/render-master')) {
+                  return {
+                    print_provider_id: itemPp,
+                    blueprint_id: itemBp,
+                    variant_id: Number(item.vid) || variantIdNum,
+                    quantity: Number(item.qty) || 1,
+                    print_areas: buildPrintAreaObject(itemBp, itemMaster),
+                  }
+                }
+                return {
+                  product_id: item.pid || meta.printifyProductId || product.printifyProductId,
+                  variant_id: Number(item.vid) || variantIdNum,
+                  quantity: Number(item.qty) || 1,
+                }
+              }
             )
           }
         } catch {
@@ -126,10 +190,9 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
         }
       }
 
-      const orderPayload = {
+      const baseOrderPayload = {
         external_id: session.id.slice(0, 48),
         label: `${product.sku} - ${meta.headline || product.shortTitle}`.slice(0, 48),
-        line_items: lineItemsPayload,
         shipping_method: 1,
         is_printify_express: false,
         send_shipping_notification: false,
@@ -147,14 +210,33 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
         },
       }
 
-      const pRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/orders.json`, {
+      let pRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/orders.json`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${printifyToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(orderPayload),
+        body: JSON.stringify({
+          ...baseOrderPayload,
+          line_items: lineItemsPayload,
+        }),
       })
+
+      // If custom print_areas submission encountered a validation issue, fall back to product_id fulfillment
+      if (!pRes.ok && hasRasterCustomMaster) {
+        pRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/orders.json`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${printifyToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...baseOrderPayload,
+            external_id: `${session.id.slice(0, 42)}_fb`,
+            line_items: fallbackLineItemsPayload,
+          }),
+        })
+      }
 
       if (pRes.ok) {
         const pData = await pRes.json()

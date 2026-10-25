@@ -33,7 +33,7 @@ export type ColorwayId =
   | 'coastal_navy'
   | 'obsidian_silver'
 
-export type FrameFinishId = 'walnut' | 'matte_black' | 'white_oak'
+export type FrameFinishId = 'walnut' | 'matte_black' | 'white_oak' | 'gallery_white'
 
 export type PhotoFilterId = 'warm_color' | 'bw_film' | 'charcoal_sketch'
 
@@ -48,8 +48,24 @@ export interface FrameFinishOption {
 
 export const FRAME_FINISHES: FrameFinishOption[] = [
   {
+    id: 'matte_black',
+    label: 'Gallery Matte Black Hardwood',
+    shortLabel: 'Matte Black',
+    outerHex: '#1b1a19',
+    innerHex: '#2e2c2a',
+    lipHex: '#0f0e0d',
+  },
+  {
+    id: 'gallery_white',
+    label: 'Museum Gallery White Hardwood',
+    shortLabel: 'Gallery White',
+    outerHex: '#f1ece3',
+    innerHex: '#ffffff',
+    lipHex: '#cfc4b4',
+  },
+  {
     id: 'walnut',
-    label: 'American Black Walnut',
+    label: 'American Espresso Walnut',
     shortLabel: 'Walnut',
     outerHex: '#3b2416',
     innerHex: '#5c3a24',
@@ -57,19 +73,11 @@ export const FRAME_FINISHES: FrameFinishOption[] = [
   },
   {
     id: 'white_oak',
-    label: 'Kiln-Dried Warm Honey Oak',
-    shortLabel: 'Warm Oak',
+    label: 'Kiln-Dried Natural Warm Oak',
+    shortLabel: 'Natural Oak',
     outerHex: '#b58b5c',
     innerHex: '#cfa576',
     lipHex: '#8f6a41',
-  },
-  {
-    id: 'matte_black',
-    label: 'Gallery Matte Black Ash',
-    shortLabel: 'Matte Black',
-    outerHex: '#1b1a19',
-    innerHex: '#2e2c2a',
-    lipHex: '#0f0e0d',
   },
 ]
 
@@ -170,12 +178,24 @@ export const COLORWAYS: ColorwayOption[] = [
 export interface ProductVariantOption {
   id: string
   printifyVariantId: number
+  variantIdByFrame?: Partial<Record<FrameFinishId, number>>
   label: string
   dimensions: string
   subtitle: string
   priceUsd: number
   compareAtUsd: number
   badge?: string
+}
+
+export function resolvePrintifyVariantId(
+  variant: ProductVariantOption,
+  frameFinishId?: string
+): number {
+  if (frameFinishId && variant.variantIdByFrame) {
+    const mapped = variant.variantIdByFrame[frameFinishId as FrameFinishId]
+    if (mapped) return mapped
+  }
+  return variant.printifyVariantId
 }
 
 export interface CompanionAddOnOption {
@@ -201,9 +221,9 @@ export const COMPANION_ADD_ONS: CompanionAddOnOption[] = [
     sku: 'EVM-CANDLE-ADDON',
     targetProductSlug: 'custom-book-stack-print',
     title: 'Add Matching Custom Apothecary Amber Soy Candle (+$24)',
-    shortTitle: 'Matching Scented Amber Soy Candle (9oz)',
+    shortTitle: 'Matching Scented Amber Soy Candle (4oz)',
     description:
-      'Hand-poured 100% natural Santal, White Sage & Golden Amber soy candle, custom-printed with your exact family names & milestone date.',
+      'Hand-poured 100% natural White Sage & Lavender soy candle in an apothecary amber glass jar, custom-printed with your exact family names & milestone date.',
     priceUsd: 24,
     compareAtUsd: 48,
     badge: 'Save 50% · Uses Your Same Custom Text',
@@ -218,16 +238,16 @@ export const COMPANION_ADD_ONS: CompanionAddOnOption[] = [
     sku: 'EVM-SLATE-ADDON',
     targetProductSlug: 'custom-coordinates-print',
     title: 'Add Matching Chiseled Natural Stone Desk Slate (+$39)',
-    shortTitle: 'Matching Chiseled Stone Slate + Display Feet',
+    shortTitle: 'Matching 8" x 8" Chiseled Stone Slate + Stand',
     description:
       'Raw hand-chiseled natural rock slate plaque with twin display feet, custom-inscribed with your exact names, date & coordinates.',
     priceUsd: 39,
-    compareAtUsd: 64,
-    badge: 'Save $25 · Shelf &Mantel Companion',
-    printifyProductId: '6ad8f85462370ee3a30e10d5',
-    printifyBlueprintId: 538,
-    printifyProviderId: 10,
-    printifyVariantId: 68941,
+    compareAtUsd: 74,
+    badge: 'Save $35 · Shelf & Mantel Companion',
+    printifyProductId: '6ad8f85538e3bd079b02d057',
+    printifyBlueprintId: 5344,
+    printifyProviderId: 99,
+    printifyVariantId: 243924,
     previewImage: '/mockups/custom-coordinates-print-1.webp',
   },
   {
@@ -239,8 +259,8 @@ export const COMPANION_ADD_ONS: CompanionAddOnOption[] = [
     description:
       'A matching optical crystal acrylic block with solid hardwood stand for an office desk or nightstand, featuring your exact custom design.',
     priceUsd: 44,
-    compareAtUsd: 79,
-    badge: 'Save $35 · Desk & Nightstand Companion',
+    compareAtUsd: 69,
+    badge: 'Save $25 · Desk & Nightstand Companion',
     printifyProductId: '6ad8f84762370ee3a30e10ce',
     printifyBlueprintId: 1303,
     printifyProviderId: 220,
@@ -269,6 +289,7 @@ export interface EvermarkProduct {
   supportsAudioUpload?: boolean
   supportsGpsLookup?: boolean
   supportsFrameFinish?: boolean
+  allowedFrames?: FrameFinishId[]
   frameFinishHeading?: string
   variantStepHeading: string
   variants: ProductVariantOption[]
@@ -326,12 +347,17 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
     supportsAudioUpload: false,
     supportsGpsLookup: true,
     supportsFrameFinish: true,
+    allowedFrames: ['matte_black', 'gallery_white'],
     frameFinishHeading: '02. Select Solid Hardwood Frame Finish',
     variantStepHeading: '04. Select Framed Print Size',
     variants: [
       {
         id: 'framed-11x14',
         printifyVariantId: 65400,
+        variantIdByFrame: {
+          matte_black: 65400,
+          gallery_white: 65401,
+        },
         label: '11" x 14" Solid Hardwood Framed Print',
         dimensions: '11 x 14 in (27.9 x 35.6 cm)',
         subtitle: '310gsm museum cotton rag · Hand-joined hardwood frame · Free US delivery',
@@ -341,6 +367,10 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
       {
         id: 'framed-12x18',
         printifyVariantId: 65402,
+        variantIdByFrame: {
+          matte_black: 65402,
+          gallery_white: 65403,
+        },
         label: '12" x 18" Gallery Hardwood Framed Edition',
         dimensions: '12 x 18 in (30.5 x 45.7 cm)',
         subtitle: 'Our signature gallery proportion · Ready to hang · Free 3 to 5 day US shipping',
@@ -351,6 +381,10 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
       {
         id: 'framed-18x24',
         printifyVariantId: 65406,
+        variantIdByFrame: {
+          matte_black: 65406,
+          gallery_white: 65407,
+        },
         label: '18" x 24" Exhibition Statement Framed Edition',
         dimensions: '18 x 24 in (45.7 x 61.0 cm)',
         subtitle: 'Full-scale architectural centerpiece · Solid wood frame · Free Priority US delivery',
@@ -448,8 +482,8 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
     supportsAudioUpload: true,
     supportsPhotoUpload: false,
     supportsGpsLookup: false,
-    supportsFrameFinish: true,
-    frameFinishHeading: '02. Select Hardwood Base Finish',
+    supportsFrameFinish: false,
+    frameFinishHeading: '02. Natural Carved Hardwood Stand',
     variantStepHeading: '05. Select Crystal Acrylic Plaque Size',
     variants: [
       {
@@ -855,8 +889,8 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
     supportsPhotoUpload: false,
     supportsAudioUpload: false,
     supportsGpsLookup: true,
-    supportsFrameFinish: true,
-    frameFinishHeading: '02. Select Wood Hanger Bar Tone',
+    supportsFrameFinish: false,
+    frameFinishHeading: '02. Natural Solid Hardwood Dowel Bars',
     variantStepHeading: '04. Select Wall Tapestry Orientation',
     variants: [
       {
@@ -1069,33 +1103,52 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
     supportsAudioUpload: true,
     supportsGpsLookup: false,
     supportsFrameFinish: true,
+    allowedFrames: ['matte_black', 'walnut', 'white_oak', 'gallery_white'],
     frameFinishHeading: '02. Select Floating Frame Finish',
     variantStepHeading: '05. Select Floating Framed Canvas Scale',
     variants: [
       {
-        id: 'canvas-12x9',
-        printifyVariantId: 88280,
-        label: '12" x 9" Study Floating Framed 1.25" Matte Canvas',
-        dimensions: '12 x 9 in · 1.25" Deep Stretched Canvas + Floating Frame',
+        id: 'canvas-9x12',
+        printifyVariantId: 88290,
+        variantIdByFrame: {
+          matte_black: 88290,
+          walnut: 107248,
+          white_oak: 244026,
+          gallery_white: 107249,
+        },
+        label: '9" x 12" Study Floating Framed 1.25" Matte Canvas',
+        dimensions: '9 x 12 in (Vertical) · 1.25" Deep Canvas + Floating Frame',
         subtitle: 'Gallery-wrapped poly-cotton artist canvas inside a recessed floating frame',
         priceUsd: 89,
         compareAtUsd: 120,
       },
       {
-        id: 'canvas-16x12',
-        printifyVariantId: 88282,
-        label: '16" x 12" Gallery Floating Framed 1.25" Matte Canvas',
-        dimensions: '16 x 12 in · 1.25" Deep Stretched Canvas + Floating Frame',
+        id: 'canvas-12x16',
+        printifyVariantId: 88292,
+        variantIdByFrame: {
+          matte_black: 88292,
+          walnut: 107252,
+          white_oak: 244029,
+          gallery_white: 107253,
+        },
+        label: '12" x 16" Gallery Floating Framed 1.25" Matte Canvas',
+        dimensions: '12 x 16 in (Vertical) · 1.25" Deep Canvas + Floating Frame',
         subtitle: 'Our bestselling couple & anniversary scale · Pre-installed hanging wire · Free US delivery',
         priceUsd: 119,
         compareAtUsd: 155,
         badge: 'Most Popular',
       },
       {
-        id: 'canvas-20x16',
-        printifyVariantId: 88283,
-        label: '20" x 16" Exhibition Floating Framed 1.25" Matte Canvas',
-        dimensions: '20 x 16 in · 1.25" Deep Stretched Canvas + Floating Frame',
+        id: 'canvas-16x20',
+        printifyVariantId: 88293,
+        variantIdByFrame: {
+          matte_black: 88293,
+          walnut: 107254,
+          white_oak: 244032,
+          gallery_white: 107255,
+        },
+        label: '16" x 20" Exhibition Floating Framed 1.25" Matte Canvas',
+        dimensions: '16 x 20 in (Vertical) · 1.25" Deep Canvas + Floating Frame',
         subtitle: 'Full living-room statement scale · Free Priority US delivery in 3 to 5 days',
         priceUsd: 144,
         compareAtUsd: 190,
@@ -1384,12 +1437,17 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
     supportsAudioUpload: false,
     supportsGpsLookup: false,
     supportsFrameFinish: true,
+    allowedFrames: ['gallery_white', 'matte_black'],
     frameFinishHeading: '02. Select Nursery Hardwood Frame Finish',
     variantStepHeading: '05. Select Nursery Framed Print Size',
     variants: [
       {
         id: 'nursery-11x14',
         printifyVariantId: 65401,
+        variantIdByFrame: {
+          gallery_white: 65401,
+          matte_black: 65400,
+        },
         label: '11" x 14" Solid Hardwood Nursery Framed Print',
         dimensions: '11 x 14 in (27.9 x 35.6 cm)',
         subtitle: '310gsm warm cotton rag · Solid wood frame · Free 3 to 5 day US shipping',
@@ -1399,6 +1457,10 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
       {
         id: 'nursery-12x18',
         printifyVariantId: 65403,
+        variantIdByFrame: {
+          gallery_white: 65403,
+          matte_black: 65402,
+        },
         label: '12" x 18" Gallery Nursery Hardwood Framed Edition',
         dimensions: '12 x 18 in (30.5 x 45.7 cm)',
         subtitle: 'Ideal above a crib or changing table · Ready to hang · Free US delivery',
@@ -1408,7 +1470,11 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
       },
       {
         id: 'nursery-18x24',
-        printifyVariantId: 65406,
+        printifyVariantId: 65407,
+        variantIdByFrame: {
+          gallery_white: 65407,
+          matte_black: 65406,
+        },
         label: '18" x 24" Statement Nursery Hardwood Framed Print',
         dimensions: '18 x 24 in (45.7 x 61.0 cm)',
         subtitle: 'Full nursery centerpiece scale · Free Priority US delivery',
@@ -1417,7 +1483,7 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
       },
     ],
     defaultColorway: 'dusty_rose',
-    defaultFrame: 'white_oak',
+    defaultFrame: 'gallery_white',
     title: 'Storybook Sleeping Moon & Baby Birth Stats (Framed Edition)',
     shortTitle: 'Storybook Moon Nursery Print',
     subtitle: 'Whimsical Watercolor Sleeping Crescent Moon & Bunny Illustration With Baby’s Exact Birth Stats',
@@ -1490,8 +1556,8 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
     supportsPhotoUpload: false,
     supportsAudioUpload: false,
     supportsGpsLookup: true,
-    supportsFrameFinish: true,
-    frameFinishHeading: '02. Select Hardwood Base Finish',
+    supportsFrameFinish: false,
+    frameFinishHeading: '02. Natural Carved Hardwood Stand',
     variantStepHeading: '04. Select Crystal Acrylic Plaque Size',
     variants: [
       {
