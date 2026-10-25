@@ -442,7 +442,24 @@ export default function LivePrintCustomizer({
       ctx.stroke()
       ctx.globalAlpha = 1
     } else if (basePlateEl) {
-      if (isDarkPaper) {
+      if (isDarkPaper && (product.mode === 'vinyl_lyric' || product.mode === 'soundwave')) {
+        // Circular Vinyl Disc Clip on Dark Study / Midnight Palettes (Eliminates White Box Around Disc)
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(cx, 420, 354, 0, Math.PI * 2)
+        ctx.clip()
+        ctx.drawImage(basePlateEl, 0, 0, W, H)
+        ctx.restore()
+
+        ctx.save()
+        ctx.strokeStyle = colorway.accentHex
+        ctx.globalAlpha = 0.78
+        ctx.lineWidth = 2.5
+        ctx.beginPath()
+        ctx.arc(cx, 420, 355, 0, Math.PI * 2)
+        ctx.stroke()
+        ctx.restore()
+      } else if (isDarkPaper) {
         ctx.save()
         ctx.beginPath()
         ctx.roundRect(78, 68, W - 156, 735, 8)
@@ -552,7 +569,7 @@ export default function LivePrintCustomizer({
 
       activeMembers.forEach((m, idx) => {
         const fx = count === 1 ? cx : startX + (idx * span) / (count - 1)
-        const tagY = 675 + (idx % 2 === 0 ? -18 : 22)
+        const tagY = 720 + (idx % 2 === 0 ? -12 : 16)
         const monthShort = (m.month || 'July').slice(0, 3)
         const flowerName = BIRTH_FLOWERS_DICT[m.month]?.flower || 'Rose'
         const labelTop = m.name.trim().slice(0, 14)
@@ -591,27 +608,26 @@ export default function LivePrintCustomizer({
       })
       ctx.restore()
     } else if (product.mode === 'vinyl_lyric' && !uploadedPhotoEl) {
-      // Custom Champagne-Gold Foil Record Center Label Inscription
+      // Custom Champagne-Gold Foil Record Center Label Inscription (Centered in Crimson Band)
       ctx.save()
-      const medY = 420
+      const medY = 421
       ctx.textAlign = 'center'
       ctx.fillStyle = '#F5DFB0'
-      ctx.globalAlpha = 0.95
-      ctx.font = '600 11px Georgia, serif'
-      ctx.fillText(headline.toUpperCase().slice(0, 22), cx, medY - 38, 150)
+      ctx.globalAlpha = 0.96
+      ctx.font = '600 10.5px Georgia, serif'
+      ctx.fillText(headline.toUpperCase().slice(0, 22), cx, medY - 26, 134)
 
       ctx.font = 'italic 9.5px Georgia, serif'
       ctx.fillStyle = '#E5C178'
-      ctx.fillText(locationText.slice(0, 26), cx, medY + 46, 150)
+      ctx.fillText(locationText.slice(0, 26), cx, medY + 30, 134)
 
-      ctx.font = '600 8px monospace'
-      ctx.globalAlpha = 0.8
-      ctx.fillText(dateText.toUpperCase().slice(0, 24), cx, medY + 61, 140)
+      ctx.font = '600 7.5px monospace'
+      ctx.globalAlpha = 0.82
+      ctx.fillText(dateText.toUpperCase().slice(0, 24), cx, medY + 44, 126)
       ctx.restore()
     } else if (
       product.mode === 'coastal_chart' ||
-      product.mode === 'patent_blueprint' ||
-      product.mode === 'coordinates'
+      product.mode === 'patent_blueprint'
     ) {
       // Dynamic Coordinate Graticule Crosshair & Plotted Golden Location Pin
       ctx.save()
@@ -687,20 +703,20 @@ export default function LivePrintCustomizer({
         ctx.stroke()
       }
 
-      // Draw Scannable Audio QR Code Matrix next to the waveform
-      const qrSize = 56
+      // Draw Scannable Audio QR Code Matrix next to the waveform (High-contrast #1D1511 dark modules on #FAF6F0 cream badge)
+      const qrSize = 54
       const qrX = sx0 + span + 20
       const qrY = wy - qrSize / 2
       ctx.fillStyle = '#FAF6F0'
-      ctx.globalAlpha = 0.95
+      ctx.globalAlpha = 0.98
       ctx.fillRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8)
       ctx.strokeStyle = colorway.accentHex
-      ctx.lineWidth = 1.2
+      ctx.lineWidth = 1.5
       ctx.strokeRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8)
 
       const cells = 11
       const cellPx = qrSize / cells
-      ctx.fillStyle = colorway.inkHex
+      ctx.fillStyle = '#1D1511'
       for (let r = 0; r < cells; r++) {
         for (let c = 0; c < cells; c++) {
           const isCorner =
@@ -851,19 +867,20 @@ export default function LivePrintCustomizer({
       ctx.fillStyle = colorway.accentHex
       ctx.globalAlpha = 0.96
       if (product.mode === 'family_botanical') {
-        // On Family Botanical Blanket, display the family member roster on line 1 and Established note below so it never crowds
+        // On Family Botanical Blanket, display the family member roster on line 1 and deduplicated Established note below
         drawFittedLine(locationText.toUpperCase(), cx, 1012, maxMatW, 15, 10, '600')
         ctx.fillStyle = colorway.mutedHex
         ctx.globalAlpha = 0.92
-        drawFittedLine(
-          `${dateText.toUpperCase()}   ·   ${coordsText.toUpperCase()}`,
-          cx,
-          1056,
-          maxMatW,
-          14,
-          10,
-          'italic'
-        )
+        const dClean = dateText.trim()
+        const cClean = coordsText.trim()
+        const heritageLine =
+          dClean.toLowerCase() === cClean.toLowerCase()
+            ? dClean.toUpperCase()
+            : [dClean, cClean]
+                .filter(Boolean)
+                .map((s) => s.toUpperCase())
+                .join('   ·   ')
+        drawFittedLine(heritageLine, cx, 1056, maxMatW, 14, 10, 'italic')
       } else {
         const combinedLocDate = [locationText.trim(), dateText.trim()]
           .filter(Boolean)
@@ -2477,9 +2494,45 @@ export default function LivePrintCustomizer({
                   />
                 </div>
 
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Scent / Sub-Caption Line
+                    </span>
+                    <input
+                      type="text"
+                      value={locationText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setLocationText(e.target.value)
+                      }}
+                      maxLength={38}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., White Sage &amp; Lavender · USA"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Established Year / Occasion
+                    </span>
+                    <input
+                      type="text"
+                      value={dateText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setDateText(e.target.value)
+                      }}
+                      maxLength={34}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., Established 2024"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <span className="text-xs text-[#4A3B31] font-medium block">
-                    Dedicated By &amp; Special Date
+                    Bottom Apothecary Seal / Dedication
                   </span>
                   <input
                     type="text"
@@ -2490,7 +2543,7 @@ export default function LivePrintCustomizer({
                     }}
                     maxLength={44}
                     className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., With all our love, Sarah &amp; Michael · 2024"
+                    placeholder="e.g., 100% NATURAL SOY WAX · APOTHECARY EDITION"
                   />
                 </div>
               </div>

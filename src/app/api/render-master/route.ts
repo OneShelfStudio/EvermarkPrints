@@ -230,7 +230,7 @@ export async function GET(req: Request) {
         const bit = hashSeed(`${seed}-qr-${r}-${c}`) % 2 === 0
         if (isFinder || bit) {
           qrCells.push(
-            `<rect x="${qrX + c * cell}" y="${qrY + r * cell}" width="${cell}" height="${cell}" fill="${colorway.inkHex}" />`
+            `<rect x="${qrX + c * cell}" y="${qrY + r * cell}" width="${cell}" height="${cell}" fill="#1D1511" />`
           )
         }
       }
