@@ -383,18 +383,29 @@ export default function RootLayout({
                   Pinterest @evermarkprints
                 </a>
               </div>
-              <p className="text-[11px] text-[#A99E8E] pt-4 border-t border-white/15">
-                © {new Date().getFullYear()} Evermark Prints · Part of{' '}
+              <div className="pt-4 border-t border-white/15 space-y-2.5">
                 <a
                   href="https://digital-dads-llc.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white underline underline-offset-4"
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[#264437] hover:bg-[#315747] border border-[#E5C178]/40 text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-[0.14em] transition shadow-sm"
                 >
-                  Digital Dads LLC
-                </a>{' '}
-                · 1321 Upland Dr. PMB 4136, Houston, TX 77043
-              </p>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E5C178]"></span>
+                  <span>Built by Digital Dads LLC ↗</span>
+                </a>
+                <p className="text-[11px] text-[#A99E8E]">
+                  © {new Date().getFullYear()} Evermark Prints ·{' '}
+                  <a
+                    href="https://digital-dads-llc.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-[#E5C178] underline underline-offset-4 transition"
+                  >
+                    Digital Dads LLC
+                  </a>{' '}
+                  · 1321 Upland Dr. PMB 4136, Houston, TX 77043
+                </p>
+              </div>
             </div>
           </div>
         </footer>
