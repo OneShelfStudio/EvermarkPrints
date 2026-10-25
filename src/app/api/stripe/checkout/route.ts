@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       returnUrl,
       lineItems,
       collectUsShipping = true,
+      promoCode,
       metadata = {},
     } = body
 
@@ -59,10 +60,30 @@ export async function POST(req: Request) {
       }
     }
 
+    // Optional auto-applied Stripe Promotion Code (e.g. WELCOME15 from saved proof email or 1-click apply)
+    let resolvedPromoId: string | null = null
+    if (typeof promoCode === 'string' && promoCode.trim().length > 0) {
+      try {
+        const promoList = await stripe.promotionCodes.list({
+          code: promoCode.trim().toUpperCase(),
+          active: true,
+          limit: 1,
+        })
+        if (promoList.data.length > 0) {
+          resolvedPromoId = promoList.data[0].id
+          cleanMetadata.appliedPromoCode = promoCode.trim().toUpperCase()
+        }
+      } catch {
+        // Fallback to manual promotion code box at checkout
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       line_items: formattedLineItems,
       mode: 'payment',
-      allow_promotion_codes: true,
+      ...(resolvedPromoId
+        ? { discounts: [{ promotion_code: resolvedPromoId }] }
+        : { allow_promotion_codes: true }),
       ...(collectUsShipping
         ? {
             shipping_address_collection: {

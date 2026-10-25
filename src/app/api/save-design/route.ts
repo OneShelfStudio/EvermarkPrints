@@ -27,12 +27,15 @@ export async function POST(req: Request) {
       )
     }
 
-    const safeShareUrl =
+    const rawShareUrl =
       typeof shareUrl === 'string' && shareUrl.startsWith('http')
         ? shareUrl
         : `https://www.evermarkprints.com/create/${encodeURIComponent(
             productSlug || 'custom-star-map'
           )}`
+    const safeShareUrl = rawShareUrl.includes('promo=')
+      ? rawShareUrl
+      : `${rawShareUrl}${rawShareUrl.includes('?') ? '&' : '?'}promo=WELCOME15`
 
     // 1. Persist saved design lead to Sanity if configured
     const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID

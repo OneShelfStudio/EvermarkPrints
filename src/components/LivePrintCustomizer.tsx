@@ -140,6 +140,7 @@ export default function LivePrintCustomizer({
   const [saveProofEmail, setSaveProofEmail] = useState<string>('')
   const [isSavingProof, setIsSavingProof] = useState<boolean>(false)
   const [savedProofSuccessMsg, setSavedProofSuccessMsg] = useState<string | null>(null)
+  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null)
 
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberFlower[]>([
     { id: '1', name: 'Emma', month: 'July' },
@@ -226,6 +227,10 @@ export default function LivePrintCustomizer({
     if (qColor && COLORWAYS.some((c) => c.id === qColor)) setColorwayId(qColor)
     if (qFrame && FRAME_FINISHES.some((f) => f.id === qFrame)) setFrameFinishId(qFrame)
     if (qVar && product.variants.some((v) => v.id === qVar)) setSelectedVariantId(qVar)
+    const qPromo = params.get('promo')
+    if (qPromo && qPromo.trim().length > 0) {
+      setAppliedPromoCode(qPromo.trim().toUpperCase())
+    }
   }, [product.variants])
 
   function buildShareableDesignUrl(): string {
@@ -240,6 +245,7 @@ export default function LivePrintCustomizer({
       colorway: colorwayId,
       frame: frameFinishId,
       variant: selectedVariantId,
+      promo: 'WELCOME15',
     })
     return `${origin}/create/${product.slug}?${p.toString()}`
   }
@@ -277,8 +283,9 @@ export default function LivePrintCustomizer({
         }),
       })
       if (res.ok) {
+        setAppliedPromoCode('WELCOME15')
         setSavedProofSuccessMsg(
-          'Saved! Check your inbox for your 1-click design link + code WELCOME15 (15% Off).'
+          'Saved! Code WELCOME15 (15% Off) is now auto-applied to your checkout & emailed to your inbox.'
         )
         setSaveProofEmail('')
       } else {
@@ -1187,6 +1194,7 @@ export default function LivePrintCustomizer({
           projectId: `evermark_${product.sku}`,
           returnUrl,
           collectUsShipping: true,
+          promoCode: appliedPromoCode || undefined,
           lineItems,
           metadata: {
             brand: 'Evermark Prints',
@@ -2969,8 +2977,40 @@ export default function LivePrintCustomizer({
             </p>
           </div>
 
-          {/* Primary Checkout & Multi-Item Order Bag Buttons */}
+          {/* 1-Click Collector Privilege Promo Code Banner + Primary Checkout */}
           <div className="space-y-2.5 pt-1">
+            <div className="flex items-center justify-between gap-2 px-3.5 py-2.5 bg-[#F3E9DA] border border-[#CBB89F] text-xs">
+              <div className="flex items-center gap-2 text-[#261A13]">
+                <span className="text-[#9E472A] font-bold">✦</span>
+                <span>
+                  {appliedPromoCode ? (
+                    <>
+                      Code <strong className="text-[#1B3027]">{appliedPromoCode}</strong> Active:{' '}
+                      <strong>15% Off (${Math.round(totalUsd * 0.85)})</strong> at Checkout
+                    </>
+                  ) : (
+                    <>
+                      Collector Privilege: Save <strong>15% Off</strong> with code{' '}
+                      <strong className="font-mono-tech text-[#9E472A]">WELCOME15</strong>
+                    </>
+                  )}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setAppliedPromoCode((prev) => (prev === 'WELCOME15' ? null : 'WELCOME15'))
+                }
+                className={`px-2.5 py-1 text-[10px] font-mono-tech uppercase tracking-wider font-semibold transition shrink-0 ${
+                  appliedPromoCode
+                    ? 'bg-[#1B3027] text-[#F7F4ED]'
+                    : 'bg-[#261A13] hover:bg-[#1B3027] text-[#F7F4ED]'
+                }`}
+              >
+                {appliedPromoCode ? '✓ 15% Off Applied' : 'Apply 15% Off'}
+              </button>
+            </div>
+
             <button
               type="button"
               disabled={isCheckingOut}
@@ -2980,6 +3020,8 @@ export default function LivePrintCustomizer({
               <span>
                 {isCheckingOut
                   ? 'Preparing Archival Commission...'
+                  : appliedPromoCode
+                  ? `Commission Custom Keepsake · $${Math.round(totalUsd * 0.85)} (15% Off)`
                   : `Commission Custom Keepsake · $${totalUsd}`}
               </span>
               <span>→</span>
@@ -3125,6 +3167,41 @@ export default function LivePrintCustomizer({
                 ))}
             </div>
           </section>
+
+          {/* Sticky Mobile Commission & Price Bar */}
+          <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#CBB89F] px-4 py-2.5 shadow-[0_-8px_24px_rgba(38,26,19,0.12)] flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold truncate">
+                <span>★★★★★ 4.9</span>
+                <span>·</span>
+                <span className="truncate">{product.shortTitle}</span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-base font-bold text-[#261A13]">
+                  ${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd}
+                </span>
+                {appliedPromoCode ? (
+                  <span className="text-xs text-[#8C7A6B] line-through">${totalUsd}</span>
+                ) : activeVariant.compareAtUsd ? (
+                  <span className="text-xs text-[#8C7A6B] line-through">
+                    ${activeVariant.compareAtUsd}
+                  </span>
+                ) : null}
+                <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
+                  FREE US SHIP
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              disabled={isCheckingOut}
+              onClick={handleCheckout}
+              className="px-4 py-2.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shrink-0 shadow-sm"
+            >
+              {isCheckingOut ? 'Preparing...' : 'Commission Now →'}
+            </button>
+          </div>
         </>
       )}
     </div>

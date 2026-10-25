@@ -33,7 +33,7 @@ export function generateMetadata({
       locale: 'en_US',
       type: 'website',
       images: product.mockupGallery.map((img) => ({
-        url: `${baseUrl}${img}`,
+        url: `${baseUrl}${img}?v=2`,
         width: 1200,
         height: 1200,
         alt: `${product.title} (${product.physicalMedium})`,
@@ -43,7 +43,7 @@ export function generateMetadata({
       card: 'summary_large_image',
       title: `${product.title} | Evermark Prints`,
       description: product.description,
-      images: [`${baseUrl}${product.previewImage}`],
+      images: [`${baseUrl}${product.previewImage}?v=2`],
     },
   }
 }
@@ -69,7 +69,7 @@ export default function CreateCustomPrintPage({
     sku: product.sku,
     mpn: product.sku,
     category: product.productType,
-    image: product.mockupGallery.map((img) => `${baseUrl}${img}`),
+    image: product.mockupGallery.map((img) => `${baseUrl}${img}?v=2`),
     brand: {
       '@type': 'Brand',
       name: 'Evermark Prints',

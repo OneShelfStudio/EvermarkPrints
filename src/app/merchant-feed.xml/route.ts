@@ -18,15 +18,15 @@ const SEARCH_INTENT_TITLE_MAP: Record<string, string> = {
   'family-tree-botanical-print':
     'Custom Family Birth Month Flower Woven Cotton Throw Blanket - Personalized Gift for Mom, Nana & Grandma',
   'coastal-bathymetry-chart':
-    'Custom Nautical Coastal Chart Wall Tapestry With Wood Hanger - Personalized Lake & Beach House Gift',
+    'Custom Nautical Harbor & Bathymetry Chart on Chiseled Stone Slate - Personalized Lake, Boat & Beach House Gift',
   'met-engaged-married-triptych':
-    'Custom Met Engaged Married 3-Panel Acrylic Wall Art Triptych - Personalized Couple & Wedding Gift',
+    'Custom Met Engaged Married 3-Panel Mountain Watercolor Canvas Triptych - Personalized Couple & Wedding Gift',
   'patent-architectural-triptych':
-    'Custom Vintage Patent Blueprint Framed Print - Personalized Office, Engineer & Father’s Day Gift',
+    'Custom Couple & Family Watercolor Portrait Framed Cotton Canvas - Personalized Wedding & Anniversary Gift',
   'custom-book-stack-print':
-    'Custom Label Scented Amber Glass Soy Candle (9oz) - Personalized Book Lover, Housewarming & Hostess Gift',
+    'Custom Family Birth Flower Scented Amber Glass Soy Candle (9oz) - Personalized Mom, Housewarming & Hostess Gift',
   'custom-vinyl-song-portrait':
-    'Custom Photo & First Dance Song Vinyl Record Framed Print (Scannable QR) - Couple Anniversary Gift',
+    'Custom First Dance Metallic Gold Vinyl Record Framed Canvas (Scannable QR) - Personalized Couple Anniversary Gift',
   'custom-pet-memorial':
     'Custom Watercolor Pet Portrait Natural Birch Wood Plaque - Personalized Dog & Cat Loss Memorial Gift',
   'custom-coordinates-print':
@@ -34,7 +34,7 @@ const SEARCH_INTENT_TITLE_MAP: Record<string, string> = {
   'newborn-birth-stat-portrait':
     'Custom Newborn Baby Birth Stat Framed Cotton Canvas - Personalized Nursery Decor & New Baby Gift',
   'marathon-finisher-route-print':
-    'Custom Marathon Finisher Route & Elevation Framed Print - Personalized Runner Race Medal Keepsake',
+    'Custom Celestial Star Map & Roman Numeral Date Crystal Acrylic Block - Personalized Nightstand Anniversary Gift',
 }
 
 export async function GET() {
@@ -48,11 +48,24 @@ export async function GET() {
       const fullDesc = escapeXml(
         `${product.description} (${variant.subtitle}). Handcrafted to order in US studios with live interactive previewing, Instant Printable Gift Presentation Card, and complimentary 3 to 5 day tracked US shipping.`
       )
-      const primaryImage = `${baseUrl}${product.previewImage}`
-      const additionalImagesXml = product.mockupGallery
-        .slice(1, 4)
-        .map((img) => `<g:additional_image_link>${baseUrl}${img}</g:additional_image_link>`)
+      const primaryImage = `${baseUrl}${product.previewImage}?v=2`
+      const additionalImagesXml = [
+        ...product.mockupGallery.slice(1, 4).map((img) => `${baseUrl}${img}?v=2`),
+        `${baseUrl}/pins/${product.slug}-pin.webp?v=2`,
+      ]
+        .map((url) => `<g:additional_image_link>${url}</g:additional_image_link>`)
         .join('\n      ')
+
+      const highlightsXml = (product.highlights || [])
+        .slice(0, 4)
+        .map((h) => `<g:product_highlight>${escapeXml(h)}</g:product_highlight>`)
+        .join('\n      ')
+
+      const regPrice =
+        variant.compareAtUsd && variant.compareAtUsd > variant.priceUsd
+          ? variant.compareAtUsd
+          : variant.priceUsd
+      const hasSale = regPrice > variant.priceUsd
 
       return `
     <item>
@@ -65,7 +78,8 @@ export async function GET() {
       ${additionalImagesXml}
       <g:condition>new</g:condition>
       <g:availability>in_stock</g:availability>
-      <g:price>${variant.priceUsd}.00 USD</g:price>
+      <g:price>${regPrice}.00 USD</g:price>
+      ${hasSale ? `<g:sale_price>${variant.priceUsd}.00 USD</g:sale_price>` : ''}
       <g:brand>Evermark Prints</g:brand>
       <g:mpn>${escapeXml(itemId)}</g:mpn>
       <g:identifier_exists>false</g:identifier_exists>
@@ -73,6 +87,7 @@ export async function GET() {
       <g:product_type>${escapeXml(product.productType)}</g:product_type>
       <g:custom_label_0>${escapeXml(product.physicalMedium)}</g:custom_label_0>
       <g:custom_label_1>${escapeXml(product.categoryLabel)}</g:custom_label_1>
+      ${highlightsXml}
       <g:shipping>
         <g:country>US</g:country>
         <g:service>Complimentary Tracked US Studio Delivery (3-5 Days)</g:service>
@@ -95,7 +110,7 @@ export async function GET() {
   return new NextResponse(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',
     },
   })
 }
