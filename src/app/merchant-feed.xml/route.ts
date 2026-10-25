@@ -66,6 +66,12 @@ export async function GET() {
           ? variant.compareAtUsd
           : variant.priceUsd
       const hasSale = regPrice > variant.priceUsd
+      const isHeroTop4 = [
+        'met-engaged-married-triptych',
+        'custom-vinyl-song-portrait',
+        'custom-star-map',
+        'family-tree-botanical-print',
+      ].includes(product.slug)
 
       return `
     <item>
@@ -87,6 +93,7 @@ export async function GET() {
       <g:product_type>${escapeXml(product.productType)}</g:product_type>
       <g:custom_label_0>${escapeXml(product.physicalMedium)}</g:custom_label_0>
       <g:custom_label_1>${escapeXml(product.categoryLabel)}</g:custom_label_1>
+      <g:custom_label_2>${isHeroTop4 ? 'hero_top_4' : 'catalog_standard'}</g:custom_label_2>
       <g:promotion_id>welcome15_evermark_2026</g:promotion_id>
       ${highlightsXml}
       <g:shipping>
