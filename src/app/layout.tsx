@@ -106,6 +106,7 @@ const organizationJsonLd = {
         'Bespoke American archival studio crafting custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveforms, and pet portraits.',
       email: 'concierge@evermarkprints.com',
       priceRange: '$$',
+      sameAs: ['https://www.pinterest.com/evermarkprints/'],
       address: {
         '@type': 'PostalAddress',
         streetAddress: '1321 Upland Dr. PMB 4136',
@@ -154,6 +155,7 @@ export default function RootLayout({
           name="google-site-verification"
           content="jd6LCvddjCEMnPibZKgsfe7ulY69PFU3jowaM9TWVsI"
         />
+        <meta name="p:domain_verify" content="4c6b15a2e1eec9b033ad26afccafe72a" />
         <meta name="google-adsense-account" content="ca-pub-7651037308656903" />
         <script
           async
@@ -372,6 +374,14 @@ export default function RootLayout({
                 <Link href="/terms" className="hover:underline underline-offset-4">
                   Terms
                 </Link>
+                <a
+                  href="https://www.pinterest.com/evermarkprints/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline underline-offset-4"
+                >
+                  Pinterest @evermarkprints
+                </a>
               </div>
               <p className="text-[11px] text-[#A99E8E] pt-4 border-t border-white/15">
                 © {new Date().getFullYear()} Evermark Prints · Part of{' '}
