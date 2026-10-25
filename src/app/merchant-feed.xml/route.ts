@@ -87,11 +87,16 @@ export async function GET() {
       <g:product_type>${escapeXml(product.productType)}</g:product_type>
       <g:custom_label_0>${escapeXml(product.physicalMedium)}</g:custom_label_0>
       <g:custom_label_1>${escapeXml(product.categoryLabel)}</g:custom_label_1>
+      <g:promotion_id>welcome15_evermark_2026</g:promotion_id>
       ${highlightsXml}
       <g:shipping>
         <g:country>US</g:country>
         <g:service>Complimentary Tracked US Studio Delivery (3-5 Days)</g:service>
         <g:price>0.00 USD</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>2</g:max_handling_time>
+        <g:min_transit_time>2</g:min_transit_time>
+        <g:max_transit_time>4</g:max_transit_time>
       </g:shipping>
     </item>`
     })
