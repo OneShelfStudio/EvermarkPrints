@@ -13,6 +13,7 @@ import {
   EVERMARK_CATALOG,
 } from '@/lib/catalog'
 import { loadStoredBag, saveStoredBag, OrderBagItem } from '@/components/OrderBagDrawer'
+import { buildCompactListenQrUrl, buildScannableQrMatrix } from '@/lib/qrcode'
 import AdUnit from '@/components/AdUnit'
 
 interface LivePrintCustomizerProps {
@@ -160,7 +161,9 @@ export default function LivePrintCustomizer({
       )
       .join('  •  ')
     setLocationText(formatted || 'Family Botanical Garden')
-    setCoordsText(note || 'LOVE GROWS HERE FOREVER')
+    const cleanNote = note.trim() || 'LOVE GROWS HERE FOREVER'
+    setDateText(cleanNote)
+    setCoordsText(cleanNote)
   }
 
   // Loaded Painterly Base Plate Image & Watercolor Portrait Backdrop
@@ -170,11 +173,13 @@ export default function LivePrintCustomizer({
   // Photo Upload State (Only active on products where supportsPhotoUpload === true)
   const [uploadedPhotoEl, setUploadedPhotoEl] = useState<HTMLImageElement | null>(null)
   const [uploadedPhotoName, setUploadedPhotoName] = useState<string | null>(null)
+  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null)
   const [photoFilter, setPhotoFilter] = useState<PhotoFilterId>('warm_color')
 
   // Real Audio Upload & Live Microphone Recorder State (Only active on products where supportsAudioUpload === true)
   const [customAudioPeaks, setCustomAudioPeaks] = useState<number[] | null>(null)
   const [uploadedAudioName, setUploadedAudioName] = useState<string | null>(null)
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null)
   const [isRecordingMic, setIsRecordingMic] = useState<boolean>(false)
 
   // GPS Lookup State
@@ -215,7 +220,6 @@ export default function LivePrintCustomizer({
     const qLoc = params.get('loc')
     const qDate = params.get('date')
     const qCoords = params.get('coords')
-    const qColor = params.get('colorway') as ColorwayId | null
     const qFrame = params.get('frame') as FrameFinishId | null
     const qVar = params.get('variant')
 
@@ -224,7 +228,6 @@ export default function LivePrintCustomizer({
     if (qLoc) setLocationText(qLoc)
     if (qDate) setDateText(qDate)
     if (qCoords) setCoordsText(qCoords)
-    if (qColor && COLORWAYS.some((c) => c.id === qColor)) setColorwayId(qColor)
     if (qFrame && FRAME_FINISHES.some((f) => f.id === qFrame)) setFrameFinishId(qFrame)
     if (qVar && product.variants.some((v) => v.id === qVar)) setSelectedVariantId(qVar)
     const qPromo = params.get('promo')
@@ -320,10 +323,12 @@ export default function LivePrintCustomizer({
     if (!nextProd.supportsPhotoUpload) {
       setUploadedPhotoEl(null)
       setUploadedPhotoName(null)
+      setUploadedPhotoUrl(null)
     }
     if (!nextProd.supportsAudioUpload) {
       setCustomAudioPeaks(null)
       setUploadedAudioName(null)
+      setUploadedAudioUrl(null)
     }
   }
 
@@ -367,14 +372,18 @@ export default function LivePrintCustomizer({
 
     const W = 960
     const H = 1200
-    cleanCanvas.width = W
-    cleanCanvas.height = H
-    visibleCanvas.width = W
-    visibleCanvas.height = H
+    const SCALE = 2
+    cleanCanvas.width = W * SCALE
+    cleanCanvas.height = H * SCALE
+    visibleCanvas.width = W * SCALE
+    visibleCanvas.height = H * SCALE
 
     const ctx = cleanCanvas.getContext('2d')
     const vCtx = visibleCanvas.getContext('2d')
     if (!ctx || !vCtx) return
+
+    ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0)
+    vCtx.setTransform(SCALE, 0, 0, SCALE, 0, 0)
 
     const seed = hashSeed(`${headline}|${locationText}|${dateText}|${coordsText}`)
     const isDarkPaper =
@@ -703,27 +712,37 @@ export default function LivePrintCustomizer({
         ctx.stroke()
       }
 
-      // Draw Scannable Audio QR Code Matrix next to the waveform (High-contrast #1D1511 dark modules on #FAF6F0 cream badge)
-      const qrSize = 54
-      const qrX = sx0 + span + 20
+      // Draw Genuine ISO/IEC 18004 Camera-Scannable Audio QR Code Matrix next to the waveform
+      const listenQrUrl = buildCompactListenQrUrl({
+        title: headline,
+        song: locationText,
+        dateText,
+        subline,
+        audioUrl: uploadedAudioUrl,
+        peaks: customAudioPeaks,
+      })
+      const qrMatrix = buildScannableQrMatrix(listenQrUrl)
+      const qrSize = 58
+      const qrX = sx0 + span + 18
       const qrY = wy - qrSize / 2
       ctx.fillStyle = '#FAF6F0'
-      ctx.globalAlpha = 0.98
-      ctx.fillRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8)
+      ctx.globalAlpha = 0.99
+      ctx.fillRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10)
       ctx.strokeStyle = colorway.accentHex
       ctx.lineWidth = 1.5
-      ctx.strokeRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8)
+      ctx.strokeRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10)
 
-      const cells = 11
-      const cellPx = qrSize / cells
+      const cellPx = qrSize / qrMatrix.size
       ctx.fillStyle = '#1D1511'
-      for (let r = 0; r < cells; r++) {
-        for (let c = 0; c < cells; c++) {
-          const isCorner =
-            (r < 3 && c < 3) || (r < 3 && c >= cells - 3) || (r >= cells - 3 && c < 3)
-          const bit = hashSeed(`${seed}-qr-${r}-${c}`) % 2 === 0
-          if (isCorner || bit) {
-            ctx.fillRect(qrX + c * cellPx, qrY + r * cellPx, cellPx - 0.5, cellPx - 0.5)
+      for (let r = 0; r < qrMatrix.size; r++) {
+        for (let c = 0; c < qrMatrix.size; c++) {
+          if (qrMatrix.isDark(r, c)) {
+            ctx.fillRect(
+              qrX + c * cellPx,
+              qrY + r * cellPx,
+              cellPx + 0.15,
+              cellPx + 0.15
+            )
           }
         }
       }
@@ -899,7 +918,7 @@ export default function LivePrintCustomizer({
     // PASS 2: Copy to Visible Preview Canvas + Subtle Archival Proof Seal
     // =========================================================================
     vCtx.clearRect(0, 0, W, H)
-    vCtx.drawImage(cleanCanvas, 0, 0)
+    vCtx.drawImage(cleanCanvas, 0, 0, W, H)
 
     vCtx.save()
     vCtx.textAlign = 'center'
@@ -922,6 +941,7 @@ export default function LivePrintCustomizer({
     coordsText,
     colorway,
     customAudioPeaks,
+    uploadedAudioUrl,
     uploadedPhotoEl,
     photoFilter,
     product.mode,
@@ -966,13 +986,29 @@ export default function LivePrintCustomizer({
     if (!file) return
     const reader = new FileReader()
     reader.onload = () => {
+      const dataUrl = String(reader.result)
       const img = new Image()
       img.onload = () => {
         setActiveMockupUrl(null)
         setUploadedPhotoEl(img)
         setUploadedPhotoName(file.name)
       }
-      img.src = String(reader.result)
+      img.src = dataUrl
+
+      fetch('/api/artwork-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataUrl,
+          productSlug: `${product.slug}-photo`,
+        }),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          const cdn = d?.url || d?.masterArtworkUrl
+          if (cdn) setUploadedPhotoUrl(String(cdn))
+        })
+        .catch(() => {})
     }
     reader.readAsDataURL(file)
   }
@@ -1059,6 +1095,27 @@ export default function LivePrintCustomizer({
       setUploadedAudioName(file.name)
       setCoordsText(`00:00  • • • • • ● • • •  ${formatDurationClock(audioBuffer.duration)}`)
       await audioCtx.close()
+
+      // Persist uploaded audio clip so scanning the QR code plays the customer's actual audio recording
+      const audioReader = new FileReader()
+      audioReader.onload = () => {
+        fetch('/api/audio-upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dataUrl: String(audioReader.result),
+            slug: product.slug,
+          }),
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => {
+            if (d?.audioUrl || d?.url) {
+              setUploadedAudioUrl(String(d.audioUrl || d.url))
+            }
+          })
+          .catch(() => {})
+      }
+      audioReader.readAsDataURL(file)
     } catch {
       setErrorMsg(
         'Could not decode that audio file. Please upload a standard .mp3, .wav, or .m4a file.'
@@ -1082,7 +1139,7 @@ export default function LivePrintCustomizer({
         stream.getTracks().forEach((t) => t.stop())
         setIsRecordingMic(false)
         try {
-          const blob = new Blob(chunks)
+          const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' })
           const arrayBuffer = await blob.arrayBuffer()
           const AudioCtx =
             window.AudioContext ||
@@ -1113,6 +1170,27 @@ export default function LivePrintCustomizer({
           setUploadedAudioName('Live Voice Recording (5s)')
           setCoordsText(`00:00  • • • • • ● • • •  ${formatDurationClock(audioBuffer.duration)}`)
           await audioCtx.close()
+
+          // Persist live voice note so scanning the QR code plays the customer's exact voice recording
+          const blobReader = new FileReader()
+          blobReader.onload = () => {
+            fetch('/api/audio-upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                dataUrl: String(blobReader.result),
+                slug: `${product.slug}-voice`,
+              }),
+            })
+              .then((r) => (r.ok ? r.json() : null))
+              .then((d) => {
+                if (d?.audioUrl || d?.url) {
+                  setUploadedAudioUrl(String(d.audioUrl || d.url))
+                }
+              })
+              .catch(() => {})
+          }
+          blobReader.readAsDataURL(blob)
         } catch {
           setUploadedAudioName('Voice Note Plotted')
         }
@@ -1131,6 +1209,15 @@ export default function LivePrintCustomizer({
 
   // Build OrderBagItems for current configuration + any selected companion add-ons
   function buildCurrentBagItems(): OrderBagItem[] {
+    let customThumb = product.previewImage
+    if (typeof window !== 'undefined' && cleanCanvasRef.current) {
+      try {
+        customThumb = cleanCanvasRef.current.toDataURL('image/jpeg', 0.72)
+      } catch {
+        // Fallback to static preview image
+      }
+    }
+
     const items: OrderBagItem[] = [
       {
         bagItemId: `${product.slug}-${activeVariant.id}-${Date.now()}`,
@@ -1144,7 +1231,9 @@ export default function LivePrintCustomizer({
         shortTitle: product.shortTitle,
         physicalMedium: product.physicalMedium,
         variantLabel: activeVariant.label,
+        colorwayId,
         colorwayLabel: colorway.shortLabel,
+        frameFinishId: product.supportsFrameFinish ? frameFinishId : undefined,
         frameFinishLabel: product.supportsFrameFinish ? frameFinish.shortLabel : undefined,
         headline,
         subline,
@@ -1154,7 +1243,7 @@ export default function LivePrintCustomizer({
         giftNote: isGiftOrder ? giftNote : undefined,
         priceUsd: activeVariant.priceUsd,
         quantity: 1,
-        previewImage: product.previewImage,
+        previewImage: customThumb,
       },
     ]
 
@@ -1171,7 +1260,9 @@ export default function LivePrintCustomizer({
         shortTitle: `${product.shortTitle} (2nd Gift Copy, 25% Off)`,
         physicalMedium: product.physicalMedium,
         variantLabel: activeVariant.label,
+        colorwayId,
         colorwayLabel: colorway.shortLabel,
+        frameFinishId: product.supportsFrameFinish ? frameFinishId : undefined,
         frameFinishLabel: product.supportsFrameFinish ? frameFinish.shortLabel : undefined,
         headline,
         subline,
@@ -1181,7 +1272,7 @@ export default function LivePrintCustomizer({
         giftNote: isGiftOrder ? giftNote : undefined,
         priceUsd: secondCopyPriceUsd,
         quantity: 1,
-        previewImage: product.previewImage,
+        previewImage: customThumb,
       })
     }
 
@@ -1267,7 +1358,7 @@ export default function LivePrintCustomizer({
       let customMasterUrl = ''
       if (typeof window !== 'undefined') {
         const cleanCanvas = cleanCanvasRef.current
-        const previewDataUrl = cleanCanvas ? cleanCanvas.toDataURL('image/png') : ''
+        const previewDataUrl = cleanCanvas ? cleanCanvas.toDataURL('image/jpeg', 0.92) : ''
         window.localStorage.setItem(
           'evermark_last_custom_print',
           JSON.stringify({
@@ -1285,6 +1376,8 @@ export default function LivePrintCustomizer({
             formatLabel: `${product.physicalMedium} · ${activeVariant.label}`,
             giftNote: isGiftOrder ? giftNote : '',
             customPeaks: serializedPeaks,
+            customAudioUrl: uploadedAudioUrl || '',
+            customPhotoUrl: uploadedPhotoUrl || '',
             previewDataUrl,
           })
         )
@@ -1303,8 +1396,9 @@ export default function LivePrintCustomizer({
             })
             if (upRes.ok) {
               const upData = await upRes.json()
-              if (upData.masterArtworkUrl) {
-                customMasterUrl = String(upData.masterArtworkUrl)
+              const resolvedMaster = upData.masterArtworkUrl || upData.url
+              if (resolvedMaster) {
+                customMasterUrl = String(resolvedMaster)
               }
             }
           } catch {
@@ -1359,6 +1453,8 @@ export default function LivePrintCustomizer({
             coordsText: coordsText.slice(0, 120),
             giftNote: isGiftOrder ? giftNote.slice(0, 240) : '',
             customPeaks: serializedPeaks.slice(0, 350),
+            customAudioUrl: (uploadedAudioUrl || '').slice(0, 480),
+            customPhotoUrl: (uploadedPhotoUrl || '').slice(0, 480),
             hasCustomPhoto: uploadedPhotoName ? 'yes' : 'no',
             hasCustomAudio: uploadedAudioName ? 'yes' : 'no',
             customMasterUrl: customMasterUrl.slice(0, 480),
@@ -1975,247 +2071,43 @@ export default function LivePrintCustomizer({
             </div>
           </div>
 
-          {/* STEP 1: Select 8 Rich Designer Palettes */}
-          <div className="space-y-2.5">
-            <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-              01. Choose Typography &amp; Border Palette (8 Archival Editions)
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {COLORWAYS.map((c) => {
-                const isSel = c.id === colorwayId
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveMockupUrl(null)
-                      setColorwayId(c.id)
-                    }}
-                    className={`p-2.5 border text-left transition flex items-center gap-2.5 ${
-                      isSel
-                        ? 'border-[#1B3027] bg-[#F3E9DA] ring-1 ring-[#1B3027]'
-                        : 'border-[#D8C9B6] bg-[#FDFBF7] hover:border-[#9E472A]'
-                    }`}
-                  >
-                    <span
-                      className="w-5 h-5 rounded-full border border-black/25 shrink-0 flex items-center justify-center"
-                      style={{ backgroundColor: c.bgHex }}
-                    >
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: c.accentHex }}
-                      />
-                    </span>
-                    <span className="text-xs font-medium text-[#261A13] leading-tight truncate">
-                      {c.shortLabel}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* STEP 2: Select Hardwood Frame / Wood Base Finish (ONLY shown on products that have a wood frame/base!) */}
-          {product.supportsFrameFinish && (
-            <div className="space-y-2.5">
-              <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-                02. Select Solid Hardwood Finish (Frame / Stand / Trim)
-              </label>
-              <div className="grid grid-cols-3 gap-2.5">
-                {FRAME_FINISHES.map((f) => {
-                  const isSel = f.id === frameFinishId
-                  return (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveMockupUrl(null)
-                        setFrameFinishId(f.id)
-                      }}
-                      className={`p-2.5 border text-left transition flex items-center gap-2 ${
-                        isSel
-                          ? 'border-[#1B3027] bg-[#F3E9DA] ring-1 ring-[#1B3027]'
-                          : 'border-[#D8C9B6] bg-[#FDFBF7] hover:border-[#9E472A]'
-                      }`}
-                    >
-                      <span
-                        className="w-4 h-4 border border-black/20 shrink-0"
-                        style={{ backgroundColor: f.outerHex }}
-                      />
-                      <span className="text-xs font-medium text-[#261A13] truncate">
-                        {f.shortLabel}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* CONTEXTUAL STEP: Custom Photo Upload OR Voice/Song Audio Upload (ONLY rendered when supported by this product!) */}
-          {(product.supportsPhotoUpload || product.supportsAudioUpload) && (
-            <div className="space-y-3 pt-1">
-              <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-                {product.supportsPhotoUpload && product.supportsAudioUpload
-                  ? 'Attach Custom Center Photo & Song Audio'
-                  : product.supportsPhotoUpload
-                  ? 'Attach Custom Portrait Photo (Pet / Home / Baby)'
-                  : 'Attach Voice Note or Song Audio'}
-              </label>
-
-              <div
-                className={`grid gap-2.5 ${
-                  product.supportsPhotoUpload && product.supportsAudioUpload
-                    ? 'sm:grid-cols-2'
-                    : 'grid-cols-1'
-                }`}
-              >
-                {product.supportsPhotoUpload && (
-                  <div className="p-3.5 bg-[#F6EFE4] border border-[#D8C9B6] space-y-2 flex flex-col justify-between">
-                    <div>
-                      <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold block">
-                        Custom Portrait Photo Upload
-                      </span>
-                      <p className="text-[11px] text-[#5C4D42] leading-snug mt-0.5">
-                        Upload your photo to frame inside the central watercolor medallion.
-                      </p>
-                    </div>
-
-                    <input
-                      ref={photoInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoUpload}
-                      className="hidden"
-                    />
-
-                    <div className="space-y-1.5">
-                      <button
-                        type="button"
-                        onClick={() => photoInputRef.current?.click()}
-                        className="w-full py-2 px-3 bg-[#1B3027] hover:bg-[#254236] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider transition"
-                      >
-                        {uploadedPhotoName ? 'Change Photo...' : '+ Upload Photo (.JPG/.PNG)'}
-                      </button>
-
-                      {uploadedPhotoEl && (
-                        <div className="flex items-center justify-between gap-1 pt-1">
-                          {(['warm_color', 'bw_film', 'charcoal_sketch'] as PhotoFilterId[]).map(
-                            (filt) => (
-                              <button
-                                key={filt}
-                                type="button"
-                                onClick={() => setPhotoFilter(filt)}
-                                className={`px-1.5 py-0.5 text-[10px] border ${
-                                  photoFilter === filt
-                                    ? 'bg-[#261A13] text-[#F7F4ED] border-[#261A13]'
-                                    : 'bg-[#FDFBF7] text-[#5C4D42] border-[#D8C9B6]'
-                                }`}
-                              >
-                                {filt === 'warm_color'
-                                  ? 'Warm'
-                                  : filt === 'bw_film'
-                                  ? 'B&W'
-                                  : 'Sketch'}
-                              </button>
-                            )
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUploadedPhotoEl(null)
-                              setUploadedPhotoName(null)
-                            }}
-                            className="text-[10px] text-rose-800 underline px-1"
-                          >
-                            Clear
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {product.supportsAudioUpload && (
-                  <div className="p-3.5 bg-[#F6EFE4] border border-[#D8C9B6] space-y-2 flex flex-col justify-between">
-                    <div>
-                      <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold block">
-                        Voice Note or Song Soundwave
-                      </span>
-                      <p className="text-[11px] text-[#5C4D42] leading-snug mt-0.5">
-                        Upload an audio file (.MP3/.WAV/.M4A) or record a 5-second voice note live.
-                      </p>
-                    </div>
-
-                    <input
-                      ref={audioInputRef}
-                      type="file"
-                      accept="audio/*"
-                      onChange={handleAudioFileUpload}
-                      className="hidden"
-                    />
-
-                    <div className="flex flex-col sm:flex-row gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => audioInputRef.current?.click()}
-                        className="flex-1 py-2 px-2.5 bg-[#261A13] hover:bg-[#3A281D] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider transition"
-                      >
-                        {uploadedAudioName ? '✓ Audio Plotted' : '+ Upload Audio File'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleRecordMicrophone}
-                        disabled={isRecordingMic}
-                        className="flex-1 py-2 px-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] font-mono-tech uppercase tracking-wider transition"
-                      >
-                        {isRecordingMic ? '● Recording 5s...' : '🎙 Record Voice (5s)'}
-                      </button>
-                    </div>
-                    <div className="pt-1 flex items-center justify-between text-[10px] font-mono-tech text-[#1B3027]">
-                      <span>✓ Scannable Acoustic QR Plotted on Artwork</span>
-                      <Link
-                        href={`/listen?title=${encodeURIComponent(headline)}&subline=${encodeURIComponent(subline)}&song=${encodeURIComponent(locationText)}&date=${encodeURIComponent(dateText)}${
-                          customAudioPeaks && customAudioPeaks.length > 0
-                            ? `&peaks=${encodeURIComponent(
-                                customAudioPeaks.map((n) => Math.round(n * 100)).join(',')
-                              )}`
-                            : ''
-                        }`}
-                        target="_blank"
-                        className="underline font-semibold text-[#9E472A] hover:text-[#1B3027]"
-                      >
-                        ♫ Test QR Audio Player ↗
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Contextual Inscription & Personalization */}
+          {/* STEP 1: Contextual Inscription & Personalization (Immediate Live Canvas Updates) */}
           <div className="space-y-4 pt-1">
             <div className="flex items-center justify-between border-b border-[#D8C9B6] pb-2">
               <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
                 {product.slug === 'family-tree-botanical-print'
-                  ? 'Personalize Family Bouquet & Birth Flowers'
+                  ? '01. Personalize Family Bouquet & Birth Flowers'
                   : product.slug === 'newborn-birth-stat-portrait'
-                  ? 'Personalize Baby Name & Birth Stats'
+                  ? '01. Personalize Baby Name & Birth Stats'
                   : product.slug === 'custom-book-stack-print'
-                  ? 'Personalize Apothecary Candle Label'
+                  ? '01. Personalize Apothecary Candle Label'
                   : product.slug === 'custom-pet-memorial'
-                  ? 'Personalize Pet Name & Memorial Tribute'
+                  ? '01. Personalize Pet Name & Memorial Tribute'
                   : product.slug === 'custom-coordinates-print'
-                  ? 'Personalize First Home Address & Year'
+                  ? '01. Personalize First Home Address & Year'
                   : product.slug === 'met-engaged-married-triptych'
-                  ? 'Personalize Couple Names & 3 Milestones'
-                  : 'Personalize Your Inscription (Live Canvas Proof)'}
+                  ? '01. Personalize Couple Names & 3 Milestones'
+                  : '01. Personalize Your Inscription (Live Proof)'}
               </label>
               <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A]">
                 Updates Live On Artwork
               </span>
             </div>
+
+            {product.supportsAudioUpload && (
+              <div className="p-3 bg-[#F6EFE4] border border-[#D8C9B6] flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-tech text-[#1B3027]">
+                <span>✓ Auto-Plots Soundwave &amp; Camera-Scannable Song QR</span>
+                <Link
+                  href={`/listen?title=${encodeURIComponent(headline)}&subline=${encodeURIComponent(
+                    subline
+                  )}&song=${encodeURIComponent(locationText)}&date=${encodeURIComponent(dateText)}`}
+                  target="_blank"
+                  className="underline font-semibold text-[#9E472A] hover:text-[#1B3027]"
+                >
+                  ♫ Test Scannable QR Player ↗
+                </Link>
+              </div>
+            )}
 
             {/* 1. FAMILY BIRTH FLOWER BOUQUET BLANKET */}
             {product.slug === 'family-tree-botanical-print' ? (
@@ -2587,6 +2479,23 @@ export default function LivePrintCustomizer({
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <span className="text-xs text-[#4A3B31] font-medium block">
+                      Epitaph / Subtitle Line
+                    </span>
+                    <input
+                      type="text"
+                      value={locationText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setLocationText(e.target.value)
+                      }}
+                      maxLength={38}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., Forever Our Loyal Companion"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
                       Years of Life / Memory Dates
                     </span>
                     <input
@@ -2601,23 +2510,23 @@ export default function LivePrintCustomizer({
                       placeholder="e.g., 2014 to 2026"
                     />
                   </div>
+                </div>
 
-                  <div className="space-y-1">
-                    <span className="text-xs text-[#4A3B31] font-medium block">
-                      Family Dedication
-                    </span>
-                    <input
-                      type="text"
-                      value={coordsText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setCoordsText(e.target.value)
-                      }}
-                      maxLength={38}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="e.g., THE HEART OF OUR HOME"
-                    />
-                  </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-[#4A3B31] font-medium block">
+                    Bottom Family Dedication Line
+                  </span>
+                  <input
+                    type="text"
+                    value={coordsText}
+                    onChange={(e) => {
+                      setActiveMockupUrl(null)
+                      setCoordsText(e.target.value)
+                    }}
+                    maxLength={38}
+                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                    placeholder="e.g., THE HEART OF OUR HOME"
+                  />
                 </div>
               </div>
             ) : product.slug === 'custom-coordinates-print' ? (
@@ -2933,10 +2842,48 @@ export default function LivePrintCustomizer({
             )}
           </div>
 
-          {/* STEP 4: Select Real Product Size / Scent / Variant */}
+          {/* STEP 2: Select Hardwood Frame / Wood Base Finish (ONLY shown on products that have a wood frame/base!) */}
+          {product.supportsFrameFinish && (
+            <div className="space-y-2.5 pt-2">
+              <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
+                02. Select Solid Hardwood Finish (Frame / Stand / Trim)
+              </label>
+              <div className="grid grid-cols-3 gap-2.5">
+                {FRAME_FINISHES.map((f) => {
+                  const isSel = f.id === frameFinishId
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveMockupUrl(null)
+                        setFrameFinishId(f.id)
+                      }}
+                      className={`p-2.5 border text-left transition flex items-center gap-2 ${
+                        isSel
+                          ? 'border-[#1B3027] bg-[#F3E9DA] ring-1 ring-[#1B3027]'
+                          : 'border-[#D8C9B6] bg-[#FDFBF7] hover:border-[#9E472A]'
+                      }`}
+                    >
+                      <span
+                        className="w-4 h-4 border border-black/20 shrink-0"
+                        style={{ backgroundColor: f.outerHex }}
+                      />
+                      <span className="text-xs font-medium text-[#261A13] truncate">
+                        {f.shortLabel}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Select Real Product Size / Scent / Variant */}
           <div className="space-y-2.5 pt-2">
             <label className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#261A13] font-semibold block">
-              Select Physical Size / Edition ({product.physicalMedium})
+              {product.supportsFrameFinish ? '03.' : '02.'} Select Physical Size / Edition (
+              {product.physicalMedium})
             </label>
 
             <div className="space-y-2.5">
@@ -2983,16 +2930,9 @@ export default function LivePrintCustomizer({
             </div>
           </div>
 
-          {/* STEP 5: Add Companion Keepsakes to Your Order (Replaces Digital Master Bump!) */}
-          <div className="p-4 bg-[#F6EFE4] border border-[#CBB89F] space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono-tech uppercase tracking-[0.14em] text-[#9E472A] font-semibold">
-                Bundle &amp; Save · Add to This Order (Free Combined Shipping)
-              </span>
-            </div>
-
-            {/* Option A: 2nd Duplicate Copy at 25% Off */}
-            <label className="flex items-start justify-between gap-3 p-2.5 bg-[#FDFBF7] border border-[#D8C9B6] cursor-pointer hover:border-[#1B3027] transition">
+          {/* Optional 2nd Identical Copy Privilege (25% Off) */}
+          <div className="p-3.5 bg-[#F6EFE4] border border-[#CBB89F]">
+            <label className="flex items-start justify-between gap-3 cursor-pointer">
               <div className="flex items-start gap-2.5">
                 <input
                   type="checkbox"
@@ -3005,7 +2945,7 @@ export default function LivePrintCustomizer({
                     + Add 2nd Identical Copy for Family / Grandparents (25% Off)
                   </span>
                   <span className="text-[11px] text-[#5C4D42]">
-                    Strike a second matching {product.shortTitle} in the same shipment.
+                    Strike a second matching {product.shortTitle} in the same shipment with free combined US delivery.
                   </span>
                 </div>
               </div>
@@ -3018,74 +2958,6 @@ export default function LivePrintCustomizer({
                 </span>
               </div>
             </label>
-
-            {/* Option A2: +$9 Priority Studio Master Proofing + Instant Printable High-Res Keep-Copy */}
-            <label className="flex items-start justify-between gap-3 p-2.5 bg-[#FDFBF7] border border-[#D8C9B6] cursor-pointer hover:border-[#1B3027] transition">
-              <div className="flex items-start gap-2.5">
-                <input
-                  type="checkbox"
-                  checked={includePriorityStudioProof}
-                  onChange={(e) => setIncludePriorityStudioProof(e.target.checked)}
-                  className="mt-1 h-4 w-4 accent-[#1B3027] cursor-pointer"
-                />
-                <div className="text-xs">
-                  <span className="font-semibold text-[#261A13] block">
-                    + Priority Front-of-Line Studio Proofing &amp; Instant 300 DPI Printable File (+$9)
-                  </span>
-                  <span className="text-[11px] text-[#5C4D42]">
-                    Senior typographer verifies alignment &amp; contrast + unlocks immediate 300 DPI digital master download at checkout.
-                  </span>
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <span className="text-xs font-semibold text-[#1B3027] block">+$9</span>
-                <span className="text-[10px] text-[#8C7A6B] line-through block">$24</span>
-              </div>
-            </label>
-
-            {/* Option B & C: Companion Physical Add-Ons (Candle + Acrylic Plaque) */}
-            {COMPANION_ADD_ONS.filter((a) => a.targetProductSlug !== product.slug).map(
-              (addOn) => {
-                const checked = selectedAddOnIds.includes(addOn.id)
-                return (
-                  <label
-                    key={addOn.id}
-                    className="flex items-start justify-between gap-3 p-2.5 bg-[#FDFBF7] border border-[#D8C9B6] cursor-pointer hover:border-[#1B3027] transition"
-                  >
-                    <div className="flex items-start gap-2.5">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleCompanionAddOn(addOn.id)}
-                        className="mt-1 h-4 w-4 accent-[#1B3027] cursor-pointer"
-                      />
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={addOn.previewImage}
-                        alt={addOn.title}
-                        className="w-10 h-10 object-cover border border-[#D8C9B6] shrink-0 bg-white mt-0.5"
-                      />
-                      <div className="text-xs">
-                        <span className="font-semibold text-[#261A13] block">
-                          {addOn.title}
-                        </span>
-                        <span className="text-[11px] text-[#5C4D42] leading-snug block">
-                          {addOn.description}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className="text-xs font-semibold text-[#1B3027] block">
-                        +${addOn.priceUsd}
-                      </span>
-                      <span className="text-[10px] text-[#8C7A6B] line-through block">
-                        ${addOn.compareAtUsd}
-                      </span>
-                    </div>
-                  </label>
-                )
-              }
-            )}
           </div>
 
           {/* Gift Order & Complimentary Gift Note Option */}

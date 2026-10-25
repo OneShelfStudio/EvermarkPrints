@@ -130,13 +130,24 @@ export async function GET(req: Request) {
         stageLabel = 'In US Studio Production & Quality Inspection'
       }
 
-      const masterRenderUrl = `/api/render-master?slug=${encodeURIComponent(
+      const fallbackMasterRenderUrl = `/api/render-master?slug=${encodeURIComponent(
         productSlug
       )}&colorway=${encodeURIComponent(colorwayId)}&headline=${encodeURIComponent(
         headline
       )}&subline=${encodeURIComponent(subline)}&location=${encodeURIComponent(
         locationText
-      )}&date=${encodeURIComponent(dateText)}&coords=${encodeURIComponent(coordsText)}`
+      )}&date=${encodeURIComponent(dateText)}&coords=${encodeURIComponent(coordsText)}${
+        meta.customPeaks ? `&peaks=${encodeURIComponent(meta.customPeaks)}` : ''
+      }${meta.customAudioUrl ? `&audio=${encodeURIComponent(meta.customAudioUrl)}` : ''}${
+        meta.customPhotoUrl ? `&photo=${encodeURIComponent(meta.customPhotoUrl)}` : ''
+      }`
+
+      const masterRenderUrl =
+        sanityDoc?.masterRenderUrl && sanityDoc.masterRenderUrl.startsWith('http')
+          ? sanityDoc.masterRenderUrl
+          : meta.customMasterUrl && meta.customMasterUrl.startsWith('http')
+          ? meta.customMasterUrl
+          : fallbackMasterRenderUrl
 
       orders.push({
         orderId: s.id,

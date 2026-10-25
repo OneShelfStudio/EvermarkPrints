@@ -12,10 +12,12 @@ function ListenPlayerContent() {
   const subline =
     searchParams.get('subline') || '“You are my finest adventure and my quietest harbor.”'
   const peaksParam = searchParams.get('peaks') || ''
+  const audioParam = searchParams.get('audio') || ''
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const audioCtxRef = useRef<AudioContext | null>(null)
+  const htmlAudioRef = useRef<HTMLAudioElement | null>(null)
   const timerRef = useRef<number | null>(null)
 
   const parsedPeaks: number[] = peaksParam
@@ -31,6 +33,10 @@ function ListenPlayerContent() {
   useEffect(() => {
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current)
+      if (htmlAudioRef.current) {
+        htmlAudioRef.current.pause()
+        htmlAudioRef.current = null
+      }
       if (audioCtxRef.current) {
         audioCtxRef.current.close().catch(() => {})
       }
@@ -41,6 +47,10 @@ function ListenPlayerContent() {
     if (isPlaying) {
       setIsPlaying(false)
       if (timerRef.current) window.clearInterval(timerRef.current)
+      if (htmlAudioRef.current) {
+        htmlAudioRef.current.pause()
+        htmlAudioRef.current = null
+      }
       if (audioCtxRef.current) {
         audioCtxRef.current.close().catch(() => {})
         audioCtxRef.current = null
@@ -51,6 +61,38 @@ function ListenPlayerContent() {
     setIsPlaying(true)
     setProgress(0)
 
+    // 1. If a real recorded voice note or uploaded song clip URL is attached, play the exact audio recording!
+    if (audioParam) {
+      try {
+        const audio = new Audio(audioParam)
+        htmlAudioRef.current = audio
+        audio.ontimeupdate = () => {
+          if (audio.duration && Number.isFinite(audio.duration)) {
+            setProgress(Math.min(100, (audio.currentTime / audio.duration) * 100))
+          }
+        }
+        audio.onended = () => {
+          setProgress(100)
+          setIsPlaying(false)
+          if (timerRef.current) window.clearInterval(timerRef.current)
+        }
+        audio.onerror = () => {
+          // Fallback to synthesized progression if audio asset fails to load
+          playFallbackAcousticChimes()
+        }
+        audio.play().catch(() => {
+          playFallbackAcousticChimes()
+        })
+        return
+      } catch {
+        // Fall through to acoustic chime preview
+      }
+    }
+
+    playFallbackAcousticChimes()
+  }
+
+  function playFallbackAcousticChimes() {
     try {
       const AudioCtx =
         window.AudioContext ||
@@ -58,7 +100,6 @@ function ListenPlayerContent() {
       const ctx = new AudioCtx()
       audioCtxRef.current = ctx
 
-      // Play a warm, velvety acoustic piano/chime chord progression modulated by the waveform peaks
       const chords = [
         [261.63, 329.63, 392.0, 493.88], // Cmaj7
         [220.0, 261.63, 329.63, 392.0], // Am7
@@ -131,7 +172,7 @@ function ListenPlayerContent() {
         <div className="bg-[#12211B] border border-[#D8AE64]/35 p-6 space-y-5">
           <div className="h-28 flex items-center justify-center gap-[3px]">
             {parsedPeaks.slice(0, 56).map((pk, idx) => {
-              const barPct = (idx / 56) * 100
+              const barPct = (idx / parsedPeaks.slice(0, 56).length) * 100
               const active = isPlaying && barPct <= progress
               return (
                 <div
@@ -151,7 +192,11 @@ function ListenPlayerContent() {
               onClick={handleTogglePlay}
               className="w-full sm:w-auto px-7 py-3 bg-[#E5C178] hover:bg-[#F0CF88] text-[#171513] text-xs font-mono-tech uppercase tracking-[0.16em] font-semibold transition"
             >
-              {isPlaying ? '■ Stop Acoustic Playback' : '▶ Play Acoustic Memory Preview'}
+              {isPlaying
+                ? '■ Stop Audio Playback'
+                : audioParam
+                ? '▶ Play Recorded Voice / Song Memory'
+                : '▶ Play Acoustic Memory Preview'}
             </button>
             <a
               href={spotifySearchUrl}

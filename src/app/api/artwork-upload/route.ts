@@ -22,10 +22,12 @@ const masterMap = globalStore.__evermarkPrintMasters
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { dataUrl, slug = 'custom-print' } = body as {
+    const { dataUrl, slug, productSlug } = body as {
       dataUrl?: string
       slug?: string
+      productSlug?: string
     }
+    const cleanSlug = productSlug || slug || 'custom-print'
 
     if (!dataUrl || !dataUrl.startsWith('data:image/')) {
       return NextResponse.json({ error: 'Invalid image dataUrl' }, { status: 400 })
@@ -49,7 +51,7 @@ export async function POST(req: Request) {
       try {
         const sanityRes = await fetch(
           `https://${sanityProjectId}.api.sanity.io/v2024-01-01/assets/images/${sanityDataset}?filename=${encodeURIComponent(
-            `${slug}-${Date.now()}.png`
+            `${cleanSlug}-${Date.now()}.png`
           )}`,
           {
             method: 'POST',
@@ -64,7 +66,11 @@ export async function POST(req: Request) {
           const sanityData = await sanityRes.json()
           const cdnUrl = sanityData?.document?.url
           if (cdnUrl) {
-            return NextResponse.json({ url: cdnUrl, storage: 'sanity-cdn' })
+            return NextResponse.json({
+              url: cdnUrl,
+              masterArtworkUrl: cdnUrl,
+              storage: 'sanity-cdn',
+            })
           }
         }
       } catch {
@@ -89,9 +95,11 @@ export async function POST(req: Request) {
     }
 
     const origin = new URL(req.url).origin
+    const fallbackUrl = `${origin}/api/artwork-upload?id=${encodeURIComponent(id)}`
     return NextResponse.json({
       id,
-      url: `${origin}/api/artwork-upload?id=${encodeURIComponent(id)}`,
+      url: fallbackUrl,
+      masterArtworkUrl: fallbackUrl,
       storage: 'edge-master',
     })
   } catch (err: unknown) {

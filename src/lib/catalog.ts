@@ -1102,7 +1102,7 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
         badge: 'Statement Scale',
       },
     ],
-    defaultColorway: 'bourbon_walnut',
+    defaultColorway: 'linen_espresso',
     defaultFrame: 'matte_black',
     title: 'First Dance Metallic Vinyl & Lyrics: Floating Framed Canvas',
     shortTitle: 'Floating Framed Vinyl Canvas',

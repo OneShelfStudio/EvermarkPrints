@@ -15,7 +15,9 @@ export interface BagItem {
   shortTitle: string
   physicalMedium: string
   variantLabel: string
+  colorwayId?: string
   colorwayLabel: string
+  frameFinishId?: string
   frameFinishLabel?: string
   headline: string
   subline: string
@@ -178,9 +180,12 @@ export default function OrderBagDrawer() {
             brand: 'Evermark Prints',
             productSlug: first.productSlug,
             sku: bagItems.map((b) => b.sku).join(',').slice(0, 120),
+            printifyProductId: first.printifyProductId,
             printifyBlueprintId: String(first.printifyBlueprintId),
             printifyProviderId: String(first.printifyProviderId),
             printifyVariantId: String(first.printifyVariantId),
+            colorwayId: first.colorwayId || 'linen_espresso',
+            frameFinishId: first.frameFinishId || 'walnut',
             headline: first.headline.slice(0, 120),
             subline: first.subline.slice(0, 180),
             locationText: first.locationText.slice(0, 120),

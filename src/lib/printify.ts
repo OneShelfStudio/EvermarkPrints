@@ -70,7 +70,11 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
     meta.subline || ''
   )}&location=${encodeURIComponent(meta.locationText || '')}&date=${encodeURIComponent(
     meta.dateText || ''
-  )}&coords=${encodeURIComponent(meta.coordsText || '')}`
+  )}&coords=${encodeURIComponent(meta.coordsText || '')}${
+    meta.customPeaks ? `&peaks=${encodeURIComponent(meta.customPeaks)}` : ''
+  }${meta.customAudioUrl ? `&audio=${encodeURIComponent(meta.customAudioUrl)}` : ''}${
+    meta.customPhotoUrl ? `&photo=${encodeURIComponent(meta.customPhotoUrl)}` : ''
+  }`
 
   const masterRenderUrl =
     meta.customMasterUrl && meta.customMasterUrl.startsWith('http')
