@@ -129,65 +129,59 @@ export async function GET(req: Request) {
       ${starEls.join('\n')}
     `
   } else if (mode === 'family_botanical') {
-    // Parse family members & birth flowers from locationText (e.g. "Emma (Jul · Water Lily) • Liam (Oct · Marigold)")
+    // Parse family members & birth flowers from locationText and draw woven parchment ribbon tags across the lower stems
     const rawParts = (searchParams.get('location') || product?.defaultLocation || '')
       .split('•')
       .map((s) => s.trim())
       .filter(Boolean)
-    const count = Math.min(8, Math.max(1, rawParts.length))
-    const span = Math.min(1300, count * 240)
+    const count = Math.min(6, Math.max(1, rawParts.length))
+    const span = Math.min(1550, Math.max(550, (count - 1) * 340))
     const startX = cx - span / 2
-    const stems: string[] = []
+    const tags: string[] = []
 
-    rawParts.slice(0, 8).forEach((entry, idx) => {
+    rawParts.slice(0, 6).forEach((entry, idx) => {
       const x = count === 1 ? cx : startX + (idx * span) / (count - 1)
-      const headY = 680 + (idx % 2 === 0 ? -55 : 35)
-      const baseStemY = 1720
-      const ctrlX = x + (idx % 2 === 0 ? -38 : 38)
-      const lower = entry.toLowerCase()
-      const monthKey =
-        Object.keys(FLOWER_COLORS).find((k) => lower.includes(`(${k}`)) || 'jun'
-      const palette = FLOWER_COLORS[monthKey] || FLOWER_COLORS.jun
-      const memberName = entry.split('(')[0].trim().slice(0, 16) || `St. ${idx + 1}`
+      const tagY = 1690 + (idx % 2 === 0 ? -45 : 55)
+      const memberName = entry.split('(')[0].trim().slice(0, 15) || `Member ${idx + 1}`
+      const flowerPart =
+        entry.includes('(') && entry.includes(')')
+          ? entry.slice(entry.indexOf('(') + 1, entry.indexOf(')')).toUpperCase()
+          : 'BIRTH FLOWER'
 
-      const petals: string[] = []
-      for (let p = 0; p < 8; p++) {
-        const deg = p * 45
-        petals.push(
-          `<ellipse cx="${x.toFixed(1)}" cy="${(headY - 46).toFixed(
-            1
-          )}" rx="26" ry="52" fill="${
-            palette.petal
-          }" fill-opacity="0.92" stroke="#261A13" stroke-width="2" stroke-opacity="0.25" transform="rotate(${deg} ${x.toFixed(
-            1
-          )} ${headY.toFixed(1)})" />`
-        )
-      }
-
-      stems.push(`
-        <path d="M ${cx} ${baseStemY} Q ${ctrlX.toFixed(1)} 1240 ${x.toFixed(
+      tags.push(`
+        <path d="M ${cx} 1560 Q ${((cx + x) / 2).toFixed(1)} ${(tagY - 30).toFixed(
           1
-        )} ${headY.toFixed(
+        )} ${x.toFixed(1)} ${tagY.toFixed(
           1
-        )}" fill="none" stroke="#355843" stroke-width="8" stroke-linecap="round" />
-        ${petals.join('\n')}
-        <circle cx="${x.toFixed(1)}" cy="${headY.toFixed(1)}" r="24" fill="${
-          palette.center
-        }" />
-        <rect x="${(x - 105).toFixed(1)}" y="${(headY + 115).toFixed(
+        )}" fill="none" stroke="#6E5A4C" stroke-width="3" stroke-opacity="0.55" />
+        <rect x="${(x - 160).toFixed(1)}" y="${tagY.toFixed(
           1
-        )}" width="210" height="52" rx="8" fill="#FAF6F0" fill-opacity="0.94" stroke="${
+        )}" width="320" height="96" rx="6" fill="#FAF6F0" fill-opacity="0.96" stroke="${
           colorway.accentHex
-        }" stroke-width="2.5" />
-        <text x="${x.toFixed(1)}" y="${(headY + 149).toFixed(
+        }" stroke-width="3.5" />
+        <rect x="${(x - 152).toFixed(1)}" y="${(tagY + 8).toFixed(
           1
-        )}" text-anchor="middle" fill="#261A13" font-family="Georgia, serif" font-weight="bold" font-size="27">${escapeXml(
+        )}" width="304" height="80" rx="4" fill="none" stroke="${
+          colorway.accentHex
+        }" stroke-width="1.5" stroke-opacity="0.35" />
+        <text x="${x.toFixed(1)}" y="${(tagY + 46).toFixed(
+          1
+        )}" text-anchor="middle" fill="${
+          colorway.inkHex
+        }" font-family="Georgia, serif" font-weight="bold" font-size="32">${escapeXml(
           memberName
+        )}</text>
+        <text x="${x.toFixed(1)}" y="${(tagY + 78).toFixed(
+          1
+        )}" text-anchor="middle" fill="${
+          colorway.accentHex
+        }" font-family="Georgia, serif" font-weight="bold" font-size="21">${escapeXml(
+          flowerPart.slice(0, 22)
         )}</text>
       `)
     })
 
-    dynamicOverlaySvg = stems.join('\n')
+    dynamicOverlaySvg = tags.join('\n')
   } else if (mode === 'soundwave' || mode === 'vinyl_lyric') {
     const bars = 88
     const waveW = 1360
@@ -251,11 +245,30 @@ export async function GET(req: Request) {
     `
   }
 
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-  <rect width="${W}" height="${H}" fill="${colorway.bgHex}" />
-  <image href="${escapeXml(plateUrl)}" x="160" y="160" width="${W - 320}" height="1820" preserveAspectRatio="xMidYMid slice" />
-  ${dynamicOverlaySvg}
+  const footerSvg =
+    mode === 'three_map_triptych'
+      ? `
+  <rect x="65" y="130" width="675" height="${H - 260}" fill="none" stroke="${colorway.accentHex}" stroke-width="4" stroke-opacity="0.52" />
+  <rect x="830" y="130" width="710" height="${H - 260}" fill="none" stroke="${colorway.accentHex}" stroke-width="4" stroke-opacity="0.52" />
+  <rect x="1630" y="130" width="705" height="${H - 260}" fill="none" stroke="${colorway.accentHex}" stroke-width="4" stroke-opacity="0.52" />
+
+  <line x1="230" y1="2125" x2="575" y2="2125" stroke="${colorway.accentHex}" stroke-width="3" stroke-opacity="0.65" />
+  <text x="402" y="2245" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="44">I · WHERE WE MET</text>
+  <text x="402" y="2335" text-anchor="middle" fill="${colorway.mutedHex}" font-family="Georgia, serif" font-style="italic" font-size="30">THE BEGINNING</text>
+  <text x="402" y="2465" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="36">${escapeXml(locationText)}</text>
+
+  <line x1="1010" y1="2125" x2="1360" y2="2125" stroke="${colorway.accentHex}" stroke-width="3" stroke-opacity="0.65" />
+  <text x="1185" y="2245" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="44">II · WHERE WE ENGAGED</text>
+  <text x="1185" y="2335" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="38">${escapeXml(headline)}</text>
+  <text x="1185" y="2465" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="36">${escapeXml(dateText)}</text>
+  <text x="1185" y="2565" text-anchor="middle" fill="${colorway.mutedHex}" font-family="Georgia, serif" font-style="italic" font-size="30">${escapeXml(subline)}</text>
+
+  <line x1="1810" y1="2125" x2="2155" y2="2125" stroke="${colorway.accentHex}" stroke-width="3" stroke-opacity="0.65" />
+  <text x="1982" y="2245" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="44">III · WHERE WE MARRIED</text>
+  <text x="1982" y="2335" text-anchor="middle" fill="${colorway.mutedHex}" font-family="Georgia, serif" font-style="italic" font-size="30">FOREVER &amp; ALWAYS</text>
+  <text x="1982" y="2465" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="36">${escapeXml(coordsText.toUpperCase())}</text>
+`
+      : `
   <rect x="130" y="130" width="${W - 260}" height="${H - 260}" fill="none" stroke="${colorway.accentHex}" stroke-width="5" stroke-opacity="0.55" />
   <rect x="160" y="160" width="${W - 320}" height="${H - 320}" fill="none" stroke="${colorway.accentHex}" stroke-width="2.5" stroke-opacity="0.22" />
   <line x1="${cx - 325}" y1="2125" x2="${cx + 325}" y2="2125" stroke="${colorway.accentHex}" stroke-width="3.5" stroke-opacity="0.65" />
@@ -263,6 +276,14 @@ export async function GET(req: Request) {
   <text x="${cx}" y="2385" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-style="italic" font-size="52" opacity="0.88">${escapeXml(subline)}</text>
   <text x="${cx}" y="2540" text-anchor="middle" fill="${colorway.accentHex}" font-family="sans-serif" font-weight="bold" font-size="40">${escapeXml(locationText)}   ·   ${escapeXml(dateText)}</text>
   <text x="${cx}" y="2635" text-anchor="middle" fill="${colorway.mutedHex}" font-family="monospace" font-size="36" opacity="0.9">${escapeXml(coordsText)}</text>
+`
+
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+  <rect width="${W}" height="${H}" fill="${colorway.bgHex}" />
+  <image href="${escapeXml(plateUrl)}" x="160" y="160" width="${W - 320}" height="1820" preserveAspectRatio="xMidYMid slice" />
+  ${dynamicOverlaySvg}
+  ${footerSvg}
 </svg>`
 
   return new NextResponse(svg, {

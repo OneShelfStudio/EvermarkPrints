@@ -543,82 +543,70 @@ export default function LivePrintCustomizer({
       }
       ctx.restore()
     } else if (product.mode === 'family_botanical') {
-      // Dynamic Birth Flower Bouquet Stems, Colored Blossoms & Family Member Name Ribbons
+      // Woven Parchment Name Ribbon Tags tied cleanly across the watercolor bouquet stems
       ctx.save()
-      const paletteMap: Record<string, { petal: string; center: string }> = {
-        jan: { petal: '#D97B88', center: '#A33E4D' },
-        feb: { petal: '#7E649E', center: '#E5C178' },
-        mar: { petal: '#E8B84B', center: '#C87A28' },
-        apr: { petal: '#F4EFE6', center: '#DF9B32' },
-        may: { petal: '#EFECE6', center: '#9BB58E' },
-        jun: { petal: '#D46A74', center: '#8E2F39' },
-        jul: { petal: '#E8A5B2', center: '#D8AE64' },
-        aug: { petal: '#C84B31', center: '#261A13' },
-        sep: { petal: '#8A6F9E', center: '#E0AD46' },
-        oct: { petal: '#D97925', center: '#7A331E' },
-        nov: { petal: '#C45B4A', center: '#8C3324' },
-        dec: { petal: '#F2ECE1', center: '#D49B38' },
-      }
-      const activeMembers = familyMembers.filter((m) => m.name.trim().length > 0).slice(0, 8)
+      const activeMembers = familyMembers.filter((m) => m.name.trim().length > 0).slice(0, 6)
       const count = Math.max(1, activeMembers.length)
-      const span = Math.min(540, count * 105)
+      const span = Math.min(620, Math.max(220, (count - 1) * 145))
       const startX = cx - span / 2
 
       activeMembers.forEach((m, idx) => {
         const fx = count === 1 ? cx : startX + (idx * span) / (count - 1)
-        const fy = 265 + (idx % 2 === 0 ? -24 : 18)
-        const monthShort = (m.month || 'jun').slice(0, 3).toLowerCase()
-        const pal = paletteMap[monthShort] || paletteMap.jun
+        const tagY = 675 + (idx % 2 === 0 ? -18 : 22)
+        const monthShort = (m.month || 'July').slice(0, 3)
+        const flowerName = BIRTH_FLOWERS_DICT[m.month]?.flower || 'Rose'
+        const labelTop = m.name.trim().slice(0, 14)
+        const labelSub = `${monthShort.toUpperCase()} · ${flowerName.toUpperCase()}`
 
-        // Botanical stem curving down to bouquet knot
-        ctx.strokeStyle = '#33543F'
-        ctx.globalAlpha = 0.88
-        ctx.lineWidth = 3.2
+        // Subtle botanical stem tie line connecting tag to bouquet ribbon knot
+        ctx.strokeStyle = '#6E5A4C'
+        ctx.globalAlpha = 0.55
+        ctx.lineWidth = 1.2
         ctx.beginPath()
-        ctx.moveTo(cx, 720)
-        ctx.quadraticCurveTo(fx + (idx % 2 === 0 ? -16 : 16), 510, fx, fy)
+        ctx.moveTo(cx, 625)
+        ctx.quadraticCurveTo((cx + fx) / 2, tagY - 12, fx, tagY)
         ctx.stroke()
 
-        // 8-petal birth flower blossom
-        for (let p = 0; p < 8; p++) {
-          ctx.save()
-          ctx.translate(fx, fy)
-          ctx.rotate((p * Math.PI) / 4)
-          ctx.fillStyle = pal.petal
-          ctx.globalAlpha = 0.92
-          ctx.beginPath()
-          ctx.ellipse(0, -18, 9.5, 19, 0, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.strokeStyle = '#261A13'
-          ctx.globalAlpha = 0.25
-          ctx.lineWidth = 0.8
-          ctx.stroke()
-          ctx.restore()
-        }
-
-        // Flower center
-        ctx.fillStyle = pal.center
-        ctx.globalAlpha = 1
-        ctx.beginPath()
-        ctx.arc(fx, fy, 9.5, 0, Math.PI * 2)
-        ctx.fill()
-
-        // Botanical Name Tag Ribbon below blossom
-        const tagW = 86
-        const tagH = 22
-        const tagY = fy + 40
-        ctx.fillStyle = '#FAF6F0'
-        ctx.globalAlpha = 0.94
+        const tagW = 132
+        const tagH = 40
+        ctx.fillStyle = isDarkPaper ? '#261D17' : '#FAF6F0'
+        ctx.globalAlpha = 0.96
         ctx.fillRect(fx - tagW / 2, tagY, tagW, tagH)
         ctx.strokeStyle = colorway.accentHex
-        ctx.lineWidth = 1.2
+        ctx.lineWidth = 1.5
         ctx.strokeRect(fx - tagW / 2, tagY, tagW, tagH)
+        ctx.globalAlpha = 0.35
+        ctx.lineWidth = 0.8
+        ctx.strokeRect(fx - tagW / 2 + 3, tagY + 3, tagW - 6, tagH - 6)
 
-        ctx.fillStyle = '#261A13'
-        ctx.font = '600 11px Georgia, serif'
+        ctx.globalAlpha = 1
+        ctx.fillStyle = colorway.inkHex
+        ctx.font = '600 13px Georgia, serif'
         ctx.textAlign = 'center'
-        ctx.fillText(m.name.trim().slice(0, 12), fx, tagY + 15)
+        ctx.fillText(labelTop, fx, tagY + 18)
+
+        ctx.fillStyle = colorway.accentHex
+        ctx.font = '600 8.5px Georgia, serif'
+        ctx.fillText(labelSub.slice(0, 22), fx, tagY + 32)
       })
+      ctx.restore()
+    } else if (product.mode === 'vinyl_lyric' && !uploadedPhotoEl) {
+      // Custom Champagne-Gold Foil Record Center Label Inscription
+      ctx.save()
+      const medY = 420
+      ctx.textAlign = 'center'
+      ctx.fillStyle = '#F5DFB0'
+      ctx.globalAlpha = 0.95
+      ctx.font = '600 11px Georgia, serif'
+      ctx.fillText(headline.toUpperCase().slice(0, 22), cx, medY - 38, 150)
+
+      ctx.font = 'italic 9.5px Georgia, serif'
+      ctx.fillStyle = '#E5C178'
+      ctx.fillText(locationText.slice(0, 26), cx, medY + 46, 150)
+
+      ctx.font = '600 8px monospace'
+      ctx.globalAlpha = 0.8
+      ctx.fillText(dateText.toUpperCase().slice(0, 24), cx, medY + 61, 140)
       ctx.restore()
     } else if (
       product.mode === 'coastal_chart' ||
@@ -726,53 +714,169 @@ export default function LivePrintCustomizer({
       ctx.restore()
     }
 
-    // 4. Museum Double-Line Archival Frame Border
-    ctx.save()
-    ctx.strokeStyle = colorway.accentHex
-    ctx.globalAlpha = 0.52
-    ctx.lineWidth = 2
-    ctx.strokeRect(44, 44, W - 88, H - 88)
-    ctx.globalAlpha = 0.22
-    ctx.lineWidth = 1
-    ctx.strokeRect(54, 54, W - 108, H - 108)
-    ctx.restore()
+    // Helper: Draw auto-fitted single-line text so long names/addresses never clip off the mat
+    const drawFittedLine = (
+      text: string,
+      x: number,
+      y: number,
+      maxWidth: number,
+      basePx: number,
+      minPx: number,
+      fontPrefix: string
+    ) => {
+      let px = basePx
+      ctx.font = `${fontPrefix} ${px}px Georgia, serif`
+      while (px > minPx && ctx.measureText(text).width > maxWidth) {
+        px -= 1
+        ctx.font = `${fontPrefix} ${px}px Georgia, serif`
+      }
+      ctx.fillText(text, x, y, maxWidth)
+    }
 
-    // 5. Clean Luxury Serif Typography Block at Bottom
-    ctx.save()
-    ctx.textAlign = 'center'
+    if (product.mode === 'three_map_triptych') {
+      // 4A. Three-Panel Split Triptych Borders & Dedicated Per-Panel Milestone Columns
+      // Wall-gap dividers sit at left=32.5% (x=312) and left=65.5% (x=629)
+      const panels = [
+        {
+          x0: 24,
+          x1: 294,
+          roman: 'I · WHERE WE MET',
+          sub: 'THE BEGINNING',
+          milestone: locationText || 'Boston, MA · June 2019',
+        },
+        {
+          x0: 330,
+          x1: 610,
+          roman: 'II · WHERE WE ENGAGED',
+          sub: headline || 'SARAH & MICHAEL',
+          milestone: dateText || 'Big Sur, CA · Oct 2021',
+        },
+        {
+          x0: 648,
+          x1: 936,
+          roman: 'III · WHERE WE MARRIED',
+          sub: 'FOREVER & ALWAYS',
+          milestone: coordsText || 'Asheville, NC · Sept 2023',
+        },
+      ]
 
-    ctx.strokeStyle = colorway.accentHex
-    ctx.globalAlpha = 0.75
-    ctx.lineWidth = 1.6
-    ctx.beginPath()
-    ctx.moveTo(cx - 140, 854)
-    ctx.lineTo(cx + 140, 854)
-    ctx.stroke()
+      ctx.save()
+      ctx.textAlign = 'center'
+      panels.forEach((p, idx) => {
+        const pw = p.x1 - p.x0
+        const pcx = p.x0 + pw / 2
+        const maxTextW = pw - 26
 
-    ctx.globalAlpha = 1
-    ctx.fillStyle = colorway.inkHex
-    ctx.font = '600 33px Georgia, serif'
-    ctx.fillText(headline.toUpperCase().slice(0, 42), cx, 912)
+        // Individual panel double-line border
+        ctx.strokeStyle = colorway.accentHex
+        ctx.globalAlpha = 0.52
+        ctx.lineWidth = 1.8
+        ctx.strokeRect(p.x0, 44, pw, H - 88)
+        ctx.globalAlpha = 0.22
+        ctx.lineWidth = 1
+        ctx.strokeRect(p.x0 + 7, 51, pw - 14, H - 102)
 
-    ctx.fillStyle = colorway.inkHex
-    ctx.globalAlpha = 0.88
-    ctx.font = 'italic 21px Georgia, serif'
-    ctx.fillText(subline.slice(0, 68), cx, 958)
+        // Gold horizontal rule inside panel
+        ctx.globalAlpha = 0.75
+        ctx.lineWidth = 1.4
+        ctx.beginPath()
+        ctx.moveTo(pcx - 68, 848)
+        ctx.lineTo(pcx + 68, 848)
+        ctx.stroke()
 
-    ctx.fillStyle = colorway.accentHex
-    ctx.globalAlpha = 0.96
-    ctx.font = '600 17px Georgia, serif'
-    ctx.fillText(
-      `${locationText.toUpperCase()}   •   ${dateText.toUpperCase()}`,
-      cx,
-      1018
-    )
+        // Roman Milestone Header
+        ctx.globalAlpha = 1
+        ctx.fillStyle = colorway.inkHex
+        drawFittedLine(p.roman, pcx, 898, maxTextW, 18, 12, '600')
 
-    ctx.fillStyle = colorway.mutedHex
-    ctx.globalAlpha = 0.92
-    ctx.font = 'italic 16px Georgia, serif'
-    ctx.fillText(coordsText, cx, 1062)
-    ctx.restore()
+        // Panel Subtitle / Couple Names
+        ctx.fillStyle = idx === 1 ? colorway.inkHex : colorway.mutedHex
+        ctx.globalAlpha = idx === 1 ? 0.96 : 0.85
+        drawFittedLine(
+          p.sub.toUpperCase(),
+          pcx,
+          938,
+          maxTextW,
+          idx === 1 ? 16 : 12,
+          10,
+          idx === 1 ? '600' : 'italic'
+        )
+
+        // Milestone Location & Date
+        ctx.fillStyle = colorway.accentHex
+        ctx.globalAlpha = 0.96
+        drawFittedLine(p.milestone.toUpperCase(), pcx, 992, maxTextW, 15, 10, '600')
+
+        // Center Panel also displays the couple's custom dedication subline
+        if (idx === 1 && subline.trim()) {
+          ctx.fillStyle = colorway.mutedHex
+          ctx.globalAlpha = 0.9
+          drawFittedLine(subline.trim(), pcx, 1042, maxTextW, 13, 9, 'italic')
+        }
+      })
+      ctx.restore()
+    } else {
+      // 4B. Standard Museum Double-Line Archival Frame Border
+      ctx.save()
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.52
+      ctx.lineWidth = 2
+      ctx.strokeRect(44, 44, W - 88, H - 88)
+      ctx.globalAlpha = 0.22
+      ctx.lineWidth = 1
+      ctx.strokeRect(54, 54, W - 108, H - 108)
+      ctx.restore()
+
+      // 5. Clean Luxury Serif Typography Block at Bottom (Auto-Fitted Within 780px Mat Width)
+      const maxMatW = W - 160
+      ctx.save()
+      ctx.textAlign = 'center'
+
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.75
+      ctx.lineWidth = 1.6
+      ctx.beginPath()
+      ctx.moveTo(cx - 140, 854)
+      ctx.lineTo(cx + 140, 854)
+      ctx.stroke()
+
+      ctx.globalAlpha = 1
+      ctx.fillStyle = colorway.inkHex
+      drawFittedLine(headline.toUpperCase().slice(0, 44), cx, 912, maxMatW, 33, 18, '600')
+
+      ctx.fillStyle = colorway.inkHex
+      ctx.globalAlpha = 0.88
+      drawFittedLine(subline.slice(0, 76), cx, 958, maxMatW, 21, 13, 'italic')
+
+      ctx.fillStyle = colorway.accentHex
+      ctx.globalAlpha = 0.96
+      if (product.mode === 'family_botanical') {
+        // On Family Botanical Blanket, display the family member roster on line 1 and Established note below so it never crowds
+        drawFittedLine(locationText.toUpperCase(), cx, 1012, maxMatW, 15, 10, '600')
+        ctx.fillStyle = colorway.mutedHex
+        ctx.globalAlpha = 0.92
+        drawFittedLine(
+          `${dateText.toUpperCase()}   ·   ${coordsText.toUpperCase()}`,
+          cx,
+          1056,
+          maxMatW,
+          14,
+          10,
+          'italic'
+        )
+      } else {
+        const combinedLocDate = [locationText.trim(), dateText.trim()]
+          .filter(Boolean)
+          .map((s) => s.toUpperCase())
+          .join('   •   ')
+        drawFittedLine(combinedLocDate, cx, 1018, maxMatW, 17, 11, '600')
+
+        ctx.fillStyle = colorway.mutedHex
+        ctx.globalAlpha = 0.92
+        drawFittedLine(coordsText, cx, 1062, maxMatW, 16, 11, 'italic')
+      }
+      ctx.restore()
+    }
 
     // =========================================================================
     // PASS 2: Copy to Visible Preview Canvas + Subtle Archival Proof Seal
@@ -785,7 +889,13 @@ export default function LivePrintCustomizer({
     vCtx.font = '500 13px monospace'
     vCtx.fillStyle = colorway.mutedHex
     vCtx.globalAlpha = 0.35
-    vCtx.fillText('EVERMARK PRINTS · LIVE STUDIO PROOF', cx, H - 64)
+    vCtx.fillText(
+      product.mode === 'three_map_triptych'
+        ? 'EVERMARK PRINTS · 3-PANEL STUDIO PROOF'
+        : 'EVERMARK PRINTS · LIVE STUDIO PROOF',
+      cx,
+      H - 64
+    )
     vCtx.restore()
   }, [
     headline,
@@ -812,6 +922,25 @@ export default function LivePrintCustomizer({
     setLocationText(preset.location)
     setDateText(preset.dateText)
     setCoordsText(preset.coords)
+
+    if (product.slug === 'family-tree-botanical-print' && preset.location.includes('•')) {
+      const parsed = preset.location
+        .split('•')
+        .map((part, idx) => {
+          const clean = part.trim()
+          const namePart = clean.split('(')[0]?.trim() || `Member ${idx + 1}`
+          const matchedMonth =
+            MONTH_NAMES.find((m) =>
+              clean.toLowerCase().includes(m.slice(0, 3).toLowerCase())
+            ) || MONTH_NAMES[idx % 12]
+          return { id: String(idx + 1), name: namePart, month: matchedMonth }
+        })
+        .filter((m) => m.name.length > 0)
+      if (parsed.length > 0) {
+        setFamilyMembers(parsed)
+      }
+      setFamilyNote(preset.coords)
+    }
   }
 
   // Handle Custom Photo / Portrait Attachment
@@ -2029,7 +2158,13 @@ export default function LivePrintCustomizer({
                     <div className="pt-1 flex items-center justify-between text-[10px] font-mono-tech text-[#1B3027]">
                       <span>✓ Scannable Acoustic QR Plotted on Artwork</span>
                       <Link
-                        href={`/listen?title=${encodeURIComponent(headline)}&sub=${encodeURIComponent(subline)}&loc=${encodeURIComponent(locationText)}&date=${encodeURIComponent(dateText)}`}
+                        href={`/listen?title=${encodeURIComponent(headline)}&subline=${encodeURIComponent(subline)}&song=${encodeURIComponent(locationText)}&date=${encodeURIComponent(dateText)}${
+                          customAudioPeaks && customAudioPeaks.length > 0
+                            ? `&peaks=${encodeURIComponent(
+                                customAudioPeaks.map((n) => Math.round(n * 100)).join(',')
+                              )}`
+                            : ''
+                        }`}
                         target="_blank"
                         className="underline font-semibold text-[#9E472A] hover:text-[#1B3027]"
                       >
@@ -2634,7 +2769,7 @@ export default function LivePrintCustomizer({
                 <div className="space-y-1">
                   <span className="text-xs text-[#4A3B31] font-medium block">
                     {product.supportsAudioUpload
-                      ? 'Song Title & Artist / Audio Title'
+                      ? 'Record / Plaque Heading (e.g., OUR FIRST DANCE)'
                       : 'Primary Title / Milestone Heading'}
                   </span>
                   <input
@@ -2653,7 +2788,7 @@ export default function LivePrintCustomizer({
                 <div className="space-y-1">
                   <span className="text-xs text-[#4A3B31] font-medium block">
                     {product.supportsAudioUpload
-                      ? 'Wedding Vows or Special Dedication'
+                      ? 'Favorite Song Lyric or Vow Quote'
                       : 'Dedication / Subtitle Line'}
                   </span>
                   <input
@@ -2674,7 +2809,7 @@ export default function LivePrintCustomizer({
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-[#4A3B31] font-medium">
                         {product.supportsAudioUpload
-                          ? 'City, Venue or Place'
+                          ? 'Song Title & Artist / Voice Title'
                           : 'City, Place or Port'}
                       </span>
                       {product.supportsGpsLookup && (

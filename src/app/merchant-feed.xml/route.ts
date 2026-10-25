@@ -20,9 +20,9 @@ const SEARCH_INTENT_TITLE_MAP: Record<string, string> = {
   'coastal-bathymetry-chart':
     'Custom Nautical Harbor & Bathymetry Chart on Chiseled Stone Slate - Personalized Lake, Boat & Beach House Gift',
   'met-engaged-married-triptych':
-    'Custom Met Engaged Married 3-Panel Mountain Watercolor Canvas Triptych - Personalized Couple & Wedding Gift',
+    'Custom Met Engaged Married 3-Panel Mountain Watercolor Acrylic Triptych - Personalized Couple & Wedding Gift',
   'patent-architectural-triptych':
-    'Custom Couple & Family Watercolor Portrait Framed Cotton Canvas - Personalized Wedding & Anniversary Gift',
+    'Custom Nautical Harbor & Coordinates Wood-Topped Wall Tapestry - Personalized Coastal, Lake & Beach House Gift',
   'custom-book-stack-print':
     'Custom Family Birth Flower Scented Amber Glass Soy Candle (9oz) - Personalized Mom, Housewarming & Hostess Gift',
   'custom-vinyl-song-portrait':
