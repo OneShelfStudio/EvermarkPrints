@@ -456,11 +456,12 @@ export default function LivePrintCustomizer({
       ctx.arc(cx, cy - 10, 225, 0, Math.PI * 2)
       ctx.clip()
       if (photoFilter === 'bw_film') {
-        ctx.filter = 'grayscale(100%) contrast(112%) sepia(12%)'
+        ctx.filter = 'grayscale(100%) contrast(114%) sepia(14%)'
       } else if (photoFilter === 'charcoal_sketch') {
-        ctx.filter = 'grayscale(100%) contrast(160%) brightness(106%) sepia(24%)'
+        ctx.filter = 'grayscale(100%) contrast(165%) brightness(106%) sepia(24%)'
       } else {
-        ctx.filter = 'contrast(104%) saturate(105%)'
+        // Multi-pass Painterly Watercolor Wash (Warm Saturation + Soft Bloom Overlay)
+        ctx.filter = 'contrast(106%) saturate(122%) sepia(10%)'
       }
       const iw = uploadedPhotoEl.width
       const ih = uploadedPhotoEl.height
@@ -472,6 +473,21 @@ export default function LivePrintCustomizer({
         iw * scale,
         ih * scale
       )
+      if (photoFilter === 'warm_color') {
+        // Second soft-light painterly bloom pass to soften harsh digital phone photo edges into a watercolor wash
+        ctx.globalCompositeOperation = 'soft-light'
+        ctx.globalAlpha = 0.42
+        ctx.filter = 'blur(4px) saturate(135%) contrast(112%)'
+        ctx.drawImage(
+          uploadedPhotoEl,
+          cx - (iw * scale) / 2,
+          cy - 10 - (ih * scale) / 2,
+          iw * scale,
+          ih * scale
+        )
+        ctx.globalCompositeOperation = 'source-over'
+        ctx.globalAlpha = 1
+      }
       ctx.filter = 'none'
       ctx.restore()
 
@@ -987,11 +1003,15 @@ export default function LivePrintCustomizer({
     uploadedPhotoEl,
     photoFilter,
     product.mode,
+    product.formFactor,
     product.supportsPhotoUpload,
     product.supportsAudioUpload,
     basePlateEl,
     portraitBackdropEl,
     familyMembers,
+    activeMockupUrl,
+    viewMode,
+    activeProductSlug,
   ])
 
   function handleApplyPreset(preset: EvermarkProduct['presets'][number]) {
@@ -1675,7 +1695,7 @@ export default function LivePrintCustomizer({
                   : undefined
               }
             >
-              {activeMockupUrl ? (
+              {activeMockupUrl && (
                 <div className="relative z-10 mx-auto max-w-[420px] bg-white border border-[#D8C9B6] shadow-2xl overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -1684,13 +1704,15 @@ export default function LivePrintCustomizer({
                     className="w-full h-auto block"
                   />
                 </div>
-              ) : (
-                /* Authentic Physical Form-Factor Renderer Wrapping Live Canvas */
-                <div
-                  className={`relative z-10 mx-auto transition-all duration-300 ${
-                    viewMode === 'room' ? 'max-w-[355px]' : 'max-w-[430px]'
-                  }`}
-                >
+              )}
+              {/* Authentic Physical Form-Factor Renderer Wrapping Live Canvas (Kept mounted so switching back from 3D photos is instant and never blank!) */}
+              <div
+                className={`${
+                  activeMockupUrl ? 'hidden' : 'block'
+                } relative z-10 mx-auto transition-all duration-300 ${
+                  viewMode === 'room' ? 'max-w-[355px]' : 'max-w-[430px]'
+                }`}
+              >
                 {product.formFactor === 'acrylic-stand' ? (
                   /* Crystal Acrylic Block + Solid Carved Hardwood Stand */
                   <div className="flex flex-col items-center">
@@ -1931,7 +1953,6 @@ export default function LivePrintCustomizer({
                   </div>
                 )}
               </div>
-            )}
             </div>
           </div>
 
@@ -2112,6 +2133,81 @@ export default function LivePrintCustomizer({
                     {preset.label}
                   </button>
                 ))}
+              </div>
+            )}
+
+            {product.supportsPhotoUpload && (
+              <div className="p-3 bg-[#F6EFE4] border border-[#CBB89F] space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-semibold text-[#261A13] block">
+                      {product.photoUploadLabel || 'Upload Your Custom Photo'}
+                    </span>
+                    <span className="text-[11px] text-[#5C4D42] block">
+                      {product.photoUploadHint ||
+                        'Automatically framed inside our watercolor botanical wreath with soft painterly edges.'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => photoInputRef.current?.click()}
+                      className="px-3 py-1.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition shadow-sm"
+                    >
+                      {uploadedPhotoName ? '📷 Change Photo' : '📷 Upload Photo (.JPG/.PNG)'}
+                    </button>
+                    {uploadedPhotoEl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUploadedPhotoEl(null)
+                          setUploadedPhotoName(null)
+                          setUploadedPhotoUrl(null)
+                        }}
+                        className="px-2 py-1.5 border border-[#CBB89F] bg-[#FDFBF7] text-[10px] font-mono-tech uppercase text-[#9E472A] hover:text-[#261A13]"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {uploadedPhotoEl && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#D8C9B6]">
+                    <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold truncate max-w-[180px]">
+                      ✓ {uploadedPhotoName}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {(
+                        [
+                          { id: 'warm_color', label: 'Watercolor Wash' },
+                          { id: 'bw_film', label: 'Classic B&W' },
+                          { id: 'charcoal_sketch', label: 'Fine Sketch' },
+                        ] as { id: PhotoFilterId; label: string }[]
+                      ).map((f) => (
+                        <button
+                          key={f.id}
+                          type="button"
+                          onClick={() => setPhotoFilter(f.id)}
+                          className={`px-2 py-1 text-[10px] font-mono-tech uppercase border transition ${
+                            photoFilter === f.id
+                              ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A] font-semibold'
+                              : 'bg-[#FDFBF7] text-[#4A3B31] border-[#CBB89F]'
+                          }`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
