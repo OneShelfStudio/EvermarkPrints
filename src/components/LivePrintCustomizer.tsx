@@ -2239,17 +2239,78 @@ export default function LivePrintCustomizer({
             )}
 
             {product.supportsAudioUpload && (
-              <div className="p-3 bg-[#F6EFE4] border border-[#D8C9B6] flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-tech text-[#1B3027]">
-                <span>✓ Auto-Plots Soundwave &amp; Camera-Scannable Song QR</span>
-                <Link
-                  href={`/listen?title=${encodeURIComponent(headline)}&subline=${encodeURIComponent(
-                    subline
-                  )}&song=${encodeURIComponent(locationText)}&date=${encodeURIComponent(dateText)}`}
-                  target="_blank"
-                  className="underline font-semibold text-[#9E472A] hover:text-[#1B3027]"
-                >
-                  ♫ Test Scannable QR Player ↗
-                </Link>
+              <div className="p-3 bg-[#F6EFE4] border border-[#CBB89F] space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-semibold text-[#261A13] block">
+                      {product.audioUploadLabel || 'Attach Custom Song Clip or Voice Memo (Optional)'}
+                    </span>
+                    <span className="text-[11px] text-[#5C4D42] block">
+                      {product.audioUploadHint ||
+                        'Plots your exact acoustic waveform & links it to the camera-scannable QR code on your artwork.'}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <input
+                      ref={audioInputRef}
+                      type="file"
+                      accept="audio/mpeg,audio/mp3,audio/wav,audio/mp4,audio/x-m4a,audio/*"
+                      onChange={handleAudioFileUpload}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => audioInputRef.current?.click()}
+                      className="px-2.5 py-1.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[10px] font-mono-tech uppercase tracking-wider font-semibold transition shadow-sm"
+                    >
+                      {uploadedAudioName ? '🎵 Change Audio' : '🎵 Upload Audio (.MP3/.WAV)'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRecordMicrophone}
+                      disabled={isRecordingMic}
+                      className={`px-2.5 py-1.5 border text-[10px] font-mono-tech uppercase tracking-wider font-semibold transition ${
+                        isRecordingMic
+                          ? 'bg-[#9E472A] text-white border-[#9E472A] animate-pulse'
+                          : 'bg-[#FDFBF7] hover:bg-[#F3E9DA] text-[#261A13] border-[#9E472A]'
+                      }`}
+                    >
+                      {isRecordingMic ? '● Recording (5s)...' : '🎙 Record Voice (5s)'}
+                    </button>
+                    {uploadedAudioName && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCustomAudioPeaks(null)
+                          setUploadedAudioName(null)
+                          setUploadedAudioUrl(null)
+                        }}
+                        className="px-2 py-1.5 border border-[#CBB89F] bg-[#FDFBF7] text-[10px] font-mono-tech uppercase text-[#9E472A] hover:text-[#261A13]"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#D8C9B6] text-[11px] font-mono-tech text-[#1B3027]">
+                  <span className="truncate max-w-[260px]">
+                    {uploadedAudioName
+                      ? `✓ Plotted: ${uploadedAudioName}`
+                      : '✓ Auto-Plots Soundwave & Camera-Scannable Song QR'}
+                  </span>
+                  <Link
+                    href={`/listen?title=${encodeURIComponent(headline)}&subline=${encodeURIComponent(
+                      subline
+                    )}&song=${encodeURIComponent(locationText)}&date=${encodeURIComponent(
+                      dateText
+                    )}${uploadedAudioUrl ? `&audio=${encodeURIComponent(uploadedAudioUrl)}` : ''}`}
+                    target="_blank"
+                    className="underline font-semibold text-[#9E472A] hover:text-[#1B3027]"
+                  >
+                    ♫ Test Scannable QR Player ↗
+                  </Link>
+                </div>
               </div>
             )}
 

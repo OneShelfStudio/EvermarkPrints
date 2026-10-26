@@ -20,7 +20,7 @@ const SEARCH_INTENT_TITLE_MAP: Record<string, string> = {
   'coastal-bathymetry-chart':
     'Custom Nautical Harbor & Bathymetry Chart on Chiseled Stone Slate - Personalized Lake, Boat & Beach House Gift',
   'met-engaged-married-triptych':
-    'Custom Met Engaged Married 3-Panel Mountain Watercolor Acrylic Triptych - Personalized Couple & Wedding Gift',
+    'Custom Met Engaged Married 3-Chapter Mountain Watercolor Framed Canvas - Personalized Couple & Wedding Gift',
   'patent-architectural-triptych':
     'Custom Nautical Harbor & Coordinates Wood-Topped Wall Tapestry - Personalized Coastal, Lake & Beach House Gift',
   'custom-book-stack-print':
@@ -28,9 +28,9 @@ const SEARCH_INTENT_TITLE_MAP: Record<string, string> = {
   'custom-vinyl-song-portrait':
     'Custom First Dance Metallic Gold Vinyl Record Framed Canvas (Scannable QR) - Personalized Couple Anniversary Gift',
   'custom-pet-memorial':
-    'Custom Watercolor Pet Portrait Natural Birch Wood Plaque - Personalized Dog & Cat Loss Memorial Gift',
+    'Custom Pet Photo & Botanical Wreath Natural Birch Wood Plaque - Personalized Dog & Cat Loss Memorial Gift',
   'custom-coordinates-print':
-    'Custom First Home Watercolor Portrait on Chiseled Stone Slate - Personalized Housewarming & Closing Gift',
+    'Custom First Home Photo & GPS Coordinates on Chiseled Stone Slate - Personalized Housewarming & Closing Gift',
   'newborn-birth-stat-portrait':
     'Custom Newborn Baby Birth Stat Framed Cotton Canvas - Personalized Nursery Decor & New Baby Gift',
   'marathon-finisher-route-print':
