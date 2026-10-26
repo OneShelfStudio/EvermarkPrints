@@ -895,9 +895,9 @@ export const EVERMARK_CATALOG: EvermarkProduct[] = [
       {
         author: 'Rachel P.',
         location: 'Denver, CO',
-        title: 'The 3 split acrylic panels anchor our entire living room!',
-        body: 'Seeing the watercolor mountains span across three glossy acrylic panels with our three milestone cities underneath looks like a $600 gallery commission.',
-        formatPurchased: 'Three Vertical Split Panels (0.25" Optical Acrylic)',
+        title: 'The 3-chapter floating framed canvas anchors our entire living room!',
+        body: 'Seeing the watercolor mountains span across all three chapters inside the solid walnut floating frame with our three milestone cities underneath looks like a $400 gallery commission.',
+        formatPurchased: '16" x 20" Statement Floating Framed 3-Chapter Triptych Canvas',
       },
     ],
   },
