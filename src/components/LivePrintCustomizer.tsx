@@ -100,6 +100,210 @@ export const MONTH_NAMES = [
   'December',
 ]
 
+export type DateFormatStyle = 'editorial' | 'european' | 'numeric' | 'roman'
+
+export const DAYS_LIST = Array.from({ length: 31 }, (_, i) => i + 1)
+export const YEARS_LIST = Array.from({ length: 78 }, (_, i) => 2026 - i)
+
+function toRomanNumeral(num: number): string {
+  const lookup: Array<[number, string]> = [
+    [1000, 'M'],
+    [900, 'CM'],
+    [500, 'D'],
+    [400, 'CD'],
+    [100, 'C'],
+    [90, 'XC'],
+    [50, 'L'],
+    [40, 'XL'],
+    [10, 'X'],
+    [9, 'IX'],
+    [5, 'V'],
+    [4, 'IV'],
+    [1, 'I'],
+  ]
+  let n = Math.max(1, Math.floor(num))
+  let out = ''
+  for (const [val, sym] of lookup) {
+    while (n >= val) {
+      out += sym
+      n -= val
+    }
+  }
+  return out
+}
+
+export function formatStructuredDate(
+  monthName: string,
+  day: number,
+  year: number,
+  style: DateFormatStyle
+): string {
+  const mIdx = Math.max(1, MONTH_NAMES.indexOf(monthName) + 1)
+  if (style === 'european') {
+    return `${day} ${monthName} ${year}`
+  }
+  if (style === 'numeric') {
+    return `${String(mIdx).padStart(2, '0')} · ${String(day).padStart(2, '0')} · ${year}`
+  }
+  if (style === 'roman') {
+    return `${toRomanNumeral(mIdx)} · ${toRomanNumeral(day)} · ${toRomanNumeral(year)}`
+  }
+  return `${monthName} ${day}, ${year}`
+}
+
+export const CURATED_HEADLINES_BY_SLUG: Record<string, string[]> = {
+  'custom-star-map': [
+    'THE NIGHT OUR STORY BEGAN',
+    'THE NIGHT WE SAID I DO',
+    'UNDER THESE EXACT STARS',
+    'THE NIGHT YOU WERE BORN',
+    'THE NIGHT WE GOT ENGAGED',
+    'WRITTEN IN THE STARS',
+  ],
+  'custom-vinyl-song-portrait': [
+    'OUR FIRST DANCE',
+    'OUR WEDDING SONG',
+    'THE SONG THAT STARTED IT ALL',
+    'ALWAYS & FOREVER',
+    'OUR ANNIVERSARY ANTHEM',
+    'DANCING IN THE KITCHEN',
+  ],
+  'custom-soundwave-art': [
+    'OUR WEDDING VOWS',
+    'THE SOUND OF YOUR LAUGH',
+    'OUR FIRST DANCE',
+    'I LOVE YOU ALWAYS',
+    'HEARTBEAT OF OUR FAMILY',
+  ],
+  'custom-city-map-print': [
+    'CHARLESTON HARBOR',
+    'NANTUCKET SOUND',
+    'NEWPORT HARBOR',
+    'SAVANNAH RIVER & SOUND',
+    'CHESAPEAKE BAY',
+    'PUGET SOUND · SEATTLE',
+  ],
+  'where-we-met-map': [
+    'WHERE IT ALL BEGAN',
+    'THE PLACE WE MET',
+    'WHERE FOREVER STARTED',
+    'OUR FAVORITE CORNER OF THE WORLD',
+  ],
+  'family-tree-botanical-print': [
+    'THE FAMILY GARDEN',
+    'NANA’S GARDEN OF LOVE',
+    'GRANDMA’S BLOOMING GARDEN',
+    'MAMA’S LITTLE WILDFLOWERS',
+    'OUR FAMILY BOUQUET',
+  ],
+  'custom-coordinates-print': [
+    'OUR FIRST HOME',
+    'HOME SWEET HOME',
+    'WHERE OUR STORY LIVES',
+    'OUR FOREVER HOME',
+    'THE FAMILY HOMESTEAD',
+  ],
+  'custom-book-stack-print': [
+    'MOM’S COZY CORNER',
+    'NANA’S SANCTUARY',
+    'SLOW SUNDAY MORNINGS',
+    'READING & RAINY DAYS',
+    'WARMTH & PEACE',
+  ],
+}
+
+export const CURATED_QUOTES_BY_SLUG: Record<string, string[]> = {
+  'custom-star-map': [
+    'Underneath these exact stars, everything changed forever.',
+    'I have loved the stars too fondly to be fearful of the night.',
+    'The sky above the exact moment our forever began.',
+    'Every star in the heavens bore witness to our beginning.',
+    'Two souls under one unforgettable night sky.',
+  ],
+  'custom-vinyl-song-portrait': [
+    'Every time this song plays, I am right back in your arms.',
+    'Take my hand, take my whole life too.',
+    'All along there was some invisible string tying you to me.',
+    'You are the best thing that’s ever been mine.',
+    'At last, my love has come along.',
+  ],
+  'custom-soundwave-art': [
+    'From this day forward, for better, for worse, for all of our days.',
+    'A voice we will treasure in our hearts forever.',
+    'Every beat of this song carries our favorite memory.',
+    'In your voice, I always find my way home.',
+  ],
+  'family-tree-botanical-print': [
+    'Rooted in love, blooming together through every season.',
+    'Different flowers from the same cherished garden.',
+    'Grandchildren are the brightest flowers in life’s garden.',
+    'Planted in grace, growing together in love.',
+  ],
+  'custom-pet-memorial': [
+    'The best companion on every trail, forever in our hearts.',
+    'No longer by our side, but forever in our hearts.',
+    'You left paw prints of pure love on our lives forever.',
+    'Until we meet again at the Rainbow Bridge, sweet friend.',
+    'Loved beyond words, missed beyond measure.',
+  ],
+  'custom-coordinates-print': [
+    'Where loud mornings, warm dinners, and lifelong memories are made.',
+    'Bless this home and all who gather within its walls.',
+    'The exact place where our favorite chapter began.',
+    'Built on love, laughter, and late-night conversations.',
+  ],
+  'met-engaged-married-triptych': [
+    'Every mile and mountain path brought us to this moment.',
+    'Three chapters, three places, one lifelong love story.',
+    'From our first hello to our forever I do.',
+    'Different coordinates, one shared destiny.',
+  ],
+  'newborn-birth-stat-portrait': [
+    'Loved beyond measure from your very first breath.',
+    'You are the sweetest dream we ever welcomed home.',
+    'To the moon and back, forever and always.',
+    'Every good and perfect gift comes from above.',
+  ],
+  'custom-book-stack-print': [
+    'Warmth, light, and peace in every season.',
+    'May this gentle glow bring calm to your favorite room.',
+    'Hand-poured with gratitude for everything you do.',
+  ],
+}
+
+export const POPULAR_CITIES_LIST: Array<{ label: string; coords: string }> = [
+  { label: 'Charleston, South Carolina', coords: '32.7765° N · 79.9311° W' },
+  { label: 'New York, New York', coords: '40.7128° N · 74.0060° W' },
+  { label: 'Boston, Massachusetts', coords: '42.3601° N · 71.0589° W' },
+  { label: 'Savannah, Georgia', coords: '32.0809° N · 81.0912° W' },
+  { label: 'Nashville, Tennessee', coords: '36.1627° N · 86.7816° W' },
+  { label: 'Asheville, North Carolina', coords: '35.5951° N · 82.5515° W' },
+  { label: 'Austin, Texas', coords: '30.2672° N · 97.7431° W' },
+  { label: 'Chicago, Illinois', coords: '41.8781° N · 87.6298° W' },
+  { label: 'Denver, Colorado', coords: '39.7392° N · 104.9903° W' },
+  { label: 'Seattle, Washington', coords: '47.6062° N · 122.3321° W' },
+  { label: 'San Diego, California', coords: '32.7157° N · 117.1611° W' },
+  { label: 'San Francisco, California', coords: '37.7749° N · 122.4194° W' },
+  { label: 'Nantucket, Massachusetts', coords: '41.2835° N · 70.0995° W' },
+  { label: 'Newport, Rhode Island', coords: '41.4901° N · 71.3128° W' },
+  { label: 'Miami, Florida', coords: '25.7617° N · 80.1918° W' },
+]
+
+export const POPULAR_WEDDING_SONGS: string[] = [
+  'At Last — Etta James',
+  'Can’t Help Falling in Love — Elvis Presley',
+  'Beyond — Leon Bridges',
+  'Lover — Taylor Swift',
+  'Perfect — Ed Sheeran',
+  'Thinking Out Loud — Ed Sheeran',
+  'You Are the Best Thing — Ray LaMontagne',
+  'Make You Feel My Love — Adele',
+  'Stand By Me — Ben E. King',
+  'Coming Home — Leon Bridges',
+  'La Vie En Rose — Louis Armstrong',
+  'All of Me — John Legend',
+]
+
 export default function LivePrintCustomizer({
   product: initialProduct,
   compactHeroMode = false,
@@ -126,6 +330,32 @@ export default function LivePrintCustomizer({
   const [viewMode, setViewMode] = useState<'room' | 'studio'>('room')
   const [activeMockupUrl, setActiveMockupUrl] = useState<string | null>(null)
   const [selectedVariantId, setSelectedVariantId] = useState<string>(defaultVariant.id)
+
+  // Guided Dropdown, Structured Date Picker & Coordinate Toggle State
+  const [selMonth, setSelMonth] = useState<string>('October')
+  const [selDay, setSelDay] = useState<number>(14)
+  const [selYear, setSelYear] = useState<number>(2023)
+  const [dateFormatStyle, setDateFormatStyle] = useState<DateFormatStyle>('editorial')
+  const [isCustomDateMode, setIsCustomDateMode] = useState<boolean>(false)
+  const [isCustomHeadlineMode, setIsCustomHeadlineMode] = useState<boolean>(false)
+  const [isCustomSublineMode, setIsCustomSublineMode] = useState<boolean>(false)
+  const [isCustomLocationMode, setIsCustomLocationMode] = useState<boolean>(false)
+  const [showCoordsOnPrint, setShowCoordsOnPrint] = useState<boolean>(true)
+  const [isEditingCoordsText, setIsEditingCoordsText] = useState<boolean>(false)
+
+  function applyStructuredDate(
+    m: string,
+    d: number,
+    y: number,
+    style: DateFormatStyle
+  ) {
+    setActiveMockupUrl(null)
+    setSelMonth(m)
+    setSelDay(d)
+    setSelYear(y)
+    setDateFormatStyle(style)
+    setDateText(formatStructuredDate(m, d, y, style))
+  }
 
   // Interactive 2.2x Magnifier Loupe & Fullscreen High-Res Proof Lightbox State
   const [isZoomedStage, setIsZoomedStage] = useState<boolean>(false)
@@ -965,9 +1195,11 @@ export default function LivePrintCustomizer({
           .join('   •   ')
         drawFittedLine(combinedLocDate, cx, 1018, maxMatW, 17, 11, '600')
 
-        ctx.fillStyle = colorway.mutedHex
-        ctx.globalAlpha = 0.92
-        drawFittedLine(coordsText, cx, 1062, maxMatW, 16, 11, 'italic')
+        if (showCoordsOnPrint && coordsText.trim().length > 0) {
+          ctx.fillStyle = colorway.mutedHex
+          ctx.globalAlpha = 0.92
+          drawFittedLine(coordsText, cx, 1062, maxMatW, 16, 11, 'italic')
+        }
       }
       ctx.restore()
     }
@@ -997,6 +1229,7 @@ export default function LivePrintCustomizer({
     locationText,
     dateText,
     coordsText,
+    showCoordsOnPrint,
     colorway,
     customAudioPeaks,
     uploadedAudioUrl,
@@ -1537,6 +1770,368 @@ export default function LivePrintCustomizer({
       )
       setIsCheckingOut(false)
     }
+  }
+
+  function renderGuidedHeadlineControl(
+    label: string,
+    placeholder: string,
+    maxLen = 42,
+    isPersonalNameField = false
+  ) {
+    const baseOptions = CURATED_HEADLINES_BY_SLUG[product.slug] || []
+    const allOptions = Array.from(
+      new Set([product.defaultHeadline, ...baseOptions].filter(Boolean))
+    )
+    const isMatchedOption = allOptions.includes(headline)
+    const selectVal =
+      isCustomHeadlineMode || !isMatchedOption ? '__custom__' : headline
+
+    if (isPersonalNameField) {
+      return (
+        <div className="space-y-1">
+          <span className="text-xs text-[#4A3B31] font-medium block">{label}</span>
+          <input
+            type="text"
+            value={headline}
+            onChange={(e) => {
+              setActiveMockupUrl(null)
+              setHeadline(e.target.value)
+            }}
+            maxLength={maxLen}
+            className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+            placeholder={placeholder}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
+          <button
+            type="button"
+            onClick={() => setIsCustomHeadlineMode(!isCustomHeadlineMode)}
+            className="text-[11px] font-mono-tech text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
+          >
+            {selectVal === '__custom__' ? '▾ Choose Popular Title' : '✎ Type Custom Names/Title'}
+          </button>
+        </div>
+        <select
+          value={selectVal}
+          onChange={(e) => {
+            const val = e.target.value
+            setActiveMockupUrl(null)
+            if (val === '__custom__') {
+              setIsCustomHeadlineMode(true)
+            } else {
+              setIsCustomHeadlineMode(false)
+              setHeadline(val)
+            }
+          }}
+          className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2.5 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+        >
+          {allOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+          <option value="__custom__">✎ Type Custom Title or Couple Names...</option>
+        </select>
+        {selectVal === '__custom__' && (
+          <input
+            type="text"
+            value={headline}
+            onChange={(e) => {
+              setActiveMockupUrl(null)
+              setHeadline(e.target.value)
+            }}
+            maxLength={maxLen}
+            className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-sm text-[#261A13] focus:outline-none"
+            placeholder={placeholder}
+          />
+        )}
+      </div>
+    )
+  }
+
+  function renderGuidedSublineControl(label: string, placeholder: string) {
+    const baseQuotes = CURATED_QUOTES_BY_SLUG[product.slug] || []
+    const allQuotes = Array.from(
+      new Set([product.defaultSubline, ...baseQuotes].filter(Boolean))
+    )
+    const isBlank = subline.trim() === ''
+    const isMatchedQuote = allQuotes.includes(subline)
+    const selectVal = isCustomSublineMode
+      ? '__custom__'
+      : isBlank
+      ? '__none__'
+      : isMatchedQuote
+      ? subline
+      : '__custom__'
+
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
+          <button
+            type="button"
+            onClick={() => {
+              if (selectVal === '__custom__') {
+                setIsCustomSublineMode(false)
+                setSubline(allQuotes[0] || product.defaultSubline)
+              } else {
+                setIsCustomSublineMode(true)
+              }
+            }}
+            className="text-[11px] font-mono-tech text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
+          >
+            {selectVal === '__custom__' ? '▾ Choose Curated Quote' : '✎ Write Custom Quote'}
+          </button>
+        </div>
+        <select
+          value={selectVal}
+          onChange={(e) => {
+            const val = e.target.value
+            setActiveMockupUrl(null)
+            if (val === '__custom__') {
+              setIsCustomSublineMode(true)
+            } else if (val === '__none__') {
+              setIsCustomSublineMode(false)
+              setSubline('')
+            } else {
+              setIsCustomSublineMode(false)
+              setSubline(val)
+            }
+          }}
+          className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2.5 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+        >
+          {allQuotes.map((q) => (
+            <option key={q} value={q}>
+              “{q}”
+            </option>
+          ))}
+          <option value="__none__">🚫 No Subtitle / Quote (Clean Minimalist Look)</option>
+          <option value="__custom__">✎ Write Custom Dedication or Song Lyric...</option>
+        </select>
+        {selectVal === '__custom__' && (
+          <input
+            type="text"
+            value={subline}
+            onChange={(e) => {
+              setActiveMockupUrl(null)
+              setSubline(e.target.value)
+            }}
+            maxLength={68}
+            className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-sm text-[#261A13] focus:outline-none"
+            placeholder={placeholder}
+          />
+        )}
+      </div>
+    )
+  }
+
+  function renderStructuredDateControl(label = 'Date / Milestone Anniversary') {
+    const formatOptions: Array<{ id: DateFormatStyle; label: string }> = [
+      { id: 'editorial', label: 'Oct 14, 2023' },
+      { id: 'european', label: '14 Oct 2023' },
+      { id: 'numeric', label: '10 · 14 · 2023' },
+      { id: 'roman', label: 'Roman (X·XIV)' },
+    ]
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
+          <button
+            type="button"
+            onClick={() => setIsCustomDateMode(!isCustomDateMode)}
+            className="text-[11px] font-mono-tech text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
+          >
+            {isCustomDateMode ? '📅 Use Date Dropdowns' : '✎ Custom Date/Time'}
+          </button>
+        </div>
+
+        {!isCustomDateMode ? (
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-1.5">
+              <select
+                aria-label="Month"
+                value={selMonth}
+                onChange={(e) =>
+                  applyStructuredDate(e.target.value, selDay, selYear, dateFormatStyle)
+                }
+                className="border border-[#CBB89F] bg-[#FDFBF7] px-2 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+              >
+                {MONTH_NAMES.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="Day"
+                value={selDay}
+                onChange={(e) =>
+                  applyStructuredDate(
+                    selMonth,
+                    Number(e.target.value),
+                    selYear,
+                    dateFormatStyle
+                  )
+                }
+                className="border border-[#CBB89F] bg-[#FDFBF7] px-2 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+              >
+                {DAYS_LIST.map((d) => (
+                  <option key={d} value={d}>
+                    Day {d}
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="Year"
+                value={selYear}
+                onChange={(e) =>
+                  applyStructuredDate(
+                    selMonth,
+                    selDay,
+                    Number(e.target.value),
+                    dateFormatStyle
+                  )
+                }
+                className="border border-[#CBB89F] bg-[#FDFBF7] px-2 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+              >
+                {YEARS_LIST.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 4-Way Date Format Toggle Pills */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+              {formatOptions.map((fmt) => {
+                const isSelected = dateFormatStyle === fmt.id
+                return (
+                  <button
+                    key={fmt.id}
+                    type="button"
+                    onClick={() =>
+                      applyStructuredDate(selMonth, selDay, selYear, fmt.id)
+                    }
+                    className={`px-2 py-1 text-[10px] font-mono-tech uppercase tracking-wider border transition ${
+                      isSelected
+                        ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027] font-semibold'
+                        : 'bg-[#F8F3EA] text-[#4A3B31] border-[#D8C9B6] hover:border-[#7A331E]'
+                    }`}
+                  >
+                    {fmt.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ) : (
+          <input
+            type="text"
+            value={dateText}
+            onChange={(e) => {
+              setActiveMockupUrl(null)
+              setDateText(e.target.value)
+            }}
+            maxLength={36}
+            className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-xs sm:text-sm text-[#261A13] focus:outline-none"
+            placeholder="e.g., October 14, 2023 · 8:30 PM"
+          />
+        )}
+      </div>
+    )
+  }
+
+  function renderCoordsToggleControl(label = 'GPS Coordinates / Bottom Inscription') {
+    return (
+      <div className="space-y-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
+          <div className="flex items-center gap-1.5">
+            {gpsStatusMsg && (
+              <span className="text-[10px] font-mono-tech text-[#1B3027]">
+                {gpsStatusMsg}
+              </span>
+            )}
+            <div className="inline-flex border border-[#CBB89F] bg-[#F8F3EA] p-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMockupUrl(null)
+                  setShowCoordsOnPrint(true)
+                }}
+                className={`px-2 py-0.5 text-[10px] font-mono-tech uppercase tracking-wider transition ${
+                  showCoordsOnPrint
+                    ? 'bg-[#1B3027] text-[#F7F4ED] font-semibold'
+                    : 'text-[#5C4D42] hover:text-[#261A13]'
+                }`}
+              >
+                ✓ Show on Print
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMockupUrl(null)
+                  setShowCoordsOnPrint(false)
+                  setIsEditingCoordsText(false)
+                }}
+                className={`px-2 py-0.5 text-[10px] font-mono-tech uppercase tracking-wider transition ${
+                  !showCoordsOnPrint
+                    ? 'bg-[#7A331E] text-[#F7F4ED] font-semibold'
+                    : 'text-[#5C4D42] hover:text-[#261A13]'
+                }`}
+              >
+                ✕ Hide
+              </button>
+            </div>
+            {showCoordsOnPrint && (
+              <button
+                type="button"
+                onClick={() => setIsEditingCoordsText(!isEditingCoordsText)}
+                className="text-[10px] font-mono-tech text-[#9E472A] hover:text-[#1B3027] underline font-semibold ml-1"
+              >
+                {isEditingCoordsText ? 'Done' : '✎ Edit'}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {showCoordsOnPrint && !isEditingCoordsText && (
+          <div className="px-3 py-1.5 bg-[#F6EFE4] border border-[#D8C9B6] flex items-center justify-between text-xs font-mono-tech text-[#261A13]">
+            <span className="truncate">{coordsText || 'Auto-plotted from location'}</span>
+            {product.supportsGpsLookup && (
+              <button
+                type="button"
+                disabled={isLookingUpGps}
+                onClick={handleLookupCoordinates}
+                className="text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] hover:text-[#1B3027] font-semibold shrink-0 ml-2"
+              >
+                {isLookingUpGps ? 'Plotting...' : '↻ Sync GPS'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {showCoordsOnPrint && isEditingCoordsText && (
+          <input
+            type="text"
+            value={coordsText}
+            onChange={(e) => {
+              setActiveMockupUrl(null)
+              setCoordsText(e.target.value)
+            }}
+            maxLength={44}
+            className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-xs font-mono-tech text-[#261A13] focus:outline-none"
+          />
+        )}
+      </div>
+    )
   }
 
   return (
@@ -2316,39 +2911,15 @@ export default function LivePrintCustomizer({
             {/* 1. FAMILY BIRTH FLOWER BOUQUET BLANKET */}
             {product.slug === 'family-tree-botanical-print' ? (
               <div className="space-y-4">
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Family Title / Blanket Heading
-                  </span>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setHeadline(e.target.value)
-                    }}
-                    maxLength={42}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., THE MILLER FAMILY GARDEN"
-                  />
-                </div>
+                {renderGuidedHeadlineControl(
+                  'Family Title / Blanket Heading',
+                  'e.g., THE MILLER FAMILY GARDEN'
+                )}
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Dedication Subtitle Line
-                  </span>
-                  <input
-                    type="text"
-                    value={subline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setSubline(e.target.value)
-                    }}
-                    maxLength={68}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., Rooted in love, blooming together through every season."
-                  />
-                </div>
+                {renderGuidedSublineControl(
+                  'Dedication Subtitle Line',
+                  'e.g., Rooted in love, blooming together through every season.'
+                )}
 
                 {/* Interactive Birth Flower Stems Selector */}
                 <div className="space-y-3 p-4 bg-[#F8F3EA] border border-[#D8C9B6]">
@@ -2381,143 +2952,134 @@ export default function LivePrintCustomizer({
                   </div>
 
                   <div className="space-y-2">
-                    {familyMembers.map((member, idx) => {
-                      const flowerInfo =
-                        BIRTH_FLOWERS_DICT[member.month] || BIRTH_FLOWERS_DICT['July']
-                      return (
-                        <div
-                          key={member.id}
-                          className="flex items-center gap-2 p-2 bg-[#FDFBF7] border border-[#D8C9B6]"
-                        >
-                          <span className="text-[10px] font-mono-tech text-[#8C583A] w-6 shrink-0 font-bold">
-                            #{idx + 1}
-                          </span>
-                          <input
-                            type="text"
-                            value={member.name}
+                    {familyMembers.map((member, idx) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center gap-2 p-2 bg-[#FDFBF7] border border-[#D8C9B6]"
+                      >
+                        <span className="text-[10px] font-mono-tech text-[#8C583A] w-6 shrink-0 font-bold">
+                          #{idx + 1}
+                        </span>
+                        <input
+                          type="text"
+                          value={member.name}
+                          onChange={(e) => {
+                            const updated = [...familyMembers]
+                            updated[idx].name = e.target.value
+                            setFamilyMembers(updated)
+                            syncFamilyMembersToCanvas(updated, familyNote)
+                          }}
+                          placeholder="Name (e.g. Emma, Mom, Nana)"
+                          maxLength={18}
+                          className="flex-1 min-w-0 border border-[#CBB89F] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                        />
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <select
+                            value={member.month}
                             onChange={(e) => {
                               const updated = [...familyMembers]
-                              updated[idx].name = e.target.value
+                              updated[idx].month = e.target.value
                               setFamilyMembers(updated)
                               syncFamilyMembersToCanvas(updated, familyNote)
                             }}
-                            placeholder="Name (e.g. Emma, Mom, Nana)"
-                            maxLength={18}
-                            className="flex-1 min-w-0 border border-[#CBB89F] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                          />
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <select
-                              value={member.month}
-                              onChange={(e) => {
-                                const updated = [...familyMembers]
-                                updated[idx].month = e.target.value
+                            className="border border-[#CBB89F] bg-white px-2 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none font-medium"
+                          >
+                            {MONTH_NAMES.map((m) => {
+                              const f = BIRTH_FLOWERS_DICT[m]
+                              return (
+                                <option key={m} value={m}>
+                                  {m} · {f.flower} {f.symbol}
+                                </option>
+                              )
+                            })}
+                          </select>
+                          {familyMembers.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = familyMembers.filter((_, i) => i !== idx)
                                 setFamilyMembers(updated)
                                 syncFamilyMembersToCanvas(updated, familyNote)
                               }}
-                              className="border border-[#CBB89F] bg-white px-2 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none font-medium"
+                              className="text-[#9E472A] hover:text-[#7A331E] text-xs px-1.5 font-bold"
+                              title="Remove member"
                             >
-                              {MONTH_NAMES.map((m) => {
-                                const f = BIRTH_FLOWERS_DICT[m]
-                                return (
-                                  <option key={m} value={m}>
-                                    {m} · {f.flower} {f.symbol}
-                                  </option>
-                                )
-                              })}
-                            </select>
-                            {familyMembers.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const updated = familyMembers.filter((_, i) => i !== idx)
-                                  setFamilyMembers(updated)
-                                  syncFamilyMembersToCanvas(updated, familyNote)
-                                }}
-                                className="text-[#9E472A] hover:text-[#7A331E] text-xs px-1.5 font-bold"
-                                title="Remove member"
-                              >
-                                ✕
-                              </button>
-                            )}
-                          </div>
+                              ✕
+                            </button>
+                          )}
                         </div>
-                      )
-                    })}
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="pt-2 space-y-1">
+                  <div className="pt-2 space-y-1.5">
                     <span className="text-xs text-[#4A3B31] font-medium block">
                       Family Heritage / Established Note
                     </span>
-                    <input
-                      type="text"
-                      value={familyNote}
-                      onChange={(e) => {
-                        setFamilyNote(e.target.value)
-                        syncFamilyMembersToCanvas(familyMembers, e.target.value)
-                      }}
-                      placeholder="e.g., Established 1984 · Three Generations of Love"
-                      maxLength={48}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    />
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      <select
+                        value={
+                          [
+                            'LOVE GROWS HERE FOREVER',
+                            'THREE GENERATIONS OF LOVE',
+                            'BLESSED BEYOND MEASURE',
+                            'FOREVER FAMILY ROOTS',
+                          ].includes(familyNote)
+                            ? familyNote
+                            : '__custom__'
+                        }
+                        onChange={(e) => {
+                          if (e.target.value !== '__custom__') {
+                            setFamilyNote(e.target.value)
+                            syncFamilyMembersToCanvas(familyMembers, e.target.value)
+                          }
+                        }}
+                        className="border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                      >
+                        <option value="LOVE GROWS HERE FOREVER">Love Grows Here Forever</option>
+                        <option value="THREE GENERATIONS OF LOVE">Three Generations of Love</option>
+                        <option value="BLESSED BEYOND MEASURE">Blessed Beyond Measure</option>
+                        <option value="FOREVER FAMILY ROOTS">Forever Family Roots</option>
+                        <option value="__custom__">✎ Established Year / Custom...</option>
+                      </select>
+                      <select
+                        aria-label="Established Year"
+                        onChange={(e) => {
+                          const val = `ESTABLISHED ${e.target.value} · LOVE GROWS HERE`
+                          setFamilyNote(val)
+                          syncFamilyMembersToCanvas(familyMembers, val)
+                        }}
+                        defaultValue="1988"
+                        className="border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                      >
+                        {YEARS_LIST.map((y) => (
+                          <option key={y} value={y}>
+                            Est. {y}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
             ) : product.slug === 'newborn-birth-stat-portrait' ? (
               /* 2. STORYBOOK SLEEPING MOON & BABY BIRTH STATS */
               <div className="space-y-3.5">
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Baby&apos;s Full Name
-                  </span>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setHeadline(e.target.value)
-                    }}
-                    maxLength={42}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., LEO ALEXANDER BROOKS"
-                  />
-                </div>
+                {renderGuidedHeadlineControl(
+                  "Baby's Full Name",
+                  'e.g., LEO ALEXANDER BROOKS',
+                  42,
+                  true
+                )}
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Welcome &amp; Dedication Line
-                  </span>
-                  <input
-                    type="text"
-                    value={subline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setSubline(e.target.value)
-                    }}
-                    maxLength={68}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., Loved Beyond Measure From Your Very First Breath"
-                  />
-                </div>
+                {renderGuidedSublineControl(
+                  'Welcome & Dedication Line',
+                  'e.g., Loved Beyond Measure From Your Very First Breath'
+                )}
+
+                {renderStructuredDateControl('Birth Date (Select Month / Day / Year)')}
 
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <span className="text-xs text-[#4A3B31] font-medium block">
-                      Birth Date &amp; Time
-                    </span>
-                    <input
-                      type="text"
-                      value={dateText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setDateText(e.target.value)
-                      }}
-                      maxLength={38}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="e.g., August 19, 2025 at 4:18 AM"
-                    />
-                  </div>
-
                   <div className="space-y-1">
                     <span className="text-xs text-[#4A3B31] font-medium block">
                       Birth Weight &amp; Length
@@ -2530,357 +3092,271 @@ export default function LivePrintCustomizer({
                         setCoordsText(e.target.value)
                       }}
                       maxLength={34}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                       placeholder="e.g., 7 LBS 11 OZ · 20.5 INCHES"
                     />
                   </div>
-                </div>
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Birthplace City &amp; Hospital
-                  </span>
-                  <input
-                    type="text"
-                    value={locationText}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setLocationText(e.target.value)
-                    }}
-                    maxLength={42}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., Boston, Massachusetts · St. Luke's"
-                  />
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Birthplace City
+                    </span>
+                    <input
+                      type="text"
+                      value={locationText}
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setLocationText(e.target.value)
+                      }}
+                      maxLength={42}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., Boston, Massachusetts"
+                    />
+                  </div>
                 </div>
               </div>
             ) : product.slug === 'custom-book-stack-print' ? (
               /* 3. BOTANICAL SCENTED SOY CANDLE */
               <div className="space-y-3.5">
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Candle Label Title / Recipient
-                  </span>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setHeadline(e.target.value)
-                    }}
-                    maxLength={42}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., MOM'S COZY CORNER"
-                  />
-                </div>
+                {renderGuidedHeadlineControl(
+                  'Candle Label Title / Recipient',
+                  "e.g., MOM'S COZY CORNER"
+                )}
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Dedication Quote or Blend Note
-                  </span>
-                  <input
-                    type="text"
-                    value={subline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setSubline(e.target.value)
-                    }}
-                    maxLength={68}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., Warmth, Light &amp; Peace in Every Season"
-                  />
-                </div>
+                {renderGuidedSublineControl(
+                  'Dedication Quote or Blend Note',
+                  'e.g., Warmth, Light & Peace in Every Season'
+                )}
 
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <span className="text-xs text-[#4A3B31] font-medium block">
-                      Scent / Sub-Caption Line
+                      Botanical Scent Caption
                     </span>
-                    <input
-                      type="text"
+                    <select
                       value={locationText}
                       onChange={(e) => {
                         setActiveMockupUrl(null)
                         setLocationText(e.target.value)
                       }}
-                      maxLength={38}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="e.g., White Sage &amp; Lavender · USA"
-                    />
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                    >
+                      <option value="White Sage & Lavender · USA">White Sage &amp; Lavender · USA</option>
+                      <option value="Clean Cotton & Bergamot · USA">Clean Cotton &amp; Bergamot · USA</option>
+                      <option value="Sea Salt & Orchid · USA">Sea Salt &amp; Orchid · USA</option>
+                      <option value="Cinnamon Vanilla Bean · USA">Cinnamon Vanilla Bean · USA</option>
+                      <option value="Apothecary Reserve · Hand Poured">Apothecary Reserve · Hand Poured</option>
+                    </select>
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-xs text-[#4A3B31] font-medium block">
-                      Established Year / Occasion
+                      Occasion / Established Year
                     </span>
-                    <input
-                      type="text"
+                    <select
                       value={dateText}
                       onChange={(e) => {
                         setActiveMockupUrl(null)
                         setDateText(e.target.value)
                       }}
-                      maxLength={34}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="e.g., Established 2024"
-                    />
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                    >
+                      <option value="Hand-Poured · 2026 Edition">Hand-Poured · 2026 Edition</option>
+                      <option value="Mother’s Day Reserve">Mother&apos;s Day Reserve</option>
+                      <option value="Housewarming Edition">Housewarming Edition</option>
+                      <option value="Botanical Sanctuary Reserve">Botanical Sanctuary Reserve</option>
+                      <option value="With Gratitude & Love">With Gratitude &amp; Love</option>
+                    </select>
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Bottom Apothecary Seal / Dedication
-                  </span>
-                  <input
-                    type="text"
-                    value={coordsText}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setCoordsText(e.target.value)
-                    }}
-                    maxLength={44}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., 100% NATURAL SOY WAX · APOTHECARY EDITION"
-                  />
-                </div>
+                {renderCoordsToggleControl('Bottom Apothecary Seal')}
               </div>
             ) : product.slug === 'custom-pet-memorial' ? (
               /* 4. SOLID BIRCH WOOD PET MEMORIAL */
               <div className="space-y-3.5">
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Pet&apos;s Name
-                  </span>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setHeadline(e.target.value)
-                    }}
-                    maxLength={32}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., BARNABY"
-                  />
-                </div>
+                {renderGuidedHeadlineControl(
+                  "Pet's Name",
+                  'e.g., BARNABY',
+                  32,
+                  true
+                )}
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Loving Tribute Quote
-                  </span>
-                  <input
-                    type="text"
-                    value={subline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setSubline(e.target.value)
-                    }}
-                    maxLength={68}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., The best boy on every trail, always in our hearts."
-                  />
-                </div>
+                {renderGuidedSublineControl(
+                  'Loving Tribute Quote',
+                  'e.g., The best boy on every trail, always in our hearts.'
+                )}
 
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <span className="text-xs text-[#4A3B31] font-medium block">
-                      Epitaph / Subtitle Line
+                      Epitaph / Tribute Subtitle
                     </span>
-                    <input
-                      type="text"
+                    <select
                       value={locationText}
                       onChange={(e) => {
                         setActiveMockupUrl(null)
                         setLocationText(e.target.value)
                       }}
-                      maxLength={38}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="e.g., Forever Our Loyal Companion"
-                    />
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                    >
+                      <option value="Forever Our Loyal Companion">Forever Our Loyal Companion</option>
+                      <option value="Forever In Our Hearts">Forever In Our Hearts</option>
+                      <option value="The Best Boy On Every Trail">The Best Boy On Every Trail</option>
+                      <option value="The Sweetest Soul We Ever Knew">The Sweetest Soul We Ever Knew</option>
+                      <option value="Our Faithful Best Friend">Our Faithful Best Friend</option>
+                    </select>
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-xs text-[#4A3B31] font-medium block">
-                      Years of Life / Memory Dates
+                      Years of Life (Start – End Year)
                     </span>
-                    <input
-                      type="text"
-                      value={dateText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setDateText(e.target.value)
-                      }}
-                      maxLength={30}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="e.g., 2014 to 2026"
-                    />
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <select
+                        aria-label="Birth Year"
+                        defaultValue="2012"
+                        onChange={(e) => {
+                          const endYr = dateText.split('–')[1]?.trim() || '2026'
+                          setActiveMockupUrl(null)
+                          setDateText(`${e.target.value} – ${endYr}`)
+                        }}
+                        className="border border-[#CBB89F] bg-[#FDFBF7] px-2 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                      >
+                        {YEARS_LIST.slice(0, 30).map((y) => (
+                          <option key={y} value={y}>
+                            From {y}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        aria-label="Passing Year"
+                        defaultValue="2026"
+                        onChange={(e) => {
+                          const startYr =
+                            dateText.split('–')[0]?.replace(/[^0-9]/g, '') || '2012'
+                          setActiveMockupUrl(null)
+                          setDateText(`${startYr} – ${e.target.value}`)
+                        }}
+                        className="border border-[#CBB89F] bg-[#FDFBF7] px-2 py-2 text-xs text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                      >
+                        {YEARS_LIST.slice(0, 15).map((y) => (
+                          <option key={y} value={y}>
+                            To {y}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Bottom Family Dedication Line
-                  </span>
-                  <input
-                    type="text"
-                    value={coordsText}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setCoordsText(e.target.value)
-                    }}
-                    maxLength={38}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., THE HEART OF OUR HOME"
-                  />
-                </div>
+                {renderCoordsToggleControl('Bottom Dedication Line')}
               </div>
             ) : product.slug === 'custom-coordinates-print' ? (
               /* 5. OUR FIRST HOME CHISELED SLATE */
               <div className="space-y-3.5">
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Home / Family Heading
-                  </span>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setHeadline(e.target.value)
-                    }}
-                    maxLength={42}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., OUR FIRST HOME"
-                  />
-                </div>
+                {renderGuidedHeadlineControl(
+                  'Home / Family Heading',
+                  'e.g., OUR FIRST HOME'
+                )}
 
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#4A3B31] font-medium">
-                      Street Address &amp; Town
-                    </span>
-                    <button
-                      type="button"
-                      disabled={isLookingUpGps}
-                      onClick={handleLookupCoordinates}
-                      className="text-[11px] font-mono-tech uppercase tracking-wider text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
-                    >
-                      {isLookingUpGps ? 'Plotting...' : 'Auto-Find GPS ⌖'}
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    value={locationText}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setLocationText(e.target.value)
-                    }}
-                    maxLength={42}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., 742 Evergreen Terrace · Charleston, SC"
-                  />
-                </div>
+                {renderGuidedSublineControl(
+                  'Dedication Subtitle',
+                  'e.g., Where loud mornings, warm dinners, and lifelong memories are made.'
+                )}
 
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <span className="text-xs text-[#4A3B31] font-medium block">
-                      Established Year / Family Line
-                    </span>
-                    <input
-                      type="text"
-                      value={dateText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setDateText(e.target.value)
-                      }}
-                      maxLength={34}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="e.g., The Harrington Family · Est. 2024"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-[#4A3B31] font-medium">
-                        GPS Coordinates
+                        Street Address &amp; Town
                       </span>
-                      {gpsStatusMsg && (
-                        <span className="text-[10px] font-mono-tech text-[#1B3027]">
-                          {gpsStatusMsg}
-                        </span>
-                      )}
+                      <button
+                        type="button"
+                        disabled={isLookingUpGps}
+                        onClick={handleLookupCoordinates}
+                        className="text-[11px] font-mono-tech uppercase tracking-wider text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
+                      >
+                        {isLookingUpGps ? 'Plotting...' : 'Auto-Find GPS ⌖'}
+                      </button>
                     </div>
                     <input
                       type="text"
-                      value={coordsText}
+                      value={locationText}
                       onChange={(e) => {
                         setActiveMockupUrl(null)
-                        setCoordsText(e.target.value)
+                        setLocationText(e.target.value)
                       }}
-                      maxLength={44}
-                      className="w-full border border-[#CBB89F] bg-[#F6EFE4] px-3.5 py-2 text-xs font-mono-tech text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      maxLength={42}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      placeholder="e.g., 742 Evergreen Terrace · Charleston, SC"
                     />
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-[#4A3B31] font-medium block">
+                      Established Year
+                    </span>
+                    <select
+                      aria-label="Established Year"
+                      defaultValue="2024"
+                      onChange={(e) => {
+                        setActiveMockupUrl(null)
+                        setDateText(`ESTABLISHED ${e.target.value}`)
+                      }}
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                    >
+                      {YEARS_LIST.slice(0, 50).map((y) => (
+                        <option key={y} value={y}>
+                          Established {y}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Dedication Subtitle
-                  </span>
-                  <input
-                    type="text"
-                    value={subline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setSubline(e.target.value)
-                    }}
-                    maxLength={68}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., Where loud mornings, warm dinners, and lifelong memories are made."
-                  />
-                </div>
+                {renderCoordsToggleControl('Exact Home GPS Coordinates')}
               </div>
             ) : product.slug === 'met-engaged-married-triptych' ? (
-              /* 6. THREE MILESTONES ACRYLIC TRIPTYCH */
+              /* 6. THREE MILESTONES FLOATING FRAMED CANVAS TRIPTYCH */
               <div className="space-y-3.5">
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Couple Names / Heading
-                  </span>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setHeadline(e.target.value)
-                    }}
-                    maxLength={36}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., SARAH &amp; MICHAEL"
-                  />
-                </div>
+                {renderGuidedHeadlineControl(
+                  'Couple Names / Triptych Heading',
+                  'e.g., SARAH & MICHAEL',
+                  36,
+                  true
+                )}
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    Triptych Dedication Line
-                  </span>
-                  <input
-                    type="text"
-                    value={subline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setSubline(e.target.value)
-                    }}
-                    maxLength={68}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., Every mountain path brought us to this moment."
-                  />
-                </div>
+                {renderGuidedSublineControl(
+                  'Triptych Dedication Line',
+                  'e.g., Every mountain path brought us to this moment.'
+                )}
 
                 <div className="grid sm:grid-cols-3 gap-2.5 pt-1">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5 p-2.5 bg-[#F8F3EA] border border-[#D8C9B6]">
                     <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
-                      Panel 1: Met
+                      Panel 1: Where We Met
                     </span>
+                    <select
+                      aria-label="Panel 1 Popular City"
+                      value=""
+                      onChange={(e) => {
+                        if (!e.target.value) return
+                        setActiveMockupUrl(null)
+                        setLocationText(e.target.value)
+                      }}
+                      className="w-full border border-[#CBB89F] bg-white px-2 py-1 text-[11px] text-[#261A13] font-medium"
+                    >
+                      <option value="">▾ Quick-Pick City...</option>
+                      {POPULAR_CITIES_LIST.map((c) => {
+                        const shortCity = c.label.split(',')[0].toUpperCase()
+                        return (
+                          <option key={c.label} value={`${shortCity} · JUNE 2019`}>
+                            {c.label}
+                          </option>
+                        )
+                      })}
+                    </select>
                     <input
                       type="text"
                       value={locationText}
@@ -2889,15 +3365,35 @@ export default function LivePrintCustomizer({
                         setLocationText(e.target.value)
                       }}
                       maxLength={32}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                       placeholder="DENVER · JUNE 2018"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5 p-2.5 bg-[#F8F3EA] border border-[#D8C9B6]">
                     <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
                       Panel 2: Engaged
                     </span>
+                    <select
+                      aria-label="Panel 2 Popular City"
+                      value=""
+                      onChange={(e) => {
+                        if (!e.target.value) return
+                        setActiveMockupUrl(null)
+                        setDateText(e.target.value)
+                      }}
+                      className="w-full border border-[#CBB89F] bg-white px-2 py-1 text-[11px] text-[#261A13] font-medium"
+                    >
+                      <option value="">▾ Quick-Pick City...</option>
+                      {POPULAR_CITIES_LIST.map((c) => {
+                        const shortCity = c.label.split(',')[0].toUpperCase()
+                        return (
+                          <option key={c.label} value={`${shortCity} · OCT 2021`}>
+                            {c.label}
+                          </option>
+                        )
+                      })}
+                    </select>
                     <input
                       type="text"
                       value={dateText}
@@ -2906,15 +3402,35 @@ export default function LivePrintCustomizer({
                         setDateText(e.target.value)
                       }}
                       maxLength={32}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                       placeholder="ASPEN · OCT 2021"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5 p-2.5 bg-[#F8F3EA] border border-[#D8C9B6]">
                     <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
                       Panel 3: Married
                     </span>
+                    <select
+                      aria-label="Panel 3 Popular City"
+                      value=""
+                      onChange={(e) => {
+                        if (!e.target.value) return
+                        setActiveMockupUrl(null)
+                        setCoordsText(e.target.value)
+                      }}
+                      className="w-full border border-[#CBB89F] bg-white px-2 py-1 text-[11px] text-[#261A13] font-medium"
+                    >
+                      <option value="">▾ Quick-Pick City...</option>
+                      {POPULAR_CITIES_LIST.map((c) => {
+                        const shortCity = c.label.split(',')[0].toUpperCase()
+                        return (
+                          <option key={c.label} value={`${shortCity} · SEPT 2023`}>
+                            {c.label}
+                          </option>
+                        )
+                      })}
+                    </select>
                     <input
                       type="text"
                       value={coordsText}
@@ -2923,61 +3439,40 @@ export default function LivePrintCustomizer({
                         setCoordsText(e.target.value)
                       }}
                       maxLength={32}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                       placeholder="VAIL · SEPT 2023"
                     />
                   </div>
                 </div>
               </div>
             ) : (
-              /* 7. CELESTIAL / CARTOGRAPHIC / ACOUSTIC EDITIONS (Star Map, Soundwave, Nautical Chart, Tapestry) */
+              /* 7. CELESTIAL / CARTOGRAPHIC / ACOUSTIC EDITIONS (Star Map, Vinyl Song, Soundwave, Nautical Chart, Tapestry) */
               <div className="space-y-3.5">
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    {product.supportsAudioUpload
-                      ? 'Record / Plaque Heading (e.g., OUR FIRST DANCE)'
-                      : 'Primary Title / Milestone Heading'}
-                  </span>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setHeadline(e.target.value)
-                    }}
-                    maxLength={42}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., THE NIGHT OUR STORY BEGAN"
-                  />
-                </div>
+                {renderGuidedHeadlineControl(
+                  product.supportsAudioUpload
+                    ? 'Record / Plaque Title (Select or Type Custom)'
+                    : 'Primary Title / Milestone Heading',
+                  product.supportsAudioUpload
+                    ? 'e.g., OUR FIRST DANCE'
+                    : 'e.g., THE NIGHT OUR STORY BEGAN'
+                )}
 
-                <div className="space-y-1">
-                  <span className="text-xs text-[#4A3B31] font-medium block">
-                    {product.supportsAudioUpload
-                      ? 'Favorite Song Lyric or Vow Quote'
-                      : 'Dedication / Subtitle Line'}
-                  </span>
-                  <input
-                    type="text"
-                    value={subline}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setSubline(e.target.value)
-                    }}
-                    maxLength={68}
-                    className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    placeholder="e.g., Underneath these exact stars, everything changed."
-                  />
-                </div>
+                {renderGuidedSublineControl(
+                  product.supportsAudioUpload
+                    ? 'Dedication Quote or Song Lyric'
+                    : 'Dedication / Subtitle Line',
+                  'e.g., Underneath these exact stars, everything changed.'
+                )}
 
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-[#4A3B31] font-medium">
-                        {product.supportsAudioUpload
-                          ? 'Song Title & Artist / Voice Title'
-                          : 'City, Place or Port'}
-                      </span>
+                {/* Guided Song Selector OR Popular US City Selector */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-[#4A3B31] font-medium">
+                      {product.supportsAudioUpload
+                        ? 'Song Title & Artist (Select Classic or Type Custom)'
+                        : 'City, Place or Port (Select City or Type Any Place)'}
+                    </span>
+                    <div className="flex items-center gap-2">
                       {product.supportsGpsLookup && (
                         <button
                           type="button"
@@ -2988,60 +3483,136 @@ export default function LivePrintCustomizer({
                           {isLookingUpGps ? 'Plotting...' : 'Auto-Find GPS ⌖'}
                         </button>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomLocationMode(!isCustomLocationMode)}
+                        className="text-[11px] font-mono-tech text-[#1B3027] hover:text-[#9E472A] underline font-semibold"
+                      >
+                        {isCustomLocationMode ? '▾ Popular List' : '✎ Type Custom'}
+                      </button>
                     </div>
-                    <input
-                      type="text"
-                      value={locationText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setLocationText(e.target.value)
-                      }}
-                      maxLength={38}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    />
                   </div>
 
-                  <div className="space-y-1">
-                    <span className="text-xs text-[#4A3B31] font-medium block">
-                      Date / Time / Anniversary
-                    </span>
-                    <input
-                      type="text"
-                      value={dateText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setDateText(e.target.value)
-                      }}
-                      maxLength={34}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                    />
-                  </div>
+                  {product.supportsAudioUpload ? (
+                    <>
+                      <select
+                        value={
+                          isCustomLocationMode
+                            ? '__custom__'
+                            : POPULAR_WEDDING_SONGS.includes(locationText)
+                            ? locationText
+                            : '__custom__'
+                        }
+                        onChange={(e) => {
+                          setActiveMockupUrl(null)
+                          if (e.target.value === '__custom__') {
+                            setIsCustomLocationMode(true)
+                          } else {
+                            setIsCustomLocationMode(false)
+                            setLocationText(e.target.value)
+                          }
+                        }}
+                        className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2.5 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                      >
+                        <option value={product.defaultLocation}>
+                          ♫ {product.defaultLocation}
+                        </option>
+                        {POPULAR_WEDDING_SONGS.map((song) => (
+                          <option key={song} value={song}>
+                            ♫ {song}
+                          </option>
+                        ))}
+                        <option value="__custom__">
+                          ✎ Type Any Custom Song Title &amp; Artist...
+                        </option>
+                      </select>
+                      {(isCustomLocationMode ||
+                        (!POPULAR_WEDDING_SONGS.includes(locationText) &&
+                          locationText !== product.defaultLocation)) && (
+                        <input
+                          type="text"
+                          value={locationText}
+                          onChange={(e) => {
+                            setActiveMockupUrl(null)
+                            setLocationText(e.target.value)
+                          }}
+                          maxLength={38}
+                          placeholder="e.g., Your Song — Elton John"
+                          className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-xs sm:text-sm text-[#261A13] focus:outline-none"
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <select
+                        value={
+                          isCustomLocationMode
+                            ? '__custom__'
+                            : POPULAR_CITIES_LIST.some((c) => c.label === locationText)
+                            ? locationText
+                            : locationText === product.defaultLocation
+                            ? product.defaultLocation
+                            : '__custom__'
+                        }
+                        onChange={(e) => {
+                          setActiveMockupUrl(null)
+                          const val = e.target.value
+                          if (val === '__custom__') {
+                            setIsCustomLocationMode(true)
+                          } else {
+                            setIsCustomLocationMode(false)
+                            setLocationText(val)
+                            const matched = POPULAR_CITIES_LIST.find((c) => c.label === val)
+                            if (matched) {
+                              setCoordsText(matched.coords)
+                              setGpsStatusMsg('✓ Coordinates synced')
+                            }
+                          }
+                        }}
+                        className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2.5 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+                      >
+                        <option value={product.defaultLocation}>
+                          ⌖ {product.defaultLocation}
+                        </option>
+                        {POPULAR_CITIES_LIST.filter(
+                          (c) => c.label !== product.defaultLocation
+                        ).map((city) => (
+                          <option key={city.label} value={city.label}>
+                            ⌖ {city.label} ({city.coords})
+                          </option>
+                        ))}
+                        <option value="__custom__">
+                          ✎ Type Any Custom City, Town or Venue...
+                        </option>
+                      </select>
+                      {(isCustomLocationMode ||
+                        (!POPULAR_CITIES_LIST.some((c) => c.label === locationText) &&
+                          locationText !== product.defaultLocation)) && (
+                        <input
+                          type="text"
+                          value={locationText}
+                          onChange={(e) => {
+                            setActiveMockupUrl(null)
+                            setLocationText(e.target.value)
+                          }}
+                          maxLength={38}
+                          placeholder="Type any city or address (then click Auto-Find GPS ⌖)"
+                          className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-xs sm:text-sm text-[#261A13] focus:outline-none"
+                        />
+                      )}
+                    </>
+                  )}
                 </div>
 
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#4A3B31] font-medium">
-                      {product.supportsGpsLookup
-                        ? 'Exact Coordinates or Bottom Line'
-                        : 'Bottom Line / Audio Duration'}
-                    </span>
-                    {gpsStatusMsg && (
-                      <span className="text-[11px] font-mono-tech text-[#1B3027]">
-                        {gpsStatusMsg}
-                      </span>
-                    )}
-                  </div>
-                  <input
-                    type="text"
-                    value={coordsText}
-                    onChange={(e) => {
-                      setActiveMockupUrl(null)
-                      setCoordsText(e.target.value)
-                    }}
-                    maxLength={44}
-                    className="w-full border border-[#CBB89F] bg-[#F6EFE4] px-3.5 py-2 text-xs font-mono-tech text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                  />
-                </div>
+                {/* Structured Date Picker ([Month ▾] [Day ▾] [Year ▾] + 4 Format Toggle Pills) */}
+                {renderStructuredDateControl('Date / Anniversary (Select Month · Day · Year)')}
+
+                {/* Coordinates / Bottom Line Toggle ([✓ Show on Print] / [✕ Hide]) */}
+                {renderCoordsToggleControl(
+                  product.supportsGpsLookup
+                    ? 'GPS Coordinates on Print'
+                    : 'Bottom Inscription / Audio Duration Line'
+                )}
               </div>
             )}
           </div>
