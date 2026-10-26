@@ -51,9 +51,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'Evermark Prints (Digital Dads LLC)', url: 'https://www.evermarkprints.com' }],
   creator: 'Evermark Prints',
   publisher: 'Digital Dads LLC',
-  alternates: {
-    canonical: 'https://www.evermarkprints.com',
-  },
   robots: {
     index: true,
     follow: true,

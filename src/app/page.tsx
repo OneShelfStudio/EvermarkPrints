@@ -1,8 +1,15 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { EVERMARK_CATALOG } from '@/lib/catalog'
 import LivePrintCustomizer from '@/components/LivePrintCustomizer'
 import OccasionCatalogGrid from '@/components/OccasionCatalogGrid'
 import AdUnit from '@/components/AdUnit'
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: 'https://www.evermarkprints.com',
+  },
+}
 
 export default function EvermarkHomePage() {
   const flagshipStarMap = EVERMARK_CATALOG[0]
