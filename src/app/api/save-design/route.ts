@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { resolveSanityProjectId } from '@/lib/sanity'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
       : `${rawShareUrl}${rawShareUrl.includes('?') ? '&' : '?'}promo=WELCOME15`
 
     // 1. Persist saved design lead to Sanity if configured
-    const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+    const sanityProjectId = resolveSanityProjectId()
     const sanityDataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
     const sanityToken = process.env.SANITY_API_TOKEN
 

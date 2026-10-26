@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { resolveSanityProjectId } from '@/lib/sanity'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
       `[Evermark Printify Webhook] Event: ${eventType} | External Order: ${externalOrderId} | Tracking: ${trackingNumber}`
     )
 
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+    const projectId = resolveSanityProjectId()
     const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
     const token = process.env.SANITY_API_TOKEN
 

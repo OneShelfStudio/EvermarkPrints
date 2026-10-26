@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { getEvermarkProductBySlug, FRAME_FINISHES, EVERMARK_CATALOG } from '@/lib/catalog'
+import { resolveSanityProjectId } from '@/lib/sanity'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,7 +36,7 @@ export interface TrackedOrderRecord {
 }
 
 async function fetchSanityShipmentInfo(orderId: string) {
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+  const projectId = resolveSanityProjectId()
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
   if (!projectId) return null
 
@@ -230,7 +231,7 @@ export async function POST(req: Request) {
       metadata: updatedMeta,
     })
 
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+    const projectId = resolveSanityProjectId()
     const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
     const token = process.env.SANITY_API_TOKEN
 

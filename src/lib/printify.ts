@@ -5,6 +5,7 @@ import {
   resolvePrintifyVariantId,
 } from '@/lib/catalog'
 import { sendOrderAlertEmail } from '@/lib/email'
+import { resolveSanityProjectId } from '@/lib/sanity'
 
 const PRINTIFY_BASE_URL = 'https://api.printify.com/v1'
 
@@ -57,7 +58,7 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
   const meta = session.metadata || {}
   const shopId = process.env.PRINTIFY_SHOP_ID || '29416532'
   const printifyToken = process.env.PRINTIFY_API_TOKEN
-  const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+  const sanityProjectId = resolveSanityProjectId()
   const sanityDataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
   const sanityToken = process.env.SANITY_API_TOKEN
 

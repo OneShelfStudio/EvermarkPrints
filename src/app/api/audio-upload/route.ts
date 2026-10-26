@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { resolveSanityProjectId } from '@/lib/sanity'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
       ? 'm4a'
       : 'mp3'
 
-    const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'byz4z1gd'
+    const sanityProjectId = resolveSanityProjectId()
     const sanityDataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
     const sanityWriteToken = process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_API_TOKEN
 
