@@ -2243,11 +2243,10 @@ export default function LivePrintCustomizer({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <span className="text-xs font-semibold text-[#261A13] block">
-                      {product.audioUploadLabel || 'Attach Custom Song Clip or Voice Memo (Optional)'}
+                      Attach Custom Song Clip or Voice Memo (Optional)
                     </span>
                     <span className="text-[11px] text-[#5C4D42] block">
-                      {product.audioUploadHint ||
-                        'Plots your exact acoustic waveform & links it to the camera-scannable QR code on your artwork.'}
+                      Plots your exact acoustic waveform &amp; links it to the camera-scannable QR code on your artwork.
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
