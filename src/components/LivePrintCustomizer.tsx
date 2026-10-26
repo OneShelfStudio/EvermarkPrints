@@ -2087,10 +2087,37 @@ export default function LivePrintCustomizer({
             <p className="text-xs sm:text-sm text-[#5C4D42] leading-relaxed">
               {product.subtitle}
             </p>
-            <div className="pt-1">
+            <div className="pt-1 flex flex-wrap items-center justify-between gap-2">
               <span className="inline-block px-2.5 py-1 bg-[#F3E9DA] border border-[#D8C9B6] text-[11px] font-mono-tech text-[#261A13]">
                 Physical Medium: <strong>{product.physicalMedium}</strong>
               </span>
+              <span className="text-[11px] font-mono-tech text-[#1B3027] font-semibold">
+                ✓ Free 3–5 Day US Shipping
+              </span>
+            </div>
+
+            {/* Above-the-Fold Price + WELCOME15 Instant Clarity Bar */}
+            <div className="mt-2 p-3 bg-[#F8F3EA] border border-[#CBB89F] flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-editorial font-bold text-[#261A13]">
+                  ${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd}
+                </span>
+                {activeVariant.compareAtUsd && (
+                  <span className="text-xs text-[#8C7A6B] line-through">
+                    ${activeVariant.compareAtUsd}
+                  </span>
+                )}
+                <span className="px-2 py-0.5 bg-[#1B3027] text-[#E5C178] text-[10px] font-mono-tech uppercase tracking-wider font-semibold">
+                  ${Math.round(totalUsd * 0.85)} with code WELCOME15 (-15%)
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAppliedPromoCode('WELCOME15')}
+                className="text-[10px] font-mono-tech uppercase tracking-wider font-semibold underline text-[#9E472A] hover:text-[#1B3027]"
+              >
+                {appliedPromoCode === 'WELCOME15' ? '✓ WELCOME15 Applied' : 'Apply 15% Off →'}
+              </button>
             </div>
           </div>
 
@@ -3367,6 +3394,49 @@ export default function LivePrintCustomizer({
 
       {!compactHeroMode && (
         <>
+          {/* Materials, Framing & US Studio Guarantee (3-Card Architectural Breakdown) */}
+          <section className="grid md:grid-cols-3 gap-6 border-t border-[#D8C9B6] pt-12">
+            <div className="p-6 bg-[#FDFBF7] border border-[#CBB89F] space-y-2.5">
+              <span className="text-[10px] font-mono-tech uppercase tracking-[0.18em] text-[#9E472A] font-semibold">
+                01 · ARCHIVAL MEDIUM &amp; FINISH
+              </span>
+              <h3 className="text-xl font-editorial font-semibold text-[#261A13]">
+                {product.physicalMedium}
+              </h3>
+              <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
+                Crafted to museum conservation standards using 12-color archival pigment inks, kiln-dried solid American hardwood, chiseled natural stone, optical crystal, or 100% cotton jacquard weave. Arrives ready to display out of the box.
+              </p>
+            </div>
+
+            <div className="p-6 bg-[#FDFBF7] border border-[#CBB89F] space-y-2.5">
+              <span className="text-[10px] font-mono-tech uppercase tracking-[0.18em] text-[#1B3027] font-semibold">
+                02 · EXACT LIVE PROOF GUARANTEE
+              </span>
+              <h3 className="text-xl font-editorial font-semibold text-[#261A13]">
+                Printed Word-for-Word From Your Proof
+              </h3>
+              <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
+                Your live studio canvas is rendered at 300 DPI master print resolution and locked directly to your order. Spot a typo after checkout? Edit your inscription live for 2 hours at{' '}
+                <Link href="/track" className="underline font-semibold text-[#1B3027]">
+                  evermarkprints.com/track
+                </Link>
+                .
+              </p>
+            </div>
+
+            <div className="p-6 bg-[#FDFBF7] border border-[#CBB89F] space-y-2.5">
+              <span className="text-[10px] font-mono-tech uppercase tracking-[0.18em] text-[#9E472A] font-semibold">
+                03 · COMPLIMENTARY 3–5 DAY US SHIPPING
+              </span>
+              <h3 className="text-xl font-editorial font-semibold text-[#261A13]">
+                Gift-Ready Protective Packaging
+              </h3>
+              <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
+                Ships free from our domestic US studios via tracked USPS, UPS, or FedEx with reinforced corner guards and zero price tags inside—plus an instant printable Gift Presentation Certificate immediately after checkout.
+              </p>
+            </div>
+          </section>
+
           {/* Verified Collector Reviews */}
           <section className="space-y-6 border-t border-[#D8C9B6] pt-12">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -3461,43 +3531,50 @@ export default function LivePrintCustomizer({
                 ))}
             </div>
           </section>
-
-          {/* Sticky Mobile Commission & Price Bar */}
-          <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#CBB89F] px-4 py-2.5 shadow-[0_-8px_24px_rgba(38,26,19,0.12)] flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold truncate">
-                <span>★★★★★ 4.9</span>
-                <span>·</span>
-                <span className="truncate">{product.shortTitle}</span>
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-base font-bold text-[#261A13]">
-                  ${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd}
-                </span>
-                {appliedPromoCode ? (
-                  <span className="text-xs text-[#8C7A6B] line-through">${totalUsd}</span>
-                ) : activeVariant.compareAtUsd ? (
-                  <span className="text-xs text-[#8C7A6B] line-through">
-                    ${activeVariant.compareAtUsd}
-                  </span>
-                ) : null}
-                <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
-                  FREE US SHIP
-                </span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              disabled={isCheckingOut}
-              onClick={handleCheckout}
-              className="px-4 py-2.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shrink-0 shadow-sm"
-            >
-              {isCheckingOut ? 'Preparing...' : 'Commission Now →'}
-            </button>
-          </div>
         </>
       )}
+
+      {/* Sticky Mobile Commission & Live Proof Bar */}
+      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#CBB89F] px-3.5 py-2.5 shadow-[0_-8px_24px_rgba(38,26,19,0.12)] flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold truncate">
+            <span>★★★★★ 4.9</span>
+            <span>·</span>
+            <span className="truncate">{product.shortTitle}</span>
+          </div>
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-base font-bold text-[#261A13]">
+              ${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd}
+            </span>
+            {!appliedPromoCode && (
+              <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
+                (${Math.round(totalUsd * 0.85)} w/ WELCOME15)
+              </span>
+            )}
+            <span className="text-[10px] font-mono-tech text-[#5C4D42]">
+              · Free US Ship
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleOpenFullscreenProof}
+            className="px-2.5 py-2.5 border border-[#CBB89F] bg-[#F8F3EA] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold"
+          >
+            🔍 Proof
+          </button>
+          <button
+            type="button"
+            disabled={isCheckingOut}
+            onClick={handleCheckout}
+            className="px-3.5 py-2.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shadow-sm"
+          >
+            {isCheckingOut ? 'Preparing...' : 'Checkout →'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
