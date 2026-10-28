@@ -80,6 +80,23 @@ async function checkMerchantCenterApi() {
     console.log(`Authenticating via Service Account: ${sa.client_email}`)
     const token = await getGoogleAccessToken(sa, 'https://www.googleapis.com/auth/content')
 
+    if (process.argv.includes('--fetch')) {
+      const fetchRes = await fetch(
+        `https://merchantapi.googleapis.com/datasources/v1/accounts/${MERCHANT_ID}/dataSources/10785720430:fetch`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: '{}',
+        }
+      )
+      console.log(
+        `Triggered GMC Feed Fetch (dataSources/10785720430:fetch): HTTP ${fetchRes.status}`
+      )
+    }
+
     const res = await fetch(
       `https://merchantapi.googleapis.com/products/v1/accounts/${MERCHANT_ID}/products?pageSize=50`,
       {
