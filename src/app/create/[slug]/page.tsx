@@ -192,7 +192,7 @@ export default function CreateCustomPrintPage({
         </span>
       </div>
 
-      <LivePrintCustomizer product={product} />
+      <LivePrintCustomizer key={product.slug} product={product} />
     </div>
   )
 }
