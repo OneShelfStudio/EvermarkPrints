@@ -69,43 +69,91 @@ async function checkMerchantCenterApi() {
 
   if (!keyPath || !fs.existsSync(keyPath)) {
     console.log(
-      '\n[GMC Direct API] No local Service Account JSON path set in GMC_SERVICE_ACCOUNT_KEY / PLAY_SERVICE_ACCOUNT_KEY.'
+      '\n[GMC Direct API] Set GMC_SERVICE_ACCOUNT_KEY or PLAY_SERVICE_ACCOUNT_KEY in environment to query Merchant API directly.'
     )
     return
   }
 
   try {
     const sa = JSON.parse(fs.readFileSync(keyPath, 'utf8'))
-    console.log(`\n=== Google Merchant Center API (Account ${MERCHANT_ID}) ===`)
+    console.log(`\n=== Google Merchant API v1 (Account ${MERCHANT_ID}) ===`)
     console.log(`Authenticating via Service Account: ${sa.client_email}`)
     const token = await getGoogleAccessToken(sa, 'https://www.googleapis.com/auth/content')
+
     const res = await fetch(
-      `https://shoppingcontent.googleapis.com/content/v2.1/${MERCHANT_ID}/productstatuses?maxResults=50`,
+      `https://merchantapi.googleapis.com/products/v1/accounts/${MERCHANT_ID}/products?pageSize=50`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     )
 
     if (!res.ok) {
-      console.log(`GMC API response (${res.status}): ${await res.text()}`)
+      console.log(`Merchant API v1 response (${res.status}): ${await res.text()}`)
       return
     }
 
     const data = await res.json()
-    const resources = data.resources || []
-    console.log(`Total Products in GMC: ${resources.length}`)
+    const products = data.products || []
+    console.log(`Total Products Returned via Merchant API: ${products.length}`)
 
-    const statusCounts = { approved: 0, pending: 0, disapproved: 0 }
-    for (const item of resources) {
-      const shoppingDest = (item.destinationStatuses || []).find(
-        (d) => d.destination === 'Shopping' || d.destination === 'SurfacesAcrossGoogle'
-      )
-      const st = shoppingDest?.status || 'pending'
-      if (st === 'approved') statusCounts.approved++
-      else if (st === 'disapproved') statusCounts.disapproved++
-      else statusCounts.pending++
+    const contextSummary = {}
+    const heroRows = []
+
+    for (const p of products) {
+      const offerId = p.offerId || p.name?.split('/').pop()
+      const statuses = p.productStatus?.destinationStatuses || []
+      for (const st of statuses) {
+        const ctx = st.reportingContext || 'UNKNOWN'
+        if (!contextSummary[ctx]) {
+          contextSummary[ctx] = { approved: 0, limited: 0, disapproved: 0, pending: 0 }
+        }
+        const approvedCount = (st.approvedCountries || []).length
+        const pendingCount = (st.pendingCountries || []).length
+        const disapprovedCount = (st.disapprovedCountries || []).length
+        if (approvedCount > 0 && pendingCount === 0 && disapprovedCount === 0) {
+          contextSummary[ctx].approved++
+        } else if (approvedCount > 0) {
+          contextSummary[ctx].limited++
+        } else if (disapprovedCount > 0) {
+          contextSummary[ctx].disapproved++
+        } else {
+          contextSummary[ctx].pending++
+        }
+      }
+
+      const shoppingStatus = statuses.find((s) => s.reportingContext === 'SHOPPING_ADS')
+      const freeStatus = statuses.find((s) => s.reportingContext === 'FREE_LISTINGS')
+      if (
+        offerId &&
+        (offerId.includes('EVM-TRIP-07') ||
+          offerId.includes('EVM-CANVAS-03') ||
+          offerId.includes('EVM-STAR-01') ||
+          offerId.includes('EVM-BLANKET-08'))
+      ) {
+        heroRows.push({
+          offerId,
+          shoppingAds: (shoppingStatus?.approvedCountries || []).includes('US')
+            ? 'ELIGIBLE (US)'
+            : (shoppingStatus?.pendingCountries || []).includes('US')
+            ? 'PENDING_REVIEW'
+            : 'OTHER',
+          freeListings: (freeStatus?.approvedCountries || []).includes('US')
+            ? 'APPROVED (US)'
+            : (freeStatus?.pendingCountries || []).includes('US')
+            ? 'PENDING_REVIEW'
+            : 'OTHER',
+          issues: (p.productStatus?.itemLevelIssues || []).length,
+        })
+      }
     }
-    console.log('GMC Status Summary:', statusCounts)
+
+    console.log('\nReporting Context Summary (All 32 Catalog Variants):')
+    console.table(contextSummary)
+
+    if (heroRows.length > 0) {
+      console.log('\nHero Top 4 (12 Variants) Live API Status:')
+      console.table(heroRows)
+    }
   } catch (err) {
     console.log('GMC API check error:', err.message)
   }

@@ -12,29 +12,29 @@ function escapeXml(str: string): string {
 
 const SEARCH_INTENT_TITLE_MAP: Record<string, string> = {
   'custom-star-map':
-    'Custom Night Sky Star Map Framed Print - Personalized Anniversary, Wedding & Engagement Gift',
+    'Custom Night Sky Star Map Framed Print - Personalized Anniversary & Wedding Gift',
   'custom-soundwave-art':
-    'Custom Voice & Song Soundwave Crystal Acrylic Block (Scannable QR) - Personalized Wedding & Anniversary Gift',
+    'Custom Voice & Song Soundwave Crystal Acrylic Block (Scannable QR) - Couple Gift',
   'family-tree-botanical-print':
-    'Custom Family Birth Month Flower Woven Cotton Throw Blanket - Personalized Gift for Mom, Nana & Grandma',
+    'Custom Family Birth Flower Woven Cotton Throw Blanket - Gift for Mom, Nana & Grandma',
   'coastal-bathymetry-chart':
-    'Custom Nautical Harbor & Bathymetry Chart on Chiseled Stone Slate - Personalized Lake, Boat & Beach House Gift',
+    'Custom Nautical Harbor & Bathymetry Chart on Chiseled Stone Slate - Lake & Coastal Gift',
   'met-engaged-married-triptych':
-    'Custom Met Engaged Married 3-Chapter Mountain Watercolor Framed Canvas - Personalized Couple & Wedding Gift',
+    'Custom Met Engaged Married 3-Chapter Framed Canvas - Personalized Couple & Wedding Gift',
   'patent-architectural-triptych':
-    'Custom Nautical Harbor & Coordinates Wood-Topped Wall Tapestry - Personalized Coastal, Lake & Beach House Gift',
+    'Custom Nautical Harbor & Coordinates Wood-Topped Wall Tapestry - Coastal & Lake Gift',
   'custom-book-stack-print':
-    'Custom Family Birth Flower Scented Amber Glass Soy Candle (9oz) - Personalized Mom, Housewarming & Hostess Gift',
+    'Custom Family Birth Flower Scented Amber Glass Soy Candle (9oz) - Gift for Mom & Home',
   'custom-vinyl-song-portrait':
-    'Custom First Dance Metallic Gold Vinyl Record Framed Canvas (Scannable QR) - Personalized Couple Anniversary Gift',
+    'Custom First Dance Gold Vinyl Record Framed Canvas (Scannable QR) - Anniversary Gift',
   'custom-pet-memorial':
-    'Custom Pet Photo & Botanical Wreath Natural Birch Wood Plaque - Personalized Dog & Cat Loss Memorial Gift',
+    'Custom Pet Photo & Botanical Wreath Birch Wood Plaque - Dog & Cat Memorial Gift',
   'custom-coordinates-print':
-    'Custom First Home Photo & GPS Coordinates on Chiseled Stone Slate - Personalized Housewarming & Closing Gift',
+    'Custom First Home Photo & Coordinates Chiseled Stone Slate - Housewarming Gift',
   'newborn-birth-stat-portrait':
-    'Custom Newborn Baby Birth Stat Framed Cotton Canvas - Personalized Nursery Decor & New Baby Gift',
+    'Custom Newborn Baby Birth Stat Framed Cotton Canvas - Personalized Nursery Gift',
   'marathon-finisher-route-print':
-    'Custom Celestial Star Map & Roman Numeral Date Crystal Acrylic Block - Personalized Nightstand Anniversary Gift',
+    'Custom Celestial Star Map & Roman Numeral Date Crystal Acrylic Block - Anniversary Gift',
 }
 
 export async function GET() {
@@ -44,7 +44,9 @@ export async function GET() {
     product.variants.map((variant, idx) => {
       const itemId = idx === 0 ? product.sku : `${product.sku}-${variant.id.toUpperCase()}`
       const seoBaseTitle = SEARCH_INTENT_TITLE_MAP[product.slug] || product.title
-      const fullTitle = escapeXml(`${seoBaseTitle} (${variant.label})`)
+      const shortVariantLabel = variant.label.split('—')[0].trim()
+      const rawTitle = `${seoBaseTitle} (${shortVariantLabel})`.slice(0, 148)
+      const fullTitle = escapeXml(rawTitle)
       const fullDesc = escapeXml(
         `${product.description} (${variant.subtitle}). Handcrafted to order in US studios with live interactive previewing, Instant Printable Gift Presentation Card, and complimentary 3 to 5 day tracked US shipping.`
       )
