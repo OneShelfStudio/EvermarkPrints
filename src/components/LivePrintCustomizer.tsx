@@ -454,6 +454,10 @@ export default function LivePrintCustomizer({
   // Load painterly base artwork plate whenever product.artworkPlate changes
   useEffect(() => {
     let active = true
+    if (!product.artworkPlate) {
+      setBasePlateEl(null)
+      return
+    }
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
@@ -599,6 +603,9 @@ export default function LivePrintCustomizer({
       setCustomAudioPeaks(null)
       setUploadedAudioName(null)
       setUploadedAudioUrl(null)
+    }
+    if (!nextProd.artworkPlate) {
+      setBasePlateEl(null)
     }
   }
 
@@ -746,8 +753,8 @@ export default function LivePrintCustomizer({
       ctx.arc(cx, cy - 10, 218, 0, Math.PI * 2)
       ctx.stroke()
       ctx.globalAlpha = 1
-    } else if (basePlateEl) {
-      if (isDarkPaper && (product.mode === 'vinyl_lyric' || product.mode === 'soundwave')) {
+    } else if (basePlateEl && product.mode !== 'soundwave') {
+      if (isDarkPaper && product.mode === 'vinyl_lyric') {
         // Circular Vinyl Disc Clip on Dark Study / Midnight Palettes (Eliminates White Box Around Disc)
         ctx.save()
         ctx.beginPath()
@@ -819,6 +826,25 @@ export default function LivePrintCustomizer({
       }
     }
     ctx.restore()
+
+    // Helper: Draw auto-fitted single-line text so long names/addresses never clip off the mat
+    const drawFittedLine = (
+      text: string,
+      x: number,
+      y: number,
+      maxWidth: number,
+      basePx: number,
+      minPx: number,
+      fontPrefix: string
+    ) => {
+      let px = basePx
+      ctx.font = `${fontPrefix} ${px}px Georgia, serif`
+      while (px > minPx && ctx.measureText(text).width > maxWidth) {
+        px -= 1
+        ctx.font = `${fontPrefix} ${px}px Georgia, serif`
+      }
+      ctx.fillText(text, x, y, maxWidth)
+    }
 
     // 3. Dynamic Product-Specific Live Canvas Plotting (Stars, Birth Flowers, Nautical Pin, Soundwave + QR)
     if (product.mode === 'starmap' || product.mode === 'marathon_route') {
@@ -967,13 +993,156 @@ export default function LivePrintCustomizer({
       ctx.arc(px, py, 6.5, 0, Math.PI * 2)
       ctx.fill()
       ctx.restore()
+    } else if (product.mode === 'soundwave') {
+      // 3C. Crystal Acrylic Plaque: Centered Golden Voice Waveform & Scannable QR Layout
+      ctx.save()
+
+      // Double hairline border around the plaque face
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.68
+      ctx.lineWidth = 1.8
+      ctx.strokeRect(52, 52, W - 104, H - 104)
+      ctx.globalAlpha = 0.28
+      ctx.lineWidth = 1
+      ctx.strokeRect(64, 64, W - 128, H - 128)
+
+      // Top Plaque Milestone Heading
+      ctx.textAlign = 'center'
+      ctx.fillStyle = colorway.accentHex
+      ctx.globalAlpha = 0.95
+      drawFittedLine(
+        headline.toUpperCase().slice(0, 48),
+        cx,
+        155,
+        W - 180,
+        16,
+        12,
+        '600'
+      )
+
+      // Central Symmetrical Golden Voice Waveform
+      const bars = 76
+      const span = 620
+      const sx0 = cx - span / 2
+      const wy = 415
+      const maxAmp = 120
+
+      for (let i = 0; i <= bars; i++) {
+        let amp: number
+        if (customAudioPeaks && customAudioPeaks.length > 0) {
+          const pk = customAudioPeaks[i % customAudioPeaks.length] || 0.2
+          amp = Math.max(8, pk * maxAmp)
+        } else {
+          const bSeed = hashSeed(`${seed}-wave-${i}`)
+          const env = Math.sin((i / bars) * Math.PI)
+          const harmonic =
+            0.4 +
+            0.45 * Math.abs(Math.sin(i * 0.32 + (seed % 19))) +
+            0.15 * ((bSeed % 100) / 100)
+          amp = Math.max(6, env * harmonic * maxAmp)
+        }
+        const x = sx0 + (i * span) / bars
+        ctx.strokeStyle = i % 4 === 0 ? '#F3D282' : colorway.accentHex
+        ctx.globalAlpha = i % 4 === 0 ? 0.98 : 0.88
+        ctx.lineWidth = 3.6
+        ctx.lineCap = 'round'
+        ctx.beginPath()
+        ctx.moveTo(x, wy - amp)
+        ctx.lineTo(x, wy + amp)
+        ctx.stroke()
+      }
+
+      // Time indicators on left and right of waveform
+      ctx.fillStyle = colorway.mutedHex
+      ctx.globalAlpha = 0.85
+      ctx.font = '500 12px monospace'
+      ctx.textAlign = 'left'
+      ctx.fillText('0:00', sx0 - 6, wy + 4)
+      ctx.textAlign = 'right'
+      ctx.fillText(coordsText.trim() || '3:02', sx0 + span + 6, wy + 4)
+
+      // Genuine Camera-Scannable Audio QR Code centered below waveform
+      const listenQrUrl = buildCompactListenQrUrl({
+        title: headline,
+        song: locationText,
+        dateText,
+        subline,
+        audioUrl: uploadedAudioUrl,
+        peaks: customAudioPeaks,
+      })
+      const qrMatrix = buildScannableQrMatrix(listenQrUrl)
+      const qrSize = 92
+      const qrX = cx - qrSize / 2
+      const qrY = 575
+      ctx.fillStyle = '#FAF6F0'
+      ctx.globalAlpha = 1
+      ctx.fillRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16)
+      ctx.strokeStyle = colorway.accentHex
+      ctx.lineWidth = 1.6
+      ctx.strokeRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16)
+
+      const cellPx = qrSize / qrMatrix.size
+      ctx.fillStyle = '#1D1511'
+      for (let r = 0; r < qrMatrix.size; r++) {
+        for (let c = 0; c < qrMatrix.size; c++) {
+          if (qrMatrix.isDark(r, c)) {
+            ctx.fillRect(
+              qrX + c * cellPx,
+              qrY + r * cellPx,
+              cellPx + 0.15,
+              cellPx + 0.15
+            )
+          }
+        }
+      }
+
+      // Typography Below QR Code
+      ctx.textAlign = 'center'
+      const maxMatW = W - 180
+
+      // Song Title & Artist: "AT LAST" — ETTA JAMES
+      ctx.fillStyle = colorway.inkHex
+      ctx.globalAlpha = 0.98
+      drawFittedLine(
+        `“${locationText.replace(/[“"]/g, '').toUpperCase()}”`,
+        cx,
+        742,
+        maxMatW,
+        25,
+        16,
+        '600'
+      )
+
+      // Dedication / Couple Names & Date: SARAH & MICHAEL · OCT 14, 2023
+      ctx.fillStyle = colorway.accentHex
+      ctx.globalAlpha = 0.95
+      const coupleLine = [subline.replace(/[“”]/g, '').trim(), dateText.trim()]
+        .filter(Boolean)
+        .join('   ·   ')
+      drawFittedLine(
+        coupleLine.toUpperCase(),
+        cx,
+        786,
+        maxMatW,
+        15,
+        11,
+        '600'
+      )
+
+      // Instruction: SCAN QR TO PLAY RECORDING
+      ctx.fillStyle = colorway.mutedHex
+      ctx.globalAlpha = 0.8
+      ctx.font = '500 11px monospace'
+      ctx.fillText('SCAN QR TO PLAY RECORDING', cx, 824)
+
+      ctx.restore()
     }
 
-    // 3B. Acoustic Waveform + Scannable QR Code Overlay (For Soundwave & Vinyl Lyric products)
+    // 3B. Acoustic Waveform + Scannable QR Code Overlay (For Vinyl Lyric products)
     if (
       product.supportsAudioUpload &&
-      (product.mode === 'soundwave' ||
-        product.mode === 'vinyl_lyric' ||
+      product.mode !== 'soundwave' &&
+      (product.mode === 'vinyl_lyric' ||
         (customAudioPeaks && customAudioPeaks.length > 0))
     ) {
       ctx.save()
@@ -981,7 +1150,7 @@ export default function LivePrintCustomizer({
       const span = 480
       const sx0 = cx - span / 2 - 36
       const wy = 795
-      const maxAmp = product.mode === 'soundwave' ? 34 : 25
+      const maxAmp = 25
 
       for (let i = 0; i <= bars; i++) {
         let amp: number
@@ -1043,25 +1212,6 @@ export default function LivePrintCustomizer({
         }
       }
       ctx.restore()
-    }
-
-    // Helper: Draw auto-fitted single-line text so long names/addresses never clip off the mat
-    const drawFittedLine = (
-      text: string,
-      x: number,
-      y: number,
-      maxWidth: number,
-      basePx: number,
-      minPx: number,
-      fontPrefix: string
-    ) => {
-      let px = basePx
-      ctx.font = `${fontPrefix} ${px}px Georgia, serif`
-      while (px > minPx && ctx.measureText(text).width > maxWidth) {
-        px -= 1
-        ctx.font = `${fontPrefix} ${px}px Georgia, serif`
-      }
-      ctx.fillText(text, x, y, maxWidth)
     }
 
     if (product.mode === 'three_map_triptych') {
@@ -1146,8 +1296,10 @@ export default function LivePrintCustomizer({
         }
       })
       ctx.restore()
+    } else if (product.mode === 'soundwave') {
+      // 4B. Crystal acrylic plaque layout is rendered completely in Section 3C above
     } else {
-      // 4B. Standard Museum Double-Line Archival Frame Border
+      // 4C. Standard Museum Double-Line Archival Frame Border
       ctx.save()
       ctx.strokeStyle = colorway.accentHex
       ctx.globalAlpha = 0.52
