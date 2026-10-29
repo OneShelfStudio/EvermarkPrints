@@ -105,6 +105,7 @@ const organizationJsonLd = {
       description:
         'Bespoke American archival studio crafting custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveforms, and pet portraits.',
       email: 'concierge@evermarkprints.com',
+      telephone: '+1-401-559-1738',
       priceRange: '$$',
       sameAs: ['https://www.pinterest.com/evermarkprints/'],
       address: {
@@ -214,6 +215,12 @@ export default function RootLayout({
                 Newborn Keepsake
               </Link>
               <Link
+                href="/contact"
+                className="hover:text-[#9E472A] transition py-1"
+              >
+                Contact
+              </Link>
+              <Link
                 href="/track"
                 className="text-[#1B3027] font-semibold hover:text-[#9E472A] transition py-1 border-b border-[#1B3027]/40"
               >
@@ -266,6 +273,18 @@ export default function RootLayout({
                   >
                     concierge@evermarkprints.com
                   </a>
+                </p>
+                <p className="text-[#D0C5B4]">
+                  PHONE SUPPORT:{' '}
+                  <a
+                    href="tel:+14015591738"
+                    className="text-white underline underline-offset-4 font-semibold text-[#E5C178]"
+                  >
+                    (401) 559-1738
+                  </a>
+                </p>
+                <p className="text-[10px] text-[#A99E8E]">
+                  Mon–Fri 9:00 AM – 6:00 PM CST · Dedicated Houston, TX Studio
                 </p>
               </div>
             </div>
@@ -356,6 +375,9 @@ export default function RootLayout({
                 310gsm acid-free cotton rag, 8-ply museum mat framing, and archival pigment inks rated for 100+ years of permanence. Shipped complimentary across all 50 US states.
               </p>
               <div className="flex flex-wrap lg:justify-end gap-4 pt-2 text-[11px] font-mono-tech uppercase tracking-[0.12em] text-[#E5C178]">
+                <Link href="/contact" className="hover:underline underline-offset-4">
+                  Contact Us
+                </Link>
                 <Link href="/track" className="hover:underline underline-offset-4">
                   Track Order
                 </Link>
@@ -376,6 +398,10 @@ export default function RootLayout({
                 >
                   Pinterest @evermarkprints
                 </a>
+              </div>
+              <div className="pt-2 text-[10px] text-[#A99E8E] font-mono-tech uppercase tracking-wider space-y-1">
+                <p className="text-[#D0C5B4] font-medium">Accepted Payment Methods</p>
+                <p>Visa · Mastercard · American Express · Discover · Apple Pay · Google Pay</p>
               </div>
               <div className="pt-4 border-t border-white/15 space-y-2.5">
                 <a
