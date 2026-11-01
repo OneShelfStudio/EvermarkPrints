@@ -1814,6 +1814,28 @@ export default function LivePrintCustomizer({
     const existing = loadStoredBag()
     const newItems = buildCurrentBagItems()
     saveStoredBag([...existing, ...newItems], true)
+
+    // Dispatch Google Ads / GA4 add_to_cart event
+    try {
+      const w = window as unknown as { gtag?: (...args: unknown[]) => void }
+      if (typeof w.gtag === 'function') {
+        w.gtag('event', 'add_to_cart', {
+          value: totalUsd,
+          currency: 'USD',
+          items: [
+            {
+              item_id: product.slug,
+              item_name: product.title,
+              price: totalUsd,
+              quantity: 1,
+            },
+          ],
+        })
+      }
+    } catch {
+      // Ignore analytics errors
+    }
+
     setBagAddedToast(
       `Added ${newItems.length} customized ${
         newItems.length === 1 ? 'keepsake' : 'keepsakes'
@@ -1902,6 +1924,27 @@ export default function LivePrintCustomizer({
       const returnUrl = `${origin}/success?product=${encodeURIComponent(
         product.slug
       )}&format=${encodeURIComponent(activeVariant.id)}&count=${allCheckoutItems.length}`
+
+      // Dispatch Google Ads / GA4 begin_checkout event
+      try {
+        const w = window as unknown as { gtag?: (...args: unknown[]) => void }
+        if (typeof w.gtag === 'function') {
+          w.gtag('event', 'begin_checkout', {
+            value: totalUsd,
+            currency: 'USD',
+            items: [
+              {
+                item_id: product.slug,
+                item_name: product.title,
+                price: totalUsd,
+                quantity: 1,
+              },
+            ],
+          })
+        }
+      } catch {
+        // Ignore analytics errors
+      }
 
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',

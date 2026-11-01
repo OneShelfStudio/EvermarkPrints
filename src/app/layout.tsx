@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
+import Script from 'next/script'
 import Link from 'next/link'
 import StudioConciergeBot from '@/components/StudioConciergeBot'
 import OrderBagDrawer from '@/components/OrderBagDrawer'
@@ -154,6 +155,25 @@ export default function RootLayout({
       className={`${cormorant.variable} ${jakarta.variable} ${jetbrains.variable} scroll-smooth`}
     >
       <head>
+        {/* Google Tag (gtag.js) for Google Ads */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18057225478"
+        />
+        <Script
+          id="google-tag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-18057225478', {
+                send_page_view: true
+              });
+            `,
+          }}
+        />
         <meta
           name="google-site-verification"
           content="_kgVkVkPHeRyon91CNtaiCyIvI1KTdfgLhBWR5nABXE"

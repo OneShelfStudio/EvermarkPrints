@@ -58,6 +58,37 @@ function SuccessContent() {
               ...data.design,
               previewDataUrl: prev?.previewDataUrl || undefined,
             }))
+
+            // Dispatch Google Ads Purchase Conversion & GA4 Purchase Event
+            if (typeof window !== 'undefined') {
+              try {
+                const w = window as unknown as { gtag?: (...args: unknown[]) => void }
+                if (typeof w.gtag === 'function') {
+                  const orderVal = typeof data.amountTotalUsd === 'number' ? data.amountTotalUsd : 119.0
+                  w.gtag('event', 'conversion', {
+                    send_to: 'AW-18057225478',
+                    value: orderVal,
+                    currency: 'USD',
+                    transaction_id: data.sessionId || sessionId,
+                  })
+                  w.gtag('event', 'purchase', {
+                    transaction_id: data.sessionId || sessionId,
+                    value: orderVal,
+                    currency: 'USD',
+                    items: [
+                      {
+                        item_id: data.design.productSlug,
+                        item_name: data.design.productTitle,
+                        price: orderVal,
+                        quantity: 1,
+                      },
+                    ],
+                  })
+                }
+              } catch {
+                // Ignore analytics errors
+              }
+            }
           }
         })
         .catch(() => {})
