@@ -16,6 +16,7 @@ import {
 import { loadStoredBag, saveStoredBag, OrderBagItem } from '@/components/OrderBagDrawer'
 import { buildCompactListenQrUrl, buildScannableQrMatrix } from '@/lib/qrcode'
 import AdUnit from '@/components/AdUnit'
+import ExitIntentProofModal from '@/components/ExitIntentProofModal'
 
 interface LivePrintCustomizerProps {
   product: EvermarkProduct
@@ -404,6 +405,7 @@ export default function LivePrintCustomizer({
   const [isSavingProof, setIsSavingProof] = useState<boolean>(false)
   const [savedProofSuccessMsg, setSavedProofSuccessMsg] = useState<string | null>(null)
   const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null)
+  const [showExitIntent, setShowExitIntent] = useState<boolean>(false)
 
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberFlower[]>([
     { id: '1', name: 'Emma', month: 'July' },
@@ -570,6 +572,69 @@ export default function LivePrintCustomizer({
       setIsSavingProof(false)
     }
   }
+
+  async function handleExitIntentSave(email: string): Promise<boolean> {
+    setIsSavingProof(true)
+    try {
+      const shareUrl = buildShareableDesignUrl()
+      const res = await fetch('/api/save-design', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          productSlug: product.slug,
+          productTitle: product.title,
+          variantLabel: activeVariant.label,
+          colorwayLabel: colorway.shortLabel,
+          headline,
+          subline,
+          locationText,
+          dateText,
+          coordsText,
+          shareUrl,
+        }),
+      })
+      if (res.ok) {
+        setAppliedPromoCode('WELCOME15')
+        setSavedProofSuccessMsg(
+          'Saved! Code WELCOME15 (15% Off) is now auto-applied to your checkout & emailed to your inbox.'
+        )
+        return true
+      }
+      return false
+    } catch {
+      return false
+    } finally {
+      setIsSavingProof(false)
+    }
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const alreadyShown = sessionStorage.getItem('evermark_exit_saved')
+    if (alreadyShown) return
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 25 && !sessionStorage.getItem('evermark_exit_saved')) {
+        sessionStorage.setItem('evermark_exit_saved', '1')
+        setShowExitIntent(true)
+      }
+    }
+
+    // 75-second mobile engagement timeout
+    const mobileIdleTimer = setTimeout(() => {
+      if (!sessionStorage.getItem('evermark_exit_saved')) {
+        sessionStorage.setItem('evermark_exit_saved', '1')
+        setShowExitIntent(true)
+      }
+    }, 75000)
+
+    document.addEventListener('mouseleave', handleMouseLeave)
+    return () => {
+      document.removeEventListener('mouseleave', handleMouseLeave)
+      clearTimeout(mobileIdleTimer)
+    }
+  }, [])
 
   // Sync defaults when switching products in compactHeroMode
   function handleSwitchProduct(newSlug: string) {
@@ -4527,6 +4592,16 @@ export default function LivePrintCustomizer({
           </button>
         </div>
       </div>
+
+      <ExitIntentProofModal
+        isOpen={showExitIntent}
+        onClose={() => setShowExitIntent(false)}
+        productTitle={product.title}
+        headline={headline}
+        onSaveProof={handleExitIntentSave}
+        isSaving={isSavingProof}
+        successMsg={savedProofSuccessMsg}
+      />
     </div>
   )
 }
