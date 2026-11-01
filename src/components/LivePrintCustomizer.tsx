@@ -317,6 +317,13 @@ export default function LivePrintCustomizer({
   const cleanCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const audioInputRef = useRef<HTMLInputElement | null>(null)
   const photoInputRef = useRef<HTMLInputElement | null>(null)
+  const audioPreviewRef = useRef<HTMLAudioElement | null>(null)
+  const dragStartRef = useRef<{ startX: number; startY: number; initPanX: number; initPanY: number }>({
+    startX: 0,
+    startY: 0,
+    initPanX: 0,
+    initPanY: 0,
+  })
 
   const defaultVariant =
     product.variants.find((v) => v.badge === 'Most Popular') || product.variants[0]
@@ -443,12 +450,17 @@ export default function LivePrintCustomizer({
   const [photoPanX, setPhotoPanX] = useState<number>(0)
   const [photoPanY, setPhotoPanY] = useState<number>(0)
   const [photoDimensions, setPhotoDimensions] = useState<{ width: number; height: number } | null>(null)
+  const [isFramingModalOpen, setIsFramingModalOpen] = useState<boolean>(false)
+  const [isDraggingFraming, setIsDraggingFraming] = useState<boolean>(false)
 
   // Real Audio Upload & Live Microphone Recorder State (Only active on products where supportsAudioUpload === true)
   const [customAudioPeaks, setCustomAudioPeaks] = useState<number[] | null>(null)
   const [uploadedAudioName, setUploadedAudioName] = useState<string | null>(null)
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null)
   const [isRecordingMic, setIsRecordingMic] = useState<boolean>(false)
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false)
+  const [audioCurrentTime, setAudioCurrentTime] = useState<number>(0)
+  const [audioDuration, setAudioDuration] = useState<number>(0)
 
   // GPS Lookup State
   const [isLookingUpGps, setIsLookingUpGps] = useState<boolean>(false)
@@ -1533,6 +1545,7 @@ export default function LivePrintCustomizer({
         setPhotoZoom(1.0)
         setPhotoPanX(0)
         setPhotoPanY(0)
+        setIsFramingModalOpen(true)
       }
       img.src = dataUrl
 
@@ -1552,6 +1565,30 @@ export default function LivePrintCustomizer({
         .catch(() => {})
     }
     reader.readAsDataURL(file)
+  }
+
+  function handleFramingDragStart(clientX: number, clientY: number) {
+    setIsDraggingFraming(true)
+    dragStartRef.current = {
+      startX: clientX,
+      startY: clientY,
+      initPanX: photoPanX,
+      initPanY: photoPanY,
+    }
+  }
+
+  function handleFramingDragMove(clientX: number, clientY: number) {
+    if (!isDraggingFraming) return
+    const dx = clientX - dragStartRef.current.startX
+    const dy = clientY - dragStartRef.current.startY
+    const newPanX = Math.max(-100, Math.min(100, Math.round(dragStartRef.current.initPanX + dx * 0.6)))
+    const newPanY = Math.max(-100, Math.min(100, Math.round(dragStartRef.current.initPanY + dy * 0.6)))
+    setPhotoPanX(newPanX)
+    setPhotoPanY(newPanY)
+  }
+
+  function handleFramingDragEnd() {
+    setIsDraggingFraming(false)
   }
 
   // 1-Click City/Address -> GPS Coordinates Auto-Lookup
@@ -1634,6 +1671,11 @@ export default function LivePrintCustomizer({
       setActiveMockupUrl(null)
       setCustomAudioPeaks(normalized)
       setUploadedAudioName(file.name)
+      const localBlobUrl = URL.createObjectURL(file)
+      setUploadedAudioUrl(localBlobUrl)
+      setIsPlayingAudio(false)
+      setAudioCurrentTime(0)
+      setAudioDuration(audioBuffer.duration)
       setCoordsText(`00:00  • • • • • ● • • •  ${formatDurationClock(audioBuffer.duration)}`)
       await audioCtx.close()
 
@@ -1709,6 +1751,11 @@ export default function LivePrintCustomizer({
           setActiveMockupUrl(null)
           setCustomAudioPeaks(normalized)
           setUploadedAudioName('Live Voice Recording (5s)')
+          const localBlobUrl = URL.createObjectURL(blob)
+          setUploadedAudioUrl(localBlobUrl)
+          setIsPlayingAudio(false)
+          setAudioCurrentTime(0)
+          setAudioDuration(audioBuffer.duration)
           setCoordsText(`00:00  • • • • • ● • • •  ${formatDurationClock(audioBuffer.duration)}`)
           await audioCtx.close()
 
@@ -1746,6 +1793,32 @@ export default function LivePrintCustomizer({
         'Microphone permission was declined or unavailable. You can upload an audio file (.MP3/.M4A/.WAV) instead.'
       )
     }
+  }
+
+  function toggleAudioPlayback() {
+    if (!audioPreviewRef.current) return
+    if (isPlayingAudio) {
+      audioPreviewRef.current.pause()
+      setIsPlayingAudio(false)
+    } else {
+      audioPreviewRef.current
+        .play()
+        .then(() => setIsPlayingAudio(true))
+        .catch(() => setIsPlayingAudio(false))
+    }
+  }
+
+  function handleResetAudio() {
+    if (audioPreviewRef.current) {
+      audioPreviewRef.current.pause()
+      audioPreviewRef.current.currentTime = 0
+    }
+    setIsPlayingAudio(false)
+    setAudioCurrentTime(0)
+    setAudioDuration(0)
+    setCustomAudioPeaks(null)
+    setUploadedAudioName(null)
+    setUploadedAudioUrl(null)
   }
 
   // Build OrderBagItems for current configuration + any selected companion add-ons
@@ -3162,6 +3235,14 @@ export default function LivePrintCustomizer({
                         )}
                       </div>
 
+                      <button
+                        type="button"
+                        onClick={() => setIsFramingModalOpen(true)}
+                        className="w-full py-2 px-3 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold flex items-center justify-center gap-2 transition shadow-sm"
+                      >
+                        <span>🎯 Open Interactive Crop &amp; Bleed Viewfinder</span>
+                      </button>
+
                       {/* Zoom Slider */}
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-[10px] text-[#4A3B31]">
@@ -3260,11 +3341,7 @@ export default function LivePrintCustomizer({
                     {uploadedAudioName && (
                       <button
                         type="button"
-                        onClick={() => {
-                          setCustomAudioPeaks(null)
-                          setUploadedAudioName(null)
-                          setUploadedAudioUrl(null)
-                        }}
+                        onClick={handleResetAudio}
                         className="px-2 py-1.5 border border-[#CBB89F] bg-[#FDFBF7] text-[10px] font-mono-tech uppercase text-[#9E472A] hover:text-[#261A13]"
                       >
                         Reset
@@ -3272,6 +3349,51 @@ export default function LivePrintCustomizer({
                     )}
                   </div>
                 </div>
+
+                {/* Audio Verification Live Preview Player Bar */}
+                {uploadedAudioUrl && (
+                  <div className="p-3 bg-[#1B3027] text-[#F7F4ED] rounded-sm border border-[#D8AE64]/40 shadow-sm flex items-center justify-between gap-3">
+                    <audio
+                      ref={audioPreviewRef}
+                      src={uploadedAudioUrl}
+                      preload="auto"
+                      onEnded={() => {
+                        setIsPlayingAudio(false)
+                        setAudioCurrentTime(0)
+                      }}
+                      onTimeUpdate={(e) => setAudioCurrentTime(e.currentTarget.currentTime)}
+                      onLoadedMetadata={(e) => setAudioDuration(e.currentTarget.duration)}
+                    />
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={toggleAudioPlayback}
+                        className="w-8 h-8 rounded-full bg-[#D8AE64] hover:bg-[#E5C178] text-[#1B3027] flex items-center justify-center font-bold text-xs shadow-md transition-transform hover:scale-105 shrink-0"
+                        aria-label={isPlayingAudio ? 'Pause audio preview' : 'Play audio preview'}
+                      >
+                        {isPlayingAudio ? '⏸' : '▶'}
+                      </button>
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono-tech text-[11px] font-semibold text-[#E5C178] uppercase tracking-wider">
+                            {isPlayingAudio ? 'Playing Verification Audio' : 'Audio Verification Preview'}
+                          </span>
+                          <span className="text-[9px] bg-[#264437] px-1.5 py-0.5 rounded text-[#D8AE64] font-mono-tech">
+                            QR &amp; Soundwave Verified
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-[#D0C5B4] font-mono-tech">
+                          {formatDurationClock(audioCurrentTime)} / {formatDurationClock(audioDuration || 5)} · Press to test recording volume
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className={`w-1 bg-[#D8AE64] rounded-full transition-all duration-150 ${isPlayingAudio ? 'h-4 animate-pulse' : 'h-1.5'}`}></span>
+                      <span className={`w-1 bg-[#D8AE64] rounded-full transition-all duration-150 ${isPlayingAudio ? 'h-6 animate-pulse delay-75' : 'h-2.5'}`}></span>
+                      <span className={`w-1 bg-[#D8AE64] rounded-full transition-all duration-150 ${isPlayingAudio ? 'h-3 animate-pulse delay-150' : 'h-1.5'}`}></span>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#D8C9B6] text-[11px] font-mono-tech text-[#1B3027]">
                   <span className="truncate max-w-[260px]">
@@ -4602,6 +4724,192 @@ export default function LivePrintCustomizer({
         isSaving={isSavingProof}
         successMsg={savedProofSuccessMsg}
       />
+
+      {/* INTERACTIVE PHOTO FRAMING & SAFE-ZONE VIEWFINDER MODAL */}
+      {isFramingModalOpen && uploadedPhotoEl && (
+        <div
+          className="fixed inset-0 z-50 bg-[#14100D]/85 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+          onClick={() => setIsFramingModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-xl bg-[#FBF8F3] border border-[#CBB89F] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 bg-[#1B3027] text-[#F7F4ED] border-b border-[#D8AE64]/30">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-mono-tech uppercase tracking-[0.16em] text-[#E5C178] font-semibold">
+                  PRECISION FRAMING &amp; SAFE-ZONE VIEWFINDER
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFramingModalOpen(false)}
+                className="px-2.5 py-1 bg-white/15 hover:bg-white/25 text-white text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            {/* Viewfinder Canvas Area */}
+            <div className="p-6 bg-[#EBE2D3] flex flex-col items-center justify-center select-none">
+              <p className="text-[11px] font-mono-tech uppercase tracking-wider text-[#5C4D42] mb-3 text-center">
+                ✦ Click &amp; Drag Image to Center Subjects · Use Slider Below to Zoom
+              </p>
+
+              {/* Viewfinder Frame Container */}
+              <div
+                className="w-72 h-72 sm:w-80 sm:h-80 relative overflow-hidden bg-[#261A13] shadow-inner cursor-grab active:cursor-grabbing border-2 border-[#1B3027] rounded-sm"
+                onMouseDown={(e) => handleFramingDragStart(e.clientX, e.clientY)}
+                onMouseMove={(e) => handleFramingDragMove(e.clientX, e.clientY)}
+                onMouseUp={handleFramingDragEnd}
+                onMouseLeave={handleFramingDragEnd}
+                onTouchStart={(e) => {
+                  if (e.touches.length > 0) {
+                    handleFramingDragStart(e.touches[0].clientX, e.touches[0].clientY)
+                  }
+                }}
+                onTouchMove={(e) => {
+                  if (e.touches.length > 0) {
+                    handleFramingDragMove(e.touches[0].clientX, e.touches[0].clientY)
+                  }
+                }}
+                onTouchEnd={handleFramingDragEnd}
+              >
+                {/* Image under view */}
+                <div
+                  className="w-full h-full flex items-center justify-center pointer-events-none"
+                  style={{
+                    transform: `translate(${photoPanX * 0.8}px, ${photoPanY * 0.8}px) scale(${photoZoom})`,
+                    transition: isDraggingFraming ? 'none' : 'transform 0.1s ease-out',
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={uploadedPhotoEl.src}
+                    alt="Framing Preview"
+                    className="max-w-none w-full h-full object-cover"
+                    style={{
+                      filter:
+                        photoFilter === 'bw_film'
+                          ? 'grayscale(100%) contrast(114%) sepia(14%)'
+                          : photoFilter === 'charcoal_sketch'
+                          ? 'grayscale(100%) contrast(165%) brightness(106%) sepia(24%)'
+                          : 'contrast(106%) saturate(122%) sepia(10%)',
+                    }}
+                  />
+                </div>
+
+                {/* Bleed & Safe-Zone Circular/Rectangular Mask Overlay */}
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  {/* Center Target Crosshair */}
+                  <div className="w-4 h-4 border-t border-b border-white/40 absolute"></div>
+                  <div className="h-4 w-4 border-l border-r border-white/40 absolute"></div>
+
+                  {/* 0.25" Safe Cut-Line Ring (for circular vinyl and portraits) */}
+                  <div className="w-56 h-56 sm:w-64 sm:h-64 rounded-full border-2 border-dashed border-[#D8AE64] shadow-[0_0_0_9999px_rgba(20,16,13,0.45)] flex items-center justify-center">
+                    <span className="absolute bottom-2 text-[9px] font-mono-tech uppercase tracking-widest text-[#E5C178] bg-[#1B3027]/80 px-2 py-0.5 rounded">
+                      0.25″ Bleed Safe Zone
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Resolution Badge */}
+              {photoDimensions && (
+                <div
+                  className={`mt-4 px-3 py-1.5 border text-[11px] flex items-center justify-between gap-3 w-full max-w-sm ${
+                    photoDimensions.width < 1200 || photoDimensions.height < 1200
+                      ? 'bg-[#FFF8E6] border-[#D8AE64] text-[#8C5E14]'
+                      : 'bg-[#F2F8F4] border-[#8FB89E] text-[#1B4D2E]'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 font-medium truncate">
+                    <span>{photoDimensions.width < 1200 || photoDimensions.height < 1200 ? '⚠️' : '✓'}</span>
+                    <span className="truncate">
+                      {photoDimensions.width < 1200 || photoDimensions.height < 1200
+                        ? `Photo is ${photoDimensions.width}×${photoDimensions.height}px (recommend >1200px)`
+                        : `Archival 300 DPI Resolution (${photoDimensions.width}×${photoDimensions.height}px)`}
+                    </span>
+                  </div>
+                  <span className="font-mono-tech text-[10px] uppercase font-bold tracking-wider shrink-0">
+                    {photoDimensions.width < 1200 || photoDimensions.height < 1200 ? 'Low Res' : '300 DPI'}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Controls Toolbar */}
+            <div className="p-4 sm:p-5 bg-[#FBF8F3] border-t border-[#D8C9B6] space-y-3.5">
+              {/* Zoom & Reset Row */}
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-xs font-mono-tech uppercase text-[#4A3B31] font-semibold shrink-0">
+                  Magnification: <span className="text-[#1B3027]">{photoZoom.toFixed(2)}×</span>
+                </span>
+                <div className="flex items-center gap-2 flex-grow max-w-xs">
+                  <button
+                    type="button"
+                    onClick={() => setPhotoZoom((z) => Math.max(1.0, +(z - 0.1).toFixed(2)))}
+                    className="w-7 h-7 bg-[#EFE6D8] hover:bg-[#E2D4BF] text-[#261A13] font-bold text-sm flex items-center justify-center border border-[#CBB89F]"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="range"
+                    min="1.0"
+                    max="2.5"
+                    step="0.05"
+                    value={photoZoom}
+                    onChange={(e) => setPhotoZoom(parseFloat(e.target.value))}
+                    className="flex-grow accent-[#1B3027] cursor-pointer h-1.5 bg-[#E8D9C3] rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPhotoZoom((z) => Math.min(2.5, +(z + 0.1).toFixed(2)))}
+                    className="w-7 h-7 bg-[#EFE6D8] hover:bg-[#E2D4BF] text-[#261A13] font-bold text-sm flex items-center justify-center border border-[#CBB89F]"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhotoZoom(1.0)
+                    setPhotoPanX(0)
+                    setPhotoPanY(0)
+                  }}
+                  className="px-2.5 py-1 text-[11px] font-mono-tech uppercase text-[#9E472A] hover:bg-[#F3E9DA] border border-[#CBB89F] transition shrink-0"
+                >
+                  ↺ Reset Center
+                </button>
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="flex items-center justify-between pt-2 border-t border-[#D8C9B6]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhotoZoom(1.0)
+                    setPhotoPanX(0)
+                    setPhotoPanY(0)
+                    setIsFramingModalOpen(false)
+                  }}
+                  className="text-xs text-[#5C4D42] hover:text-[#261A13] font-mono-tech uppercase underline"
+                >
+                  Discard Changes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsFramingModalOpen(false)}
+                  className="px-6 py-2.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] font-mono-tech text-xs uppercase tracking-wider font-semibold shadow-md transition"
+                >
+                  ✓ Apply Framing to Artwork
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

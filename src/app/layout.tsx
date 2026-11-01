@@ -92,9 +92,12 @@ export const metadata: Metadata = {
     images: ['/mockups/custom-star-map-1.webp'],
   },
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 }
 
@@ -281,6 +284,7 @@ export default function RootLayout({
         <footer className="border-t border-[#CBB89F] bg-[#1B3027] text-[#E6DDD0] py-16 mt-24">
           <div className="max-w-7xl mx-auto px-5 sm:px-8 grid sm:grid-cols-2 lg:grid-cols-12 gap-10 text-xs">
             <div className="lg:col-span-4 space-y-4">
+              <EvermarkCrest size={48} className="mb-2" />
               <p className="text-2xl font-editorial font-semibold tracking-tight text-[#F7F4ED]">
                 EVERMARK PRINTS
               </p>

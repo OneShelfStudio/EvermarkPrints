@@ -139,7 +139,7 @@ export default function OccasionCatalogGrid() {
   return (
     <div className="space-y-20">
       {/* Curated Gallery Catalog with Interactive Occasion Filter */}
-      <section id="collection" className="space-y-8 border-t border-[#CBB89F] pt-16">
+      <section id="collection" className="space-y-8 border-t border-[#CBB89F] pt-16 scroll-mt-24">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <p className="text-[11px] font-mono-tech uppercase tracking-[0.2em] text-[#9E472A] font-semibold">

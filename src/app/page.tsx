@@ -133,7 +133,7 @@ export default function EvermarkHomePage() {
       </section>
 
       {/* Interactive Live Studio Customizer Right on the Homepage (With 12-Product Switcher!) */}
-      <section id="live-studio" className="space-y-6">
+      <section id="live-studio" className="space-y-6 scroll-mt-24">
         <LivePrintCustomizer product={flagshipStarMap} compactHeroMode />
       </section>
 
