@@ -411,7 +411,7 @@ export default function LivePrintCustomizer({
   const [saveProofEmail, setSaveProofEmail] = useState<string>('')
   const [isSavingProof, setIsSavingProof] = useState<boolean>(false)
   const [savedProofSuccessMsg, setSavedProofSuccessMsg] = useState<string | null>(null)
-  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null)
+  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>('WELCOME15')
   const [showExitIntent, setShowExitIntent] = useState<boolean>(false)
 
   const [familyMembers, setFamilyMembers] = useState<FamilyMemberFlower[]>([
@@ -2091,7 +2091,7 @@ export default function LivePrintCustomizer({
           projectId: `evermark_${product.sku}`,
           returnUrl,
           collectUsShipping: true,
-          promoCode: appliedPromoCode || undefined,
+          promoCode: appliedPromoCode || 'WELCOME15',
           lineItems,
           metadata: {
             brand: 'Evermark Prints',
@@ -3057,24 +3057,15 @@ export default function LivePrintCustomizer({
             <div className="mt-2 p-3 bg-[#F8F3EA] border border-[#CBB89F] flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-editorial font-bold text-[#261A13]">
-                  ${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd}
+                  ${totalUsd}
                 </span>
-                {activeVariant.compareAtUsd && (
-                  <span className="text-xs text-[#8C7A6B] line-through">
-                    ${activeVariant.compareAtUsd}
-                  </span>
-                )}
                 <span className="px-2 py-0.5 bg-[#1B3027] text-[#E5C178] text-[10px] font-mono-tech uppercase tracking-wider font-semibold">
-                  ${Math.round(totalUsd * 0.85)} with code WELCOME15 (-15%)
+                  15% Off at Checkout: ${Math.round(totalUsd * 0.85)} (Code WELCOME15)
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() => setAppliedPromoCode('WELCOME15')}
-                className="text-[10px] font-mono-tech uppercase tracking-wider font-semibold underline text-[#9E472A] hover:text-[#1B3027]"
-              >
-                {appliedPromoCode === 'WELCOME15' ? '✓ WELCOME15 Applied' : 'Apply 15% Off →'}
-              </button>
+              <span className="text-[10px] font-mono-tech uppercase tracking-wider font-semibold text-[#1B3027]">
+                ✓ Code WELCOME15 Applied
+              </span>
             </div>
           </div>
 
@@ -4683,13 +4674,11 @@ export default function LivePrintCustomizer({
           </div>
           <div className="flex items-baseline gap-1.5 flex-wrap">
             <span className="text-base font-bold text-[#261A13]">
-              ${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd}
+              ${totalUsd}
             </span>
-            {!appliedPromoCode && (
-              <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
-                (${Math.round(totalUsd * 0.85)} w/ WELCOME15)
-              </span>
-            )}
+            <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
+              (${Math.round(totalUsd * 0.85)} w/ WELCOME15 at checkout)
+            </span>
             <span className="text-[10px] font-mono-tech text-[#5C4D42]">
               · Free US Ship
             </span>

@@ -63,11 +63,7 @@ export async function GET() {
         .map((h) => `<g:product_highlight>${escapeXml(h)}</g:product_highlight>`)
         .join('\n      ')
 
-      const regPrice =
-        variant.compareAtUsd && variant.compareAtUsd > variant.priceUsd
-          ? variant.compareAtUsd
-          : variant.priceUsd
-      const hasSale = regPrice > variant.priceUsd
+      const basePrice = variant.priceUsd
       const isHeroTop4 = [
         'met-engaged-married-triptych',
         'custom-vinyl-song-portrait',
@@ -86,8 +82,7 @@ export async function GET() {
       ${additionalImagesXml}
       <g:condition>new</g:condition>
       <g:availability>in_stock</g:availability>
-      <g:price>${regPrice}.00 USD</g:price>
-      ${hasSale ? `<g:sale_price>${variant.priceUsd}.00 USD</g:sale_price>` : ''}
+      <g:price>${basePrice}.00 USD</g:price>
       <g:brand>Evermark Prints</g:brand>
       <g:mpn>${escapeXml(itemId)}</g:mpn>
       <g:identifier_exists>false</g:identifier_exists>
