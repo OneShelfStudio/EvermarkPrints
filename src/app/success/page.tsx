@@ -66,7 +66,7 @@ function SuccessContent() {
                 if (typeof w.gtag === 'function') {
                   const orderVal = typeof data.amountTotalUsd === 'number' ? data.amountTotalUsd : 119.0
                   w.gtag('event', 'conversion', {
-                    send_to: 'AW-18057225478',
+                    send_to: 'AW-18057225478/KVpFCIPPgbAdEIbKraJD',
                     value: orderVal,
                     currency: 'USD',
                     transaction_id: data.sessionId || sessionId,
