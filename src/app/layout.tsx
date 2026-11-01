@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react'
 import Link from 'next/link'
 import StudioConciergeBot from '@/components/StudioConciergeBot'
 import OrderBagDrawer from '@/components/OrderBagDrawer'
+import EvermarkCrest from '@/components/EvermarkCrest'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -88,6 +89,11 @@ export const metadata: Metadata = {
     description:
       'Design custom star maps, voice waveforms, woven blankets, stone slates, and pet portraits with live interactive preview and free 3 to 5 day US delivery.',
     images: ['/mockups/custom-star-map-1.webp'],
+  },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 }
 
@@ -174,13 +180,16 @@ export default function RootLayout({
         {/* Fine Print House Header */}
         <header className="sticky top-0 z-40 bg-[#F6EFE4]/95 backdrop-blur-md border-b border-[#D8C9B6]">
           <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
-            <Link href="/" className="flex flex-col group">
-              <span className="text-2xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition">
-                EVERMARK PRINTS
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.22em] text-[#9E472A] font-mono-tech font-semibold">
-                Bespoke Archival Press · United States
-              </span>
+            <Link href="/" className="flex items-center gap-3.5 group">
+              <EvermarkCrest size={44} className="shrink-0 transition-transform group-hover:scale-105 duration-200" />
+              <div className="flex flex-col">
+                <span className="text-2xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition leading-none">
+                  EVERMARK PRINTS
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.22em] text-[#9E472A] font-mono-tech font-semibold mt-1">
+                  Bespoke Archival Press · United States
+                </span>
+              </div>
             </Link>
 
             <nav className="hidden xl:flex items-center gap-6 text-xs uppercase tracking-[0.13em] font-medium text-[#4A3B31]">

@@ -432,11 +432,15 @@ export default function LivePrintCustomizer({
   const [basePlateEl, setBasePlateEl] = useState<HTMLImageElement | null>(null)
   const [portraitBackdropEl, setPortraitBackdropEl] = useState<HTMLImageElement | null>(null)
 
-  // Photo Upload State (Only active on products where supportsPhotoUpload === true)
+  // Photo Upload & Framing / Pan-Zoom State (Only active on products where supportsPhotoUpload === true)
   const [uploadedPhotoEl, setUploadedPhotoEl] = useState<HTMLImageElement | null>(null)
   const [uploadedPhotoName, setUploadedPhotoName] = useState<string | null>(null)
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null)
   const [photoFilter, setPhotoFilter] = useState<PhotoFilterId>('warm_color')
+  const [photoZoom, setPhotoZoom] = useState<number>(1.0)
+  const [photoPanX, setPhotoPanX] = useState<number>(0)
+  const [photoPanY, setPhotoPanY] = useState<number>(0)
+  const [photoDimensions, setPhotoDimensions] = useState<{ width: number; height: number } | null>(null)
 
   // Real Audio Upload & Live Microphone Recorder State (Only active on products where supportsAudioUpload === true)
   const [customAudioPeaks, setCustomAudioPeaks] = useState<number[] | null>(null)
@@ -598,6 +602,10 @@ export default function LivePrintCustomizer({
       setUploadedPhotoEl(null)
       setUploadedPhotoName(null)
       setUploadedPhotoUrl(null)
+      setPhotoZoom(1.0)
+      setPhotoPanX(0)
+      setPhotoPanY(0)
+      setPhotoDimensions(null)
     }
     if (!nextProd.supportsAudioUpload) {
       setCustomAudioPeaks(null)
@@ -708,15 +716,18 @@ export default function LivePrintCustomizer({
         // Multi-pass Painterly Watercolor Wash (Warm Saturation + Soft Bloom Overlay)
         ctx.filter = 'contrast(106%) saturate(122%) sepia(10%)'
       }
-      const iw = uploadedPhotoEl.width
-      const ih = uploadedPhotoEl.height
-      const scale = Math.max(450 / iw, 450 / ih)
+      const iw = uploadedPhotoEl.naturalWidth || uploadedPhotoEl.width
+      const ih = uploadedPhotoEl.naturalHeight || uploadedPhotoEl.height
+      const baseScale = Math.max(450 / iw, 450 / ih)
+      const finalScale = baseScale * photoZoom
+      const panOffsetX = (photoPanX / 100) * (iw * finalScale * 0.4)
+      const panOffsetY = (photoPanY / 100) * (ih * finalScale * 0.4)
       ctx.drawImage(
         uploadedPhotoEl,
-        cx - (iw * scale) / 2,
-        cy - 10 - (ih * scale) / 2,
-        iw * scale,
-        ih * scale
+        cx - (iw * finalScale) / 2 + panOffsetX,
+        cy - 10 - (ih * finalScale) / 2 + panOffsetY,
+        iw * finalScale,
+        ih * finalScale
       )
       if (photoFilter === 'warm_color') {
         // Second soft-light painterly bloom pass to soften harsh digital phone photo edges into a watercolor wash
@@ -725,10 +736,10 @@ export default function LivePrintCustomizer({
         ctx.filter = 'blur(4px) saturate(135%) contrast(112%)'
         ctx.drawImage(
           uploadedPhotoEl,
-          cx - (iw * scale) / 2,
-          cy - 10 - (ih * scale) / 2,
-          iw * scale,
-          ih * scale
+          cx - (iw * finalScale) / 2 + panOffsetX,
+          cy - 10 - (ih * finalScale) / 2 + panOffsetY,
+          iw * finalScale,
+          ih * finalScale
         )
         ctx.globalCompositeOperation = 'source-over'
         ctx.globalAlpha = 1
@@ -805,15 +816,18 @@ export default function LivePrintCustomizer({
         } else if (photoFilter === 'charcoal_sketch') {
           ctx.filter = 'grayscale(100%) contrast(160%) brightness(106%) sepia(24%)'
         }
-        const iw = uploadedPhotoEl.width
-        const ih = uploadedPhotoEl.height
-        const scale = Math.max((medRadius * 2) / iw, (medRadius * 2) / ih)
+        const iw = uploadedPhotoEl.naturalWidth || uploadedPhotoEl.width
+        const ih = uploadedPhotoEl.naturalHeight || uploadedPhotoEl.height
+        const baseScale = Math.max((medRadius * 2) / iw, (medRadius * 2) / ih)
+        const finalScale = baseScale * photoZoom
+        const panOffsetX = (photoPanX / 100) * (iw * finalScale * 0.4)
+        const panOffsetY = (photoPanY / 100) * (ih * finalScale * 0.4)
         ctx.drawImage(
           uploadedPhotoEl,
-          cx - (iw * scale) / 2,
-          medY - (ih * scale) / 2,
-          iw * scale,
-          ih * scale
+          cx - (iw * finalScale) / 2 + panOffsetX,
+          medY - (ih * finalScale) / 2 + panOffsetY,
+          iw * finalScale,
+          ih * finalScale
         )
         ctx.filter = 'none'
         ctx.restore()
@@ -1447,6 +1461,13 @@ export default function LivePrintCustomizer({
         setActiveMockupUrl(null)
         setUploadedPhotoEl(img)
         setUploadedPhotoName(file.name)
+        setPhotoDimensions({
+          width: img.naturalWidth || img.width,
+          height: img.naturalHeight || img.height,
+        })
+        setPhotoZoom(1.0)
+        setPhotoPanX(0)
+        setPhotoPanY(0)
       }
       img.src = dataUrl
 
@@ -2962,31 +2983,128 @@ export default function LivePrintCustomizer({
                 </div>
 
                 {uploadedPhotoEl && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#D8C9B6]">
-                    <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold truncate max-w-[180px]">
-                      ✓ {uploadedPhotoName}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      {(
-                        [
-                          { id: 'warm_color', label: 'Watercolor Wash' },
-                          { id: 'bw_film', label: 'Classic B&W' },
-                          { id: 'charcoal_sketch', label: 'Fine Sketch' },
-                        ] as { id: PhotoFilterId; label: string }[]
-                      ).map((f) => (
-                        <button
-                          key={f.id}
-                          type="button"
-                          onClick={() => setPhotoFilter(f.id)}
-                          className={`px-2 py-1 text-[10px] font-mono-tech uppercase border transition ${
-                            photoFilter === f.id
-                              ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A] font-semibold'
-                              : 'bg-[#FDFBF7] text-[#4A3B31] border-[#CBB89F]'
-                          }`}
-                        >
-                          {f.label}
-                        </button>
-                      ))}
+                  <div className="space-y-2.5 pt-2 border-t border-[#D8C9B6]">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold truncate max-w-[180px]">
+                        ✓ {uploadedPhotoName}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {(
+                          [
+                            { id: 'warm_color', label: 'Watercolor Wash' },
+                            { id: 'bw_film', label: 'Classic B&W' },
+                            { id: 'charcoal_sketch', label: 'Fine Sketch' },
+                          ] as { id: PhotoFilterId; label: string }[]
+                        ).map((f) => (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => setPhotoFilter(f.id)}
+                            className={`px-2 py-1 text-[10px] font-mono-tech uppercase border transition ${
+                              photoFilter === f.id
+                                ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A] font-semibold'
+                                : 'bg-[#FDFBF7] text-[#4A3B31] border-[#CBB89F]'
+                            }`}
+                          >
+                            {f.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Resolution Guard Banner */}
+                    {photoDimensions && (
+                      <div
+                        className={`px-2.5 py-1.5 border text-[11px] flex items-center justify-between gap-2 ${
+                          photoDimensions.width < 1200 || photoDimensions.height < 1200
+                            ? 'bg-[#FFF8E6] border-[#D8AE64] text-[#8C5E14]'
+                            : 'bg-[#F2F8F4] border-[#8FB89E] text-[#1B4D2E]'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-medium">
+                          <span>{photoDimensions.width < 1200 || photoDimensions.height < 1200 ? '⚠️' : '✓'}</span>
+                          <span>
+                            {photoDimensions.width < 1200 || photoDimensions.height < 1200
+                              ? `Photo is ${photoDimensions.width}×${photoDimensions.height}px · Crisp 300 DPI museum prints recommend >1200px`
+                              : `Archival Museum Resolution (${photoDimensions.width}×${photoDimensions.height}px)`}
+                          </span>
+                        </div>
+                        <span className="font-mono-tech text-[10px] uppercase font-bold tracking-wider shrink-0">
+                          {photoDimensions.width < 1200 || photoDimensions.height < 1200 ? 'Low Res' : '300 DPI'}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Interactive Framing & Pan/Zoom Controls */}
+                    <div className="p-3 bg-[#FBF8F3] border border-[#D8C9B6] space-y-2.5">
+                      <div className="flex items-center justify-between text-[11px] font-mono-tech uppercase tracking-wider font-semibold text-[#261A13]">
+                        <span>🎯 Position &amp; Framing Viewfinder</span>
+                        {(photoZoom !== 1.0 || photoPanX !== 0 || photoPanY !== 0) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPhotoZoom(1.0)
+                              setPhotoPanX(0)
+                              setPhotoPanY(0)
+                            }}
+                            className="text-[10px] text-[#9E472A] hover:underline"
+                          >
+                            Reset Framing
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Zoom Slider */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-[10px] text-[#4A3B31]">
+                          <span>Scale / Zoom</span>
+                          <span className="font-mono-tech font-semibold">{photoZoom.toFixed(2)}×</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="1.0"
+                          max="2.2"
+                          step="0.05"
+                          value={photoZoom}
+                          onChange={(e) => setPhotoZoom(parseFloat(e.target.value))}
+                          className="w-full accent-[#1B3027] cursor-pointer h-1.5 bg-[#E8D9C3] rounded-lg"
+                        />
+                      </div>
+
+                      {/* Pan Offsets */}
+                      <div className="grid grid-cols-2 gap-3 pt-0.5">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[10px] text-[#4A3B31]">
+                            <span>Reposition Bust (Y)</span>
+                            <span className="font-mono-tech font-semibold">{photoPanY > 0 ? `+${photoPanY}` : photoPanY}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            step="2"
+                            value={photoPanY}
+                            onChange={(e) => setPhotoPanY(parseInt(e.target.value, 10))}
+                            className="w-full accent-[#1B3027] cursor-pointer h-1.5 bg-[#E8D9C3] rounded-lg"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[10px] text-[#4A3B31]">
+                            <span>Center Subject (X)</span>
+                            <span className="font-mono-tech font-semibold">{photoPanX > 0 ? `+${photoPanX}` : photoPanX}</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            step="2"
+                            value={photoPanX}
+                            onChange={(e) => setPhotoPanX(parseInt(e.target.value, 10))}
+                            className="w-full accent-[#1B3027] cursor-pointer h-1.5 bg-[#E8D9C3] rounded-lg"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
