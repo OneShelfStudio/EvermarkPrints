@@ -1306,86 +1306,116 @@ export default function LivePrintCustomizer({
     }
 
     if (product.mode === 'three_map_triptych') {
-      // 4A. Three-Panel Split Triptych Borders & Dedicated Per-Panel Milestone Columns
-      // Wall-gap dividers sit at left=32.5% (x=312) and left=65.5% (x=629)
-      const panels = [
+      // 4A. Museum Master Triptych: Continuous Watercolor Mountain Horizon + Balanced 3-Chapter Milestone Typography
+      // Outer Archival Double-Border Frame
+      ctx.save()
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.52
+      ctx.lineWidth = 2
+      ctx.strokeRect(44, 44, W - 88, H - 88)
+      ctx.globalAlpha = 0.22
+      ctx.lineWidth = 1
+      ctx.strokeRect(54, 54, W - 108, H - 108)
+      ctx.restore()
+
+      ctx.save()
+      ctx.textAlign = 'center'
+
+      // 1. Prominent Centered Couple Headline (e.g., SARAH & MICHAEL)
+      ctx.globalAlpha = 1
+      ctx.fillStyle = colorway.inkHex
+      drawFittedLine(
+        (headline || 'SARAH & MICHAEL').toUpperCase().slice(0, 48),
+        cx,
+        864,
+        W - 160,
+        34,
+        22,
+        '600'
+      )
+
+      // 2. Centered Italic Dedication Subline (e.g., Every mountain path brought us to this moment.)
+      if (subline.trim()) {
+        ctx.fillStyle = colorway.mutedHex
+        ctx.globalAlpha = 0.92
+        drawFittedLine(
+          `“${subline.trim().replace(/[“”]/g, '')}”`,
+          cx,
+          908,
+          W - 180,
+          16,
+          12,
+          'italic'
+        )
+      }
+
+      // 3. Delicate Horizontal Chapter Divider with Center Diamond Accent
+      ctx.save()
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.55
+      ctx.lineWidth = 1.4
+      ctx.beginPath()
+      ctx.moveTo(cx - 360, 940)
+      ctx.lineTo(cx - 20, 940)
+      ctx.moveTo(cx + 20, 940)
+      ctx.lineTo(cx + 360, 940)
+      ctx.stroke()
+
+      // Center Diamond Accent
+      ctx.fillStyle = colorway.accentHex
+      ctx.beginPath()
+      ctx.moveTo(cx, 934)
+      ctx.lineTo(cx + 6, 940)
+      ctx.lineTo(cx, 946)
+      ctx.lineTo(cx - 6, 940)
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
+
+      // 4. Three Balanced Milestone Columns
+      const milestoneCols = [
         {
-          x0: 24,
-          x1: 294,
+          x: cx - 265,
           roman: 'I · WHERE WE MET',
-          sub: 'THE BEGINNING',
           milestone: locationText || 'Boston, MA · June 2019',
         },
         {
-          x0: 330,
-          x1: 610,
+          x: cx,
           roman: 'II · WHERE WE ENGAGED',
-          sub: headline || 'SARAH & MICHAEL',
           milestone: dateText || 'Big Sur, CA · Oct 2021',
         },
         {
-          x0: 648,
-          x1: 936,
+          x: cx + 265,
           roman: 'III · WHERE WE MARRIED',
-          sub: 'FOREVER & ALWAYS',
           milestone: coordsText || 'Asheville, NC · Sept 2023',
         },
       ]
 
-      ctx.save()
-      ctx.textAlign = 'center'
-      panels.forEach((p, idx) => {
-        const pw = p.x1 - p.x0
-        const pcx = p.x0 + pw / 2
-        const maxTextW = pw - 26
-
-        // Individual panel double-line border
-        ctx.strokeStyle = colorway.accentHex
-        ctx.globalAlpha = 0.52
-        ctx.lineWidth = 1.8
-        ctx.strokeRect(p.x0, 44, pw, H - 88)
-        ctx.globalAlpha = 0.22
-        ctx.lineWidth = 1
-        ctx.strokeRect(p.x0 + 7, 51, pw - 14, H - 102)
-
-        // Gold horizontal rule inside panel
-        ctx.globalAlpha = 0.75
-        ctx.lineWidth = 1.4
-        ctx.beginPath()
-        ctx.moveTo(pcx - 68, 848)
-        ctx.lineTo(pcx + 68, 848)
-        ctx.stroke()
-
-        // Roman Milestone Header
-        ctx.globalAlpha = 1
-        ctx.fillStyle = colorway.inkHex
-        drawFittedLine(p.roman, pcx, 898, maxTextW, 18, 12, '600')
-
-        // Panel Subtitle / Couple Names
-        ctx.fillStyle = idx === 1 ? colorway.inkHex : colorway.mutedHex
-        ctx.globalAlpha = idx === 1 ? 0.96 : 0.85
-        drawFittedLine(
-          p.sub.toUpperCase(),
-          pcx,
-          938,
-          maxTextW,
-          idx === 1 ? 16 : 12,
-          10,
-          idx === 1 ? '600' : 'italic'
-        )
-
-        // Milestone Location & Date
+      milestoneCols.forEach((col) => {
+        // Roman Milestone Chapter Label
         ctx.fillStyle = colorway.accentHex
-        ctx.globalAlpha = 0.96
-        drawFittedLine(p.milestone.toUpperCase(), pcx, 992, maxTextW, 15, 10, '600')
+        ctx.globalAlpha = 0.98
+        drawFittedLine(col.roman, col.x, 982, 230, 13, 10, '600')
 
-        // Center Panel also displays the couple's custom dedication subline
-        if (idx === 1 && subline.trim()) {
-          ctx.fillStyle = colorway.mutedHex
-          ctx.globalAlpha = 0.9
-          drawFittedLine(subline.trim(), pcx, 1042, maxTextW, 13, 9, 'italic')
-        }
+        // Location & Date Text
+        ctx.fillStyle = colorway.inkHex
+        ctx.globalAlpha = 0.95
+        drawFittedLine(col.milestone.toUpperCase(), col.x, 1018, 235, 14, 11, '600')
       })
+
+      // Soft Vertical Dividers between columns in typography zone only (never intersecting artwork)
+      ctx.save()
+      ctx.strokeStyle = colorway.accentHex
+      ctx.globalAlpha = 0.25
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(cx - 132, 966)
+      ctx.lineTo(cx - 132, 1038)
+      ctx.moveTo(cx + 132, 966)
+      ctx.lineTo(cx + 132, 1038)
+      ctx.stroke()
+      ctx.restore()
+
       ctx.restore()
     } else if (product.mode === 'soundwave') {
       // 4B. Crystal acrylic plaque layout is rendered completely in Section 3C above
@@ -3831,116 +3861,140 @@ export default function LivePrintCustomizer({
                   'e.g., Every mountain path brought us to this moment.'
                 )}
 
-                <div className="grid sm:grid-cols-3 gap-2.5 pt-1">
-                  <div className="space-y-1.5 p-2.5 bg-[#F8F3EA] border border-[#D8C9B6]">
-                    <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
-                      Panel 1: Where We Met
-                    </span>
-                    <select
-                      aria-label="Panel 1 Popular City"
-                      value=""
-                      onChange={(e) => {
-                        if (!e.target.value) return
-                        setActiveMockupUrl(null)
-                        setLocationText(e.target.value)
-                      }}
-                      className="w-full border border-[#CBB89F] bg-white px-2 py-1 text-[11px] text-[#261A13] font-medium"
-                    >
-                      <option value="">▾ Quick-Pick City...</option>
-                      {POPULAR_CITIES_LIST.map((c) => {
-                        const shortCity = c.label.split(',')[0].toUpperCase()
-                        return (
-                          <option key={c.label} value={`${shortCity} · JUNE 2019`}>
-                            {c.label}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <input
-                      type="text"
-                      value={locationText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setLocationText(e.target.value)
-                      }}
-                      maxLength={32}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="DENVER · JUNE 2018"
-                    />
+                <div className="space-y-3 pt-1">
+                  {/* Chapter 1: Where We Met */}
+                  <div className="p-3 bg-[#F8F3EA] border border-[#D8C9B6] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono-tech uppercase text-[#9E472A] font-bold">
+                        Chapter I · Where We Met
+                      </span>
+                      <span className="text-[10px] font-mono-tech uppercase text-[#7A6F63]">
+                        City &amp; Date
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={locationText}
+                        onChange={(e) => {
+                          setActiveMockupUrl(null)
+                          setLocationText(e.target.value)
+                        }}
+                        maxLength={40}
+                        className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                        placeholder="e.g. BOSTON, MA · JUNE 2019"
+                      />
+                      <select
+                        aria-label="Panel 1 Popular City"
+                        value=""
+                        onChange={(e) => {
+                          if (!e.target.value) return
+                          setActiveMockupUrl(null)
+                          setLocationText(e.target.value)
+                        }}
+                        className="w-full border border-[#CBB89F] bg-white px-2.5 py-2 text-xs text-[#261A13] font-medium"
+                      >
+                        <option value="">▾ Quick-Pick City...</option>
+                        {POPULAR_CITIES_LIST.map((c) => {
+                          const shortCity = c.label.split(',')[0].toUpperCase()
+                          return (
+                            <option key={c.label} value={`${shortCity} · JUNE 2019`}>
+                              {c.label}
+                            </option>
+                          )
+                        })}
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="space-y-1.5 p-2.5 bg-[#F8F3EA] border border-[#D8C9B6]">
-                    <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
-                      Panel 2: Engaged
-                    </span>
-                    <select
-                      aria-label="Panel 2 Popular City"
-                      value=""
-                      onChange={(e) => {
-                        if (!e.target.value) return
-                        setActiveMockupUrl(null)
-                        setDateText(e.target.value)
-                      }}
-                      className="w-full border border-[#CBB89F] bg-white px-2 py-1 text-[11px] text-[#261A13] font-medium"
-                    >
-                      <option value="">▾ Quick-Pick City...</option>
-                      {POPULAR_CITIES_LIST.map((c) => {
-                        const shortCity = c.label.split(',')[0].toUpperCase()
-                        return (
-                          <option key={c.label} value={`${shortCity} · OCT 2021`}>
-                            {c.label}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <input
-                      type="text"
-                      value={dateText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setDateText(e.target.value)
-                      }}
-                      maxLength={32}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="ASPEN · OCT 2021"
-                    />
+                  {/* Chapter 2: Where We Engaged */}
+                  <div className="p-3 bg-[#F8F3EA] border border-[#D8C9B6] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono-tech uppercase text-[#9E472A] font-bold">
+                        Chapter II · Where We Engaged
+                      </span>
+                      <span className="text-[10px] font-mono-tech uppercase text-[#7A6F63]">
+                        City &amp; Date
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={dateText}
+                        onChange={(e) => {
+                          setActiveMockupUrl(null)
+                          setDateText(e.target.value)
+                        }}
+                        maxLength={40}
+                        className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                        placeholder="e.g. BIG SUR, CA · OCT 2021"
+                      />
+                      <select
+                        aria-label="Panel 2 Popular City"
+                        value=""
+                        onChange={(e) => {
+                          if (!e.target.value) return
+                          setActiveMockupUrl(null)
+                          setDateText(e.target.value)
+                        }}
+                        className="w-full border border-[#CBB89F] bg-white px-2.5 py-2 text-xs text-[#261A13] font-medium"
+                      >
+                        <option value="">▾ Quick-Pick City...</option>
+                        {POPULAR_CITIES_LIST.map((c) => {
+                          const shortCity = c.label.split(',')[0].toUpperCase()
+                          return (
+                            <option key={c.label} value={`${shortCity} · OCT 2021`}>
+                              {c.label}
+                            </option>
+                          )
+                        })}
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="space-y-1.5 p-2.5 bg-[#F8F3EA] border border-[#D8C9B6]">
-                    <span className="text-[11px] font-mono-tech uppercase text-[#9E472A] font-semibold block">
-                      Panel 3: Married
-                    </span>
-                    <select
-                      aria-label="Panel 3 Popular City"
-                      value=""
-                      onChange={(e) => {
-                        if (!e.target.value) return
-                        setActiveMockupUrl(null)
-                        setCoordsText(e.target.value)
-                      }}
-                      className="w-full border border-[#CBB89F] bg-white px-2 py-1 text-[11px] text-[#261A13] font-medium"
-                    >
-                      <option value="">▾ Quick-Pick City...</option>
-                      {POPULAR_CITIES_LIST.map((c) => {
-                        const shortCity = c.label.split(',')[0].toUpperCase()
-                        return (
-                          <option key={c.label} value={`${shortCity} · SEPT 2023`}>
-                            {c.label}
-                          </option>
-                        )
-                      })}
-                    </select>
-                    <input
-                      type="text"
-                      value={coordsText}
-                      onChange={(e) => {
-                        setActiveMockupUrl(null)
-                        setCoordsText(e.target.value)
-                      }}
-                      maxLength={32}
-                      className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                      placeholder="VAIL · SEPT 2023"
-                    />
+                  {/* Chapter 3: Where We Married */}
+                  <div className="p-3 bg-[#F8F3EA] border border-[#D8C9B6] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono-tech uppercase text-[#9E472A] font-bold">
+                        Chapter III · Where We Married
+                      </span>
+                      <span className="text-[10px] font-mono-tech uppercase text-[#7A6F63]">
+                        City &amp; Date
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={coordsText}
+                        onChange={(e) => {
+                          setActiveMockupUrl(null)
+                          setCoordsText(e.target.value)
+                        }}
+                        maxLength={40}
+                        className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                        placeholder="e.g. ASHEVILLE, NC · SEPT 2023"
+                      />
+                      <select
+                        aria-label="Panel 3 Popular City"
+                        value=""
+                        onChange={(e) => {
+                          if (!e.target.value) return
+                          setActiveMockupUrl(null)
+                          setCoordsText(e.target.value)
+                        }}
+                        className="w-full border border-[#CBB89F] bg-white px-2.5 py-2 text-xs text-[#261A13] font-medium"
+                      >
+                        <option value="">▾ Quick-Pick City...</option>
+                        {POPULAR_CITIES_LIST.map((c) => {
+                          const shortCity = c.label.split(',')[0].toUpperCase()
+                          return (
+                            <option key={c.label} value={`${shortCity} · SEPT 2023`}>
+                              {c.label}
+                            </option>
+                          )
+                        })}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>

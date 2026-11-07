@@ -431,30 +431,27 @@ export async function GET(req: Request) {
   const footerSvg =
     mode === 'three_map_triptych'
       ? `
-  <rect x="60" y="110" width="675" height="${H - 220}" fill="none" stroke="${colorway.accentHex}" stroke-width="4.5" stroke-opacity="0.52" />
-  <rect x="78" y="128" width="639" height="${H - 256}" fill="none" stroke="${colorway.accentHex}" stroke-width="2.2" stroke-opacity="0.22" />
+  <rect x="110" y="110" width="${W - 220}" height="${H - 220}" fill="none" stroke="${colorway.accentHex}" stroke-width="5" stroke-opacity="0.52" />
+  <rect x="135" y="135" width="${W - 270}" height="${H - 270}" fill="none" stroke="${colorway.accentHex}" stroke-width="2.5" stroke-opacity="0.22" />
 
-  <rect x="825" y="110" width="700" height="${H - 220}" fill="none" stroke="${colorway.accentHex}" stroke-width="4.5" stroke-opacity="0.52" />
-  <rect x="843" y="128" width="664" height="${H - 256}" fill="none" stroke="${colorway.accentHex}" stroke-width="2.2" stroke-opacity="0.22" />
+  <text x="${cx}" y="2160" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="${headlineFontPx}">${escapeXml(headline)}</text>
+  ${subline ? `<text x="${cx}" y="2270" text-anchor="middle" fill="${colorway.mutedHex}" font-family="Georgia, serif" font-style="italic" font-size="${sublineFontPx}">“${escapeXml(subline)}”</text>` : ''}
 
-  <rect x="1620" y="110" width="720" height="${H - 220}" fill="none" stroke="${colorway.accentHex}" stroke-width="4.5" stroke-opacity="0.52" />
-  <rect x="1638" y="128" width="684" height="${H - 256}" fill="none" stroke="${colorway.accentHex}" stroke-width="2.2" stroke-opacity="0.22" />
+  <line x1="${cx - 900}" y1="2350" x2="${cx - 50}" y2="2350" stroke="${colorway.accentHex}" stroke-width="3.5" stroke-opacity="0.55" />
+  <line x1="${cx + 50}" y1="2350" x2="${cx + 900}" y2="2350" stroke="${colorway.accentHex}" stroke-width="3.5" stroke-opacity="0.55" />
+  <polygon points="${cx},2335 ${cx + 15},2350 ${cx},2365 ${cx - 15},2350" fill="${colorway.accentHex}" />
 
-  <line x1="230" y1="2120" x2="570" y2="2120" stroke="${colorway.accentHex}" stroke-width="3.5" stroke-opacity="0.75" />
-  <text x="398" y="2245" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="44">I · WHERE WE MET</text>
-  <text x="398" y="2345" text-anchor="middle" fill="${colorway.mutedHex}" font-family="Georgia, serif" font-style="italic" font-size="30">THE BEGINNING</text>
-  <text x="398" y="2480" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="${fitFontSize(locationText, 36, 24, 22)}">${escapeXml(locationText)}</text>
+  <text x="540" y="2455" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="34">I · WHERE WE MET</text>
+  <text x="540" y="2545" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="${fitFontSize(locationText, 36, 24, 22)}">${escapeXml(locationText)}</text>
 
-  <line x1="1005" y1="2120" x2="1345" y2="2120" stroke="${colorway.accentHex}" stroke-width="3.5" stroke-opacity="0.75" />
-  <text x="1175" y="2245" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="44">II · WHERE WE ENGAGED</text>
-  <text x="1175" y="2345" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="${fitFontSize(headline, 38, 24, 20)}">${escapeXml(headline)}</text>
-  <text x="1175" y="2480" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="${fitFontSize(dateText, 36, 24, 22)}">${escapeXml(dateText)}</text>
-  <text x="1175" y="2605" text-anchor="middle" fill="${colorway.mutedHex}" font-family="Georgia, serif" font-style="italic" font-size="${fitFontSize(subline, 30, 20, 28)}">${escapeXml(subline)}</text>
+  <text x="1200" y="2455" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="34">II · WHERE WE ENGAGED</text>
+  <text x="1200" y="2545" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="${fitFontSize(dateText, 36, 24, 22)}">${escapeXml(dateText)}</text>
 
-  <line x1="1810" y1="2120" x2="2150" y2="2120" stroke="${colorway.accentHex}" stroke-width="3.5" stroke-opacity="0.75" />
-  <text x="1980" y="2245" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="44">III · WHERE WE MARRIED</text>
-  <text x="1980" y="2345" text-anchor="middle" fill="${colorway.mutedHex}" font-family="Georgia, serif" font-style="italic" font-size="30">FOREVER &amp; ALWAYS</text>
-  <text x="1980" y="2480" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="${fitFontSize(coordsText, 36, 24, 22)}">${escapeXml(coordsText.toUpperCase())}</text>
+  <text x="1860" y="2455" text-anchor="middle" fill="${colorway.accentHex}" font-family="Georgia, serif" font-weight="bold" font-size="34">III · WHERE WE MARRIED</text>
+  <text x="1860" y="2545" text-anchor="middle" fill="${colorway.inkHex}" font-family="Georgia, serif" font-weight="bold" font-size="${fitFontSize(coordsText, 36, 24, 22)}">${escapeXml(coordsText.toUpperCase())}</text>
+
+  <line x1="870" y1="2415" x2="870" y2="2595" stroke="${colorway.accentHex}" stroke-width="2.5" stroke-opacity="0.25" />
+  <line x1="1530" y1="2415" x2="1530" y2="2595" stroke="${colorway.accentHex}" stroke-width="2.5" stroke-opacity="0.25" />
 `
       : `
   <rect x="110" y="110" width="${W - 220}" height="${H - 220}" fill="none" stroke="${colorway.accentHex}" stroke-width="5" stroke-opacity="0.52" />
