@@ -3794,7 +3794,7 @@ export default function LivePrintCustomizer({
                   'e.g., Where loud mornings, warm dinners, and lifelong memories are made.'
                 )}
 
-                <div className="grid sm:grid-cols-2 gap-3">
+                <div className="space-y-3">
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-[#4A3B31] font-medium">
@@ -3816,7 +3816,7 @@ export default function LivePrintCustomizer({
                         setActiveMockupUrl(null)
                         setLocationText(e.target.value)
                       }}
-                      maxLength={42}
+                      maxLength={48}
                       className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
                       placeholder="e.g., 742 Evergreen Terrace · Charleston, SC"
                     />
