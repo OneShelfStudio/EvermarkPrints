@@ -4353,6 +4353,15 @@ export default function LivePrintCustomizer({
               </button>
             </div>
 
+            {/* Guaranteed Q4 Holiday Delivery Reassurance Badge */}
+            <div className="flex items-center justify-center gap-2 py-2 px-3 bg-[#FBF8F3] border border-[#D8AE64]/60 text-[#1B3027] text-[11px] font-mono-tech">
+              <span className="text-[#9E472A]">🎄</span>
+              <span className="font-semibold uppercase tracking-wider">
+                Guaranteed US Holiday &amp; Christmas Delivery
+              </span>
+              <span className="text-[#5C4D42]">· Shipped in 3–5 Days with Tracking</span>
+            </div>
+
             <button
               type="button"
               disabled={isCheckingOut}
@@ -4679,8 +4688,8 @@ export default function LivePrintCustomizer({
             <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
               (${Math.round(totalUsd * 0.85)} w/ WELCOME15 at checkout)
             </span>
-            <span className="text-[10px] font-mono-tech text-[#5C4D42]">
-              · Free US Ship
+            <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
+              · 🎄 Holiday Delivery
             </span>
           </div>
         </div>

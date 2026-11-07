@@ -196,9 +196,9 @@ export default function RootLayout({
       <body className="text-[#261A13] font-sans-clean min-h-screen flex flex-col selection:bg-[#1B3027] selection:text-[#F7F4ED]">
         {/* Warm Heritage Forest & Burnished Brass Announcement Ribbon */}
         <div className="bg-[#1B3027] text-[#F7F4ED] text-[11px] tracking-[0.15em] uppercase py-2.5 px-4 text-center font-medium border-b border-[#D8AE64]/30">
-          Complimentary Tracked US Delivery (3 to 5 Days) on All Custom Keepsakes &nbsp;·&nbsp;{' '}
+          🎄 Guaranteed US Delivery for Thanksgiving &amp; Christmas · Complimentary 3 to 5 Day Delivery &nbsp;·&nbsp;{' '}
           <span className="text-[#E5C178] font-semibold">
-            Use Code WELCOME15 for 15% Off or Save 25% When Adding a Second Family Copy
+            Use Code WELCOME15 for 15% Off or Save 25% on a Second Family Copy
           </span>
         </div>
 
