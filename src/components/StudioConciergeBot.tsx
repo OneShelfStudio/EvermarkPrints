@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface ChatMessage {
   role: 'assistant' | 'user'
@@ -11,6 +12,8 @@ interface ChatMessage {
 }
 
 export default function StudioConciergeBot() {
+  const pathname = usePathname()
+  const isCustomizerPage = pathname?.startsWith('/create/')
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -61,7 +64,13 @@ export default function StudioConciergeBot() {
   }
 
   return (
-    <div className="fixed bottom-20 right-3 sm:bottom-5 sm:right-5 z-50">
+    <div
+      className={`fixed z-50 ${
+        isCustomizerPage
+          ? 'bottom-16 right-3 sm:bottom-5 sm:right-5'
+          : 'bottom-4 right-4 sm:bottom-5 sm:right-5'
+      }`}
+    >
       {!isOpen ? (
         <button
           type="button"

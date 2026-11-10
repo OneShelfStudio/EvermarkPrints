@@ -2578,9 +2578,9 @@ export default function LivePrintCustomizer({
         </div>
       )}
 
-      <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+      <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-start max-w-full">
         {/* LEFT COLUMN: STICKY INTERACTIVE FORM-FACTOR STAGE & 2.2X DETAIL ZOOM (7 Cols) */}
-        <div className="lg:col-span-7 lg:sticky lg:top-20 self-start space-y-3">
+        <div className="lg:col-span-7 lg:sticky lg:top-20 self-start space-y-2.5 sm:space-y-3 min-w-0 w-full max-w-full">
           {/* View Mode & Interactive Zoom Toolbar */}
           <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 border-b border-[#D8C9B6] pb-2">
             <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
@@ -2658,16 +2658,16 @@ export default function LivePrintCustomizer({
             }`}
             onContextMenu={(e) => e.preventDefault()}
           >
-            <div className="relative z-20 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono-tech uppercase tracking-[0.14em] text-[#5C4D42] mb-3 pointer-events-none">
-              <span>
+            <div className="relative z-20 flex flex-wrap items-center justify-between gap-1 text-[10px] font-mono-tech uppercase tracking-wider text-[#5C4D42] mb-2 pointer-events-none max-w-full">
+              <span className="truncate max-w-[200px] xs:max-w-[240px] sm:max-w-none">
                 {activeMockupUrl
-                  ? `3D STUDIO GALLERY PHOTOGRAPH · ${product.physicalMedium.toUpperCase()}`
+                  ? `3D STUDIO PHOTOGRAPH · ${product.physicalMedium.toUpperCase()}`
                   : `LIVE INTERACTIVE PROOF · ${product.physicalMedium.toUpperCase()}`}
               </span>
-              <span className="px-2 py-0.5 bg-[#FDFBF7]/90 border border-[#CBB89F] text-[#261A13] font-semibold">
+              <span className="px-1.5 py-0.5 bg-[#FDFBF7]/90 border border-[#CBB89F] text-[#261A13] font-semibold text-[9px] sm:text-[10px] shrink-0">
                 {isZoomedStage
-                  ? '🔍 2.2x LOUPE ACTIVE · MOVE CURSOR TO PAN'
-                  : '🔍 CLICK ARTWORK TO ZOOM 2.2X'}
+                  ? '🔍 2.2x ACTIVE'
+                  : '🔍 TAP TO ZOOM'}
               </span>
             </div>
 
@@ -2697,7 +2697,9 @@ export default function LivePrintCustomizer({
                 className={`${
                   activeMockupUrl ? 'hidden' : 'block'
                 } relative z-10 mx-auto transition-all duration-300 ${
-                  viewMode === 'room' ? 'max-w-[355px]' : 'max-w-[430px]'
+                  viewMode === 'room'
+                    ? 'max-w-[220px] xs:max-w-[250px] sm:max-w-[320px] md:max-w-[355px]'
+                    : 'max-w-[260px] xs:max-w-[290px] sm:max-w-[380px] md:max-w-[430px]'
                 }`}
               >
                 {product.formFactor === 'acrylic-stand' ? (
@@ -3062,7 +3064,7 @@ export default function LivePrintCustomizer({
         </div>
 
         {/* RIGHT COLUMN: BESPOKE STUDIO CONTROLS & CHECKOUT (5 Cols) */}
-        <div className="lg:col-span-5 bg-[#FDFBF7] border border-[#CBB89F] p-6 sm:p-8 shadow-md space-y-6">
+        <div className="lg:col-span-5 bg-[#FDFBF7] border border-[#CBB89F] p-4 sm:p-8 shadow-md space-y-5 sm:space-y-6 min-w-0 w-full max-w-full">
           <div className="space-y-2 border-b border-[#E5D9C5] pb-5">
             <div className="flex items-center justify-between gap-2 text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#9E472A] font-semibold">
               <span>{product.categoryLabel}</span>
@@ -4727,42 +4729,44 @@ export default function LivePrintCustomizer({
         </>
       )}
 
-      {/* Sticky Mobile Commission & Live Proof Bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#CBB89F] px-3 py-2 shadow-[0_-8px_24px_rgba(38,26,19,0.12)] flex items-center justify-between gap-2 max-w-full">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold truncate">
-            <span>★★★★★ 4.9</span>
-            <span>·</span>
-            <span className="truncate">{product.shortTitle}</span>
+      {/* Sticky Mobile Commission & Live Proof Bar (ONLY on dedicated customizer pages, NEVER on homepage) */}
+      {!compactHeroMode && (
+        <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#CBB89F] px-3 py-2 shadow-[0_-8px_24px_rgba(38,26,19,0.12)] flex items-center justify-between gap-2 max-w-full">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold truncate">
+              <span>★★★★★ 4.9</span>
+              <span>·</span>
+              <span className="truncate">{product.shortTitle}</span>
+            </div>
+            <div className="flex items-baseline gap-1.5 flex-nowrap">
+              <span className="text-base font-bold text-[#261A13]">
+                ${totalUsd}
+              </span>
+              <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold truncate">
+                (${Math.round(totalUsd * 0.85)} w/ WELCOME15)
+              </span>
+            </div>
           </div>
-          <div className="flex items-baseline gap-1.5 flex-nowrap">
-            <span className="text-base font-bold text-[#261A13]">
-              ${totalUsd}
-            </span>
-            <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold truncate">
-              (${Math.round(totalUsd * 0.85)} w/ WELCOME15)
-            </span>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={handleOpenFullscreenProof}
-            className="px-2.5 py-2 border border-[#CBB89F] bg-[#F8F3EA] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold whitespace-nowrap"
-          >
-            🔍 Proof
-          </button>
-          <button
-            type="button"
-            disabled={isCheckingOut}
-            onClick={handleCheckout}
-            className="px-3.5 py-2 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shadow-sm whitespace-nowrap"
-          >
-            {isCheckingOut ? 'Preparing...' : 'Checkout →'}
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleOpenFullscreenProof}
+              className="px-2.5 py-2 border border-[#CBB89F] bg-[#F8F3EA] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold whitespace-nowrap"
+            >
+              🔍 Proof
+            </button>
+            <button
+              type="button"
+              disabled={isCheckingOut}
+              onClick={handleCheckout}
+              className="px-3.5 py-2 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shadow-sm whitespace-nowrap"
+            >
+              {isCheckingOut ? 'Preparing...' : 'Checkout →'}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <ExitIntentProofModal
         isOpen={showExitIntent}

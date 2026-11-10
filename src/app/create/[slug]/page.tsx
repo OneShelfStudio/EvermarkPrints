@@ -170,7 +170,7 @@ export default function CreateCustomPrintPage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8 md:py-12 space-y-10">
+    <div className="max-w-7xl mx-auto px-3.5 sm:px-8 py-3.5 sm:py-8 md:py-12 space-y-5 sm:space-y-10 max-w-full overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
@@ -180,15 +180,15 @@ export default function CreateCustomPrintPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#DDD5C7] pb-4 text-xs text-[#5C554D] font-mono-tech">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-3 border-b border-[#DDD5C7] pb-2.5 sm:pb-4 text-[10px] sm:text-xs text-[#5C554D] font-mono-tech">
         <Link
           href="/"
-          className="text-[#171513] hover:text-[#6E4E2E] uppercase tracking-[0.14em] font-semibold"
+          className="text-[#171513] hover:text-[#6E4E2E] uppercase tracking-[0.1em] sm:tracking-[0.14em] font-semibold"
         >
-          ← Return to Archival Collection Index
+          ← Archival Collection Index
         </Link>
-        <span className="uppercase tracking-[0.12em]">
-          {product.plateNumber} · COMPLIMENTARY US STUDIO DELIVERY (3 TO 5 DAYS)
+        <span className="uppercase tracking-[0.1em] text-[#7A331E]">
+          {product.plateNumber} · FREE 3-5 DAY US DELIVERY
         </span>
       </div>
 
