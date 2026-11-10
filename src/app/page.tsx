@@ -79,16 +79,16 @@ export default function EvermarkHomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homePageJsonLd) }}
       />
       {/* Warm Heritage Editorial Hero Banner */}
-      <section className="rounded-none bg-gradient-to-br from-[#1B3027] via-[#223B30] to-[#261A13] text-[#F7F4ED] border border-[#D8AE64]/40 p-7 sm:p-12 shadow-xl">
+      <section className="rounded-none bg-gradient-to-br from-[#1B3027] via-[#223B30] to-[#261A13] text-[#F7F4ED] border border-[#D8AE64]/40 p-5 sm:p-12 shadow-xl">
         <div className="grid lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex flex-wrap items-center gap-2.5 px-3 py-1 bg-[#9E472A] text-[#FDFBF7] text-[11px] font-mono-tech uppercase tracking-[0.18em]">
+            <div className="inline-flex flex-wrap items-center gap-1.5 sm:gap-2.5 px-2.5 py-1 sm:px-3 sm:py-1 bg-[#9E472A] text-[#FDFBF7] text-[10px] sm:text-[11px] font-mono-tech uppercase tracking-[0.14em] sm:tracking-[0.18em]">
               <span>HANDCRAFTED IN US STUDIOS</span>
               <span>·</span>
               <span>FRAMED ART · ACRYLIC STANDS · WOVEN BLANKETS · CHISELED SLATE · SOY CANDLES</span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl font-editorial font-normal tracking-tight text-[#F7F4ED] leading-[1.06]">
+            <h1 className="text-3xl sm:text-6xl font-editorial font-normal tracking-tight text-[#F7F4ED] leading-[1.1] sm:leading-[1.06]">
               Painterly Keepsakes &amp;{' '}
               <span className="italic text-[#E5C178]">
                 Bespoke Heirloom Decor.

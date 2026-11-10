@@ -61,18 +61,20 @@ export default function StudioConciergeBot() {
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-20 right-3 sm:bottom-5 sm:right-5 z-50">
       {!isOpen ? (
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="px-4 py-3 bg-[#1B3027] hover:bg-[#254236] text-[#F7F4ED] border border-[#D8AE64]/50 shadow-2xl flex items-center gap-2.5 text-xs font-mono-tech uppercase tracking-[0.14em] transition"
+          className="p-2.5 sm:px-4 sm:py-3 bg-[#1B3027] hover:bg-[#254236] text-[#F7F4ED] border border-[#D8AE64]/50 shadow-2xl flex items-center gap-2 text-xs font-mono-tech uppercase tracking-[0.12em] sm:tracking-[0.14em] transition rounded-full sm:rounded-none"
+          title="Studio Concierge & Order Status"
         >
-          <span className="h-2 w-2 rounded-full bg-[#E5C178] animate-pulse" />
-          <span>Studio Concierge &amp; Order Status</span>
+          <span className="h-2 w-2 rounded-full bg-[#E5C178] animate-pulse shrink-0" />
+          <span className="hidden sm:inline">Studio Concierge &amp; Order Status</span>
+          <span className="sm:hidden text-[11px] font-semibold">Concierge</span>
         </button>
       ) : (
-        <div className="w-[340px] sm:w-[380px] bg-[#FDFBF7] border-2 border-[#1B3027] shadow-2xl flex flex-col overflow-hidden">
+        <div className="w-[calc(100vw-24px)] max-w-sm sm:w-[380px] bg-[#FDFBF7] border-2 border-[#1B3027] shadow-2xl flex flex-col overflow-hidden max-h-[85vh]">
           {/* Header */}
           <div className="bg-[#1B3027] text-[#F7F4ED] px-4 py-3 flex items-center justify-between">
             <div>

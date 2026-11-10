@@ -193,26 +193,29 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
-      <body className="text-[#261A13] font-sans-clean min-h-screen flex flex-col selection:bg-[#1B3027] selection:text-[#F7F4ED]">
+      <body className="text-[#261A13] font-sans-clean min-h-screen flex flex-col selection:bg-[#1B3027] selection:text-[#F7F4ED] overflow-x-hidden max-w-full">
         {/* Warm Heritage Forest & Burnished Brass Announcement Ribbon */}
-        <div className="bg-[#1B3027] text-[#F7F4ED] text-[11px] tracking-[0.15em] uppercase py-2.5 px-4 text-center font-medium border-b border-[#D8AE64]/30">
-          🎄 Guaranteed US Delivery for Thanksgiving &amp; Christmas · Complimentary 3 to 5 Day Delivery &nbsp;·&nbsp;{' '}
+        <div className="bg-[#1B3027] text-[#F7F4ED] text-[10px] sm:text-[11px] tracking-[0.1em] sm:tracking-[0.15em] uppercase py-2 px-3 sm:py-2.5 sm:px-4 text-center font-medium border-b border-[#D8AE64]/30 leading-snug">
+          <span>🎄 FREE 3–5 DAY US DELIVERY &nbsp;·&nbsp; </span>
           <span className="text-[#E5C178] font-semibold">
-            Use Code WELCOME15 for 15% Off or Save 25% on a Second Family Copy
+            CODE WELCOME15 (15% OFF)
+          </span>
+          <span className="hidden sm:inline">
+            {' '}· GUARANTEED FOR THANKSGIVING &amp; CHRISTMAS
           </span>
         </div>
 
         {/* Fine Print House Header */}
         <header className="sticky top-0 z-40 bg-[#F6EFE4]/95 backdrop-blur-md border-b border-[#D8C9B6]">
-          <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-3.5 group">
-              <EvermarkCrest size={44} className="shrink-0 transition-transform group-hover:scale-105 duration-200" />
-              <div className="flex flex-col">
-                <span className="text-2xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition leading-none">
+          <div className="max-w-7xl mx-auto px-3.5 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3.5 group min-w-0">
+              <EvermarkCrest size={34} className="shrink-0 transition-transform group-hover:scale-105 duration-200 sm:w-11 sm:h-11" />
+              <div className="flex flex-col min-w-0">
+                <span className="text-xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition leading-none truncate">
                   EVERMARK PRINTS
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.22em] text-[#9E472A] font-mono-tech font-semibold mt-1">
-                  Bespoke Archival Press · United States
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.22em] text-[#9E472A] font-mono-tech font-semibold mt-0.5 sm:mt-1 truncate">
+                  Bespoke Archival Press <span className="hidden sm:inline">· United States</span>
                 </span>
               </div>
             </Link>
@@ -262,17 +265,17 @@ export default function RootLayout({
               </Link>
             </nav>
 
-            <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               <Link
                 href="/track"
-                className="xl:hidden px-3 py-2 border border-[#CBB89F] bg-[#FDFBF7] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold"
+                className="xl:hidden px-2 py-1.5 sm:px-3 sm:py-2 border border-[#CBB89F] bg-[#FDFBF7] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold whitespace-nowrap"
               >
-                Track Order
+                Track
               </Link>
               <OrderBagDrawer />
               <Link
                 href="/#live-studio"
-                className="hidden sm:inline-block px-4 sm:px-5 py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.15em] font-semibold transition shadow-sm"
+                className="hidden sm:inline-block px-4 sm:px-5 py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.15em] font-semibold transition shadow-sm whitespace-nowrap"
               >
                 Design Your Print
               </Link>

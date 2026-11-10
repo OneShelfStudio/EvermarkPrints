@@ -217,10 +217,11 @@ export default function OrderBagDrawer() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="px-3.5 py-2.5 border border-[#CBB89F] bg-[#FDFBF7] hover:border-[#1B3027] text-[#261A13] text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition flex items-center gap-2"
+        className="px-2.5 py-1.5 sm:px-3.5 sm:py-2.5 border border-[#CBB89F] bg-[#FDFBF7] hover:border-[#1B3027] text-[#261A13] text-[10px] sm:text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap"
       >
-        <span>Order Bag</span>
-        <span className="px-1.5 py-0.5 bg-[#1B3027] text-[#F7F4ED] text-[10px] rounded-none">
+        <span className="hidden sm:inline">Order </span>
+        <span>Bag</span>
+        <span className="px-1.5 py-0.5 bg-[#1B3027] text-[#F7F4ED] text-[9px] sm:text-[10px] rounded-none">
           {totalCount}
         </span>
       </button>

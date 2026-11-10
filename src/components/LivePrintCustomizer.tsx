@@ -2199,7 +2199,7 @@ export default function LivePrintCustomizer({
 
     return (
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-1">
           <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
           <button
             type="button"
@@ -2264,7 +2264,7 @@ export default function LivePrintCustomizer({
 
     return (
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-1">
           <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
           <button
             type="button"
@@ -2332,7 +2332,7 @@ export default function LivePrintCustomizer({
     ]
     return (
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-1">
           <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
           <button
             type="button"
@@ -2530,12 +2530,12 @@ export default function LivePrintCustomizer({
     <div className="space-y-12">
       {/* Homepage Interactive Product Style Switcher (12 Bespoke Studio Editions) */}
       {compactHeroMode && (
-        <div className="bg-[#FDFBF7] border border-[#D4C3AE] p-4 sm:p-5 shadow-sm space-y-3">
+        <div className="bg-[#FDFBF7] border border-[#D4C3AE] p-3.5 sm:p-5 shadow-sm space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-[#7A331E] font-semibold">
-              CHOOSE YOUR PHYSICAL PRODUCT &amp; ARTWORK TO CUSTOMIZE LIVE (12 BESPOKE STUDIO EDITIONS):
+            <span className="text-[10px] sm:text-[11px] font-mono-tech uppercase tracking-[0.14em] sm:tracking-[0.16em] text-[#7A331E] font-semibold">
+              CHOOSE YOUR PHYSICAL PRODUCT &amp; ARTWORK TO CUSTOMIZE LIVE (12 BESPOKE EDITIONS):
             </span>
-            <span className="text-xs text-[#5C4D42]">
+            <span className="hidden sm:inline text-xs text-[#5C4D42]">
               Framed Prints · Acrylic Stands · Woven Blankets · Chiseled Slate · 3-Panel Triptychs · Soy Candles
             </span>
           </div>
@@ -2547,7 +2547,7 @@ export default function LivePrintCustomizer({
                   key={item.slug}
                   type="button"
                   onClick={() => handleSwitchProduct(item.slug)}
-                  className={`p-2 text-left border transition flex items-center gap-2.5 ${
+                  className={`p-2 sm:p-2.5 text-left border transition flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-2.5 ${
                     isCurrent
                       ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027] shadow-sm'
                       : 'bg-[#F8F3EA] text-[#261A13] border-[#D8C9B6] hover:border-[#7A331E]'
@@ -2557,9 +2557,9 @@ export default function LivePrintCustomizer({
                   <img
                     src={item.previewImage}
                     alt={item.shortTitle}
-                    className="w-10 h-10 object-cover border border-black/15 shrink-0 bg-white"
+                    className="w-full sm:w-10 h-16 sm:h-10 object-cover border border-black/15 shrink-0 bg-white"
                   />
-                  <div className="min-w-0">
+                  <div className="min-w-0 w-full">
                     <span
                       className={`text-[9px] font-mono-tech uppercase tracking-wider block truncate ${
                         isCurrent ? 'text-[#E5C178]' : 'text-[#8C583A]'
@@ -2567,7 +2567,7 @@ export default function LivePrintCustomizer({
                     >
                       {item.categoryLabel}
                     </span>
-                    <span className="text-[11px] font-semibold leading-tight block truncate mt-0.5">
+                    <span className="text-[11px] font-semibold leading-snug block line-clamp-2 mt-0.5">
                       {item.shortTitle}
                     </span>
                   </div>
@@ -2582,8 +2582,8 @@ export default function LivePrintCustomizer({
         {/* LEFT COLUMN: STICKY INTERACTIVE FORM-FACTOR STAGE & 2.2X DETAIL ZOOM (7 Cols) */}
         <div className="lg:col-span-7 lg:sticky lg:top-20 self-start space-y-3">
           {/* View Mode & Interactive Zoom Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#D8C9B6] pb-2.5">
-            <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 border-b border-[#D8C9B6] pb-2">
+            <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
               <button
                 type="button"
                 onClick={() => {
@@ -2591,31 +2591,31 @@ export default function LivePrintCustomizer({
                   setIsZoomedStage(false)
                   setViewMode('room')
                 }}
-                className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border ${
+                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border ${
                   !activeMockupUrl && viewMode === 'room' && !isZoomedStage
                     ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                     : 'bg-[#FDFBF7] text-[#5C4D42] border-[#D8C9B6] hover:border-[#1B3027]'
                 }`}
               >
-                ✦ Live Customizer
+                ✦ Proof
               </button>
               <button
                 type="button"
                 onClick={() => setIsZoomedStage((prev) => !prev)}
-                className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border ${
+                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border ${
                   isZoomedStage
                     ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A] shadow-sm'
                     : 'bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#9E472A]'
                 }`}
               >
-                {isZoomedStage ? '🔍 2.2x Zoom Active (Click to Reset)' : '🔍 Zoom Detail (2.2x)'}
+                {isZoomedStage ? '🔍 Reset' : '🔍 2.2x Zoom'}
               </button>
               <button
                 type="button"
                 onClick={handleOpenFullscreenProof}
-                className="px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027]"
+                className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027]"
               >
-                ⛶ Fullscreen Proof
+                ⛶ Fullscreen
               </button>
               {product.mockupGallery.length > 0 && (
                 <button
@@ -2624,13 +2624,13 @@ export default function LivePrintCustomizer({
                     setIsZoomedStage(false)
                     setActiveMockupUrl(product.mockupGallery[0])
                   }}
-                  className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold transition border ${
+                  className={`px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border ${
                     activeMockupUrl
                       ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                       : 'bg-[#FDFBF7] text-[#9E472A] border-[#D8C9B6] hover:border-[#9E472A]'
                   }`}
                 >
-                  📷 3D Photos ({product.mockupGallery.length})
+                  📷 Photos ({product.mockupGallery.length})
                 </button>
               )}
             </div>
@@ -2653,8 +2653,8 @@ export default function LivePrintCustomizer({
               isZoomedStage ? 'cursor-zoom-out' : 'cursor-zoom-in'
             } ${
               viewMode === 'room'
-                ? 'gallery-wall-surface pt-4 pb-8 px-4 sm:px-8'
-                : 'bg-[#E9DFCF] py-5 px-4 sm:px-8'
+                ? 'gallery-wall-surface pt-3 pb-5 px-3 sm:pt-4 sm:pb-8 sm:px-8'
+                : 'bg-[#E9DFCF] py-3 px-3 sm:py-5 sm:px-8'
             }`}
             onContextMenu={(e) => e.preventDefault()}
           >
@@ -2944,23 +2944,23 @@ export default function LivePrintCustomizer({
           </div>
 
           {/* 3D Studio Camera Angle Thumbnails + Live Proof Toggle + Wall-Scale Visualizer */}
-          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-3 space-y-2">
-            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
+          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-2.5 sm:p-3 space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 text-[10px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
               <span>SWITCH VIEW OR INSPECT DETAILS:</span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={handleOpenFullscreenProof}
-                  className="px-2.5 py-1 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] font-semibold transition"
+                  className="px-2 py-1 sm:px-2.5 sm:py-1 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] font-semibold transition"
                 >
-                  ⛶ Open Fullscreen Hi-Res Proof
+                  ⛶ Fullscreen
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowScaleVisualizer((prev) => !prev)}
-                  className="px-2.5 py-1 bg-[#F3E9DA] hover:bg-[#E8D9C3] border border-[#9E472A] text-[#261A13] font-semibold transition"
+                  className="px-2 py-1 sm:px-2.5 sm:py-1 bg-[#F3E9DA] hover:bg-[#E8D9C3] border border-[#9E472A] text-[#261A13] font-semibold transition"
                 >
-                  {showScaleVisualizer ? '✕ Close Size Scale' : '📐 Size Scale'}
+                  {showScaleVisualizer ? '✕ Close Scale' : '📐 Size Scale'}
                 </button>
               </div>
             </div>
@@ -4019,11 +4019,11 @@ export default function LivePrintCustomizer({
 
                 {/* Guided Song Selector OR Popular US City Selector */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
                     <span className="text-xs text-[#4A3B31] font-medium">
                       {product.supportsAudioUpload
-                        ? 'Song Title & Artist (Select Classic or Type Custom)'
-                        : 'City, Place or Port (Select City or Type Any Place)'}
+                        ? 'Song Title & Artist'
+                        : 'City, Place or Port'}
                     </span>
                     <div className="flex items-center gap-2">
                       {product.supportsGpsLookup && (
@@ -4728,22 +4728,19 @@ export default function LivePrintCustomizer({
       )}
 
       {/* Sticky Mobile Commission & Live Proof Bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#CBB89F] px-3.5 py-2.5 shadow-[0_-8px_24px_rgba(38,26,19,0.12)] flex items-center justify-between gap-2">
+      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-[#FDFBF7]/95 backdrop-blur-md border-t border-[#CBB89F] px-3 py-2 shadow-[0_-8px_24px_rgba(38,26,19,0.12)] flex items-center justify-between gap-2 max-w-full">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A] font-semibold truncate">
             <span>★★★★★ 4.9</span>
             <span>·</span>
             <span className="truncate">{product.shortTitle}</span>
           </div>
-          <div className="flex items-baseline gap-1.5 flex-wrap">
+          <div className="flex items-baseline gap-1.5 flex-nowrap">
             <span className="text-base font-bold text-[#261A13]">
               ${totalUsd}
             </span>
-            <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
-              (${Math.round(totalUsd * 0.85)} w/ WELCOME15 at checkout)
-            </span>
-            <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold">
-              · 🎄 Holiday Delivery
+            <span className="text-[10px] font-mono-tech text-[#1B3027] font-semibold truncate">
+              (${Math.round(totalUsd * 0.85)} w/ WELCOME15)
             </span>
           </div>
         </div>
@@ -4752,7 +4749,7 @@ export default function LivePrintCustomizer({
           <button
             type="button"
             onClick={handleOpenFullscreenProof}
-            className="px-2.5 py-2.5 border border-[#CBB89F] bg-[#F8F3EA] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold"
+            className="px-2.5 py-2 border border-[#CBB89F] bg-[#F8F3EA] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold whitespace-nowrap"
           >
             🔍 Proof
           </button>
@@ -4760,7 +4757,7 @@ export default function LivePrintCustomizer({
             type="button"
             disabled={isCheckingOut}
             onClick={handleCheckout}
-            className="px-3.5 py-2.5 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shadow-sm"
+            className="px-3.5 py-2 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold shadow-sm whitespace-nowrap"
           >
             {isCheckingOut ? 'Preparing...' : 'Checkout →'}
           </button>
