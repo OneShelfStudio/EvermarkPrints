@@ -3060,6 +3060,33 @@ export default function LivePrintCustomizer({
                 </button>
               ))}
             </div>
+
+            {/* 1-Tap Quick Personalization Inspiration Presets (Prominently placed beneath proof) */}
+            {product.presets && product.presets.length > 0 && (
+              <div className="pt-2 border-t border-[#E5D9C5] space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono-tech uppercase tracking-[0.14em] text-[#7A331E] font-semibold flex items-center gap-1.5">
+                    <span>⚡</span> 1-TAP INSPIRATION PRESETS:
+                  </span>
+                  <span className="text-[9px] text-[#5C4D42]">
+                    Tap to preview live
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {product.presets.map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleApplyPreset(preset)}
+                      className="px-2.5 py-1.5 bg-[#FAF6F0] hover:bg-[#1B3027] hover:text-[#F7F4ED] text-[#261A13] text-xs font-medium border border-[#D4C3AE] hover:border-[#1B3027] transition shadow-xs flex items-center gap-1.5"
+                    >
+                      <span className="text-[#9E472A]">✦</span>
+                      <span>{preset.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
