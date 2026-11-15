@@ -73,64 +73,77 @@ export default function EvermarkHomePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8 md:py-14 space-y-20">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homePageJsonLd) }}
       />
-      {/* Warm Heritage Editorial Hero Banner */}
-      <section className="rounded-none bg-gradient-to-br from-[#1B3027] via-[#223B30] to-[#261A13] text-[#F7F4ED] border border-[#D8AE64]/40 p-5 sm:p-12 shadow-xl">
-        <div className="grid lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex flex-wrap items-center gap-1.5 sm:gap-2.5 px-2.5 py-1 sm:px-3 sm:py-1 bg-[#9E472A] text-[#FDFBF7] text-[10px] sm:text-[11px] font-mono-tech uppercase tracking-[0.14em] sm:tracking-[0.18em]">
-              <span>HANDCRAFTED IN US STUDIOS</span>
-              <span>·</span>
-              <span>FRAMED ART · ACRYLIC STANDS · WOVEN BLANKETS · CHISELED SLATE · SOY CANDLES</span>
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-8 py-4 sm:py-8 md:py-10 space-y-8 sm:space-y-16">
+        {/* Warm Heritage Editorial Hero Banner */}
+        <section className="rounded-none bg-gradient-to-br from-[#1B3027] via-[#223B30] to-[#261A13] text-[#F7F4ED] border border-[#D8AE64]/40 p-4 sm:p-10 shadow-xl">
+          <div className="grid lg:grid-cols-12 gap-5 lg:gap-8 items-center">
+            <div className="lg:col-span-8 space-y-2.5 sm:space-y-4">
+              <div className="inline-flex flex-wrap items-center gap-1.5 sm:gap-2.5 px-2.5 py-1 sm:px-3 sm:py-1 bg-[#9E472A] text-[#FDFBF7] text-[9px] sm:text-[11px] font-mono-tech uppercase tracking-[0.12em] sm:tracking-[0.18em]">
+                <span>HANDCRAFTED IN US STUDIOS</span>
+                <span className="hidden sm:inline">·</span>
+                <span className="hidden sm:inline">
+                  FRAMED ART · ACRYLIC STANDS · WOVEN BLANKETS · CHISELED SLATE · SOY CANDLES
+                </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-5xl lg:text-6xl font-editorial font-normal tracking-tight text-[#F7F4ED] leading-[1.1] sm:leading-[1.06]">
+                Painterly Keepsakes &amp;{' '}
+                <span className="italic text-[#E5C178]">
+                  Bespoke Heirloom Decor.
+                </span>
+              </h1>
+
+              <p className="text-xs sm:text-base text-[#E2D9C8] max-w-2xl leading-relaxed">
+                <span className="sm:hidden">
+                  12 custom heirloom gifts — woven fringed blankets, framed star maps, chiseled stone slates, 3-panel triptychs &amp; soy candles.
+                </span>
+                <span className="hidden sm:inline">
+                  Explore 12 distinct physical gifts and hand-illustrated artwork editions below, from 100% cotton jacquard-woven fringed blankets, raw chiseled natural stone slate plaques, and crystal acrylic desk stands to 3-panel split gallery triptychs, wood-topped tapestries, and scented amber soy candles.
+                </span>
+              </p>
+
+              {/* Compact Mobile Trust & Promo Row */}
+              <div className="lg:hidden pt-1 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono-tech text-[#E5C178] border-t border-white/15">
+                <span>★★★★★ 4.9/5 · Free 3–5 Day US Delivery · Code WELCOME15</span>
+              </div>
             </div>
 
-            <h1 className="text-3xl sm:text-6xl font-editorial font-normal tracking-tight text-[#F7F4ED] leading-[1.1] sm:leading-[1.06]">
-              Painterly Keepsakes &amp;{' '}
-              <span className="italic text-[#E5C178]">
-                Bespoke Heirloom Decor.
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-[#E2D9C8] max-w-2xl leading-relaxed">
-              Explore 12 distinct physical gifts and hand-illustrated artwork editions below, from 100% cotton jacquard-woven fringed blankets, raw chiseled natural stone slate plaques, and crystal acrylic desk stands to 3-panel split gallery triptychs, wood-topped tapestries, and scented amber soy candles.
-            </p>
-          </div>
-
-          <div className="lg:col-span-4 bg-[#261A13]/85 border border-[#D8AE64]/35 p-6 space-y-4">
-            <p className="text-xs font-mono-tech uppercase tracking-[0.16em] text-[#E5C178]">
-              WHY 14,000+ US FAMILIES GIFT EVERMARK
-            </p>
-            <ul className="space-y-2.5 text-xs text-[#EDE4D4]">
-              <li className="flex items-start gap-2">
-                <span className="text-[#E5C178] font-bold">✓</span>
-                <span>Painterly Milky Way, Botanical &amp; Watercolor Art</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-[#E5C178] font-bold">✓</span>
-                <span>9 Bespoke Heirloom Mediums (Blankets, Slate, Acrylic, Wood)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-[#E5C178] font-bold">✓</span>
-                <span>Attach Custom Photos (.JPG/.PNG) &amp; Live Voice/Song Audio</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-[#E5C178] font-bold">✓</span>
-                <span>Free 3 to 5 Day US Delivery · Gift-Ready With Zero Price Tags</span>
-              </li>
-            </ul>
-            <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] font-mono-tech text-[#E5C178]">
-              <span>★★★★★ 4.9 / 5.0 RATING</span>
-              <Link href="/track" className="underline text-white">
-                Track Existing Order →
-              </Link>
+            <div className="hidden lg:block lg:col-span-4 bg-[#261A13]/85 border border-[#D8AE64]/35 p-6 space-y-4">
+              <p className="text-xs font-mono-tech uppercase tracking-[0.16em] text-[#E5C178]">
+                WHY 14,000+ US FAMILIES GIFT EVERMARK
+              </p>
+              <ul className="space-y-2.5 text-xs text-[#EDE4D4]">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#E5C178] font-bold">✓</span>
+                  <span>Painterly Milky Way, Botanical &amp; Watercolor Art</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#E5C178] font-bold">✓</span>
+                  <span>9 Bespoke Heirloom Mediums (Blankets, Slate, Acrylic, Wood)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#E5C178] font-bold">✓</span>
+                  <span>Attach Custom Photos (.JPG/.PNG) &amp; Live Voice/Song Audio</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#E5C178] font-bold">✓</span>
+                  <span>Free 3 to 5 Day US Delivery · Gift-Ready With Zero Price Tags</span>
+                </li>
+              </ul>
+              <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] font-mono-tech text-[#E5C178]">
+                <span>★★★★★ 4.9 / 5.0 RATING</span>
+                <Link href="/track" className="underline text-white">
+                  Track Existing Order →
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Interactive Live Studio Customizer Right on the Homepage (With 12-Product Switcher!) */}
       <section id="live-studio" className="space-y-6 scroll-mt-24">
@@ -236,6 +249,7 @@ export default function EvermarkHomePage() {
       </section>
 
       <AdUnit slot="6291847510" fallbackVariant="candle" />
-    </div>
+      </div>
+    </>
   )
 }

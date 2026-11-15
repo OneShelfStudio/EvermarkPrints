@@ -692,6 +692,14 @@ export default function LivePrintCustomizer({
     if (!nextProd.artworkPlate) {
       setBasePlateEl(null)
     }
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setTimeout(() => {
+        document.getElementById('customizer-stage-anchor')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      }, 60)
+    }
   }
 
   const colorway = COLORWAYS.find((c) => c.id === colorwayId) || COLORWAYS[0]
@@ -2530,16 +2538,16 @@ export default function LivePrintCustomizer({
     <div className="space-y-12">
       {/* Homepage Interactive Product Style Switcher (12 Bespoke Studio Editions) */}
       {compactHeroMode && (
-        <div className="bg-[#FDFBF7] border border-[#D4C3AE] p-3.5 sm:p-5 shadow-sm space-y-3">
+        <div className="bg-[#FDFBF7] border border-[#D4C3AE] p-3 sm:p-5 shadow-sm space-y-2.5 sm:space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[10px] sm:text-[11px] font-mono-tech uppercase tracking-[0.14em] sm:tracking-[0.16em] text-[#7A331E] font-semibold">
-              CHOOSE YOUR PHYSICAL PRODUCT &amp; ARTWORK TO CUSTOMIZE LIVE (12 BESPOKE EDITIONS):
+            <span className="text-[10px] sm:text-[11px] font-mono-tech uppercase tracking-[0.12em] sm:tracking-[0.16em] text-[#7A331E] font-semibold">
+              CHOOSE YOUR PHYSICAL PRODUCT (12 BESPOKE EDITIONS · SWIPE →):
             </span>
             <span className="hidden sm:inline text-xs text-[#5C4D42]">
               Framed Prints · Acrylic Stands · Woven Blankets · Chiseled Slate · 3-Panel Triptychs · Soy Candles
             </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2 overflow-x-auto pb-1.5 sm:pb-0 snap-x snap-mandatory">
             {EVERMARK_CATALOG.map((item) => {
               const isCurrent = item.slug === product.slug
               return (
@@ -2547,7 +2555,7 @@ export default function LivePrintCustomizer({
                   key={item.slug}
                   type="button"
                   onClick={() => handleSwitchProduct(item.slug)}
-                  className={`p-2 sm:p-2.5 text-left border transition flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-2.5 ${
+                  className={`shrink-0 w-[168px] sm:w-auto snap-start p-2 sm:p-2.5 text-left border transition flex flex-row items-center gap-2 sm:gap-2.5 ${
                     isCurrent
                       ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027] shadow-sm'
                       : 'bg-[#F8F3EA] text-[#261A13] border-[#D8C9B6] hover:border-[#7A331E]'
@@ -2557,7 +2565,7 @@ export default function LivePrintCustomizer({
                   <img
                     src={item.previewImage}
                     alt={item.shortTitle}
-                    className="w-full sm:w-10 h-16 sm:h-10 object-cover border border-black/15 shrink-0 bg-white"
+                    className="w-11 h-11 sm:w-10 sm:h-10 object-cover border border-black/15 shrink-0 bg-white"
                   />
                   <div className="min-w-0 w-full">
                     <span
@@ -2578,12 +2586,15 @@ export default function LivePrintCustomizer({
         </div>
       )}
 
-      <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-start max-w-full">
+      <div className="grid lg:grid-cols-12 gap-5 lg:gap-10 items-start max-w-full">
         {/* LEFT COLUMN: STICKY INTERACTIVE FORM-FACTOR STAGE & 2.2X DETAIL ZOOM (7 Cols) */}
-        <div className="lg:col-span-7 lg:sticky lg:top-20 self-start space-y-2.5 sm:space-y-3 min-w-0 w-full max-w-full">
+        <div
+          id="customizer-stage-anchor"
+          className="lg:col-span-7 lg:sticky lg:top-20 self-start space-y-2 sm:space-y-3 min-w-0 w-full max-w-full scroll-mt-16"
+        >
           {/* View Mode & Interactive Zoom Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 border-b border-[#D8C9B6] pb-2">
-            <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
+          <div className="flex items-center justify-between gap-1.5 border-b border-[#D8C9B6] pb-2">
+            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-0.5 sm:pb-0">
               <button
                 type="button"
                 onClick={() => {
@@ -2591,7 +2602,7 @@ export default function LivePrintCustomizer({
                   setIsZoomedStage(false)
                   setViewMode('room')
                 }}
-                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border ${
+                className={`px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.08em] sm:tracking-[0.13em] font-semibold transition border whitespace-nowrap shrink-0 ${
                   !activeMockupUrl && viewMode === 'room' && !isZoomedStage
                     ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                     : 'bg-[#FDFBF7] text-[#5C4D42] border-[#D8C9B6] hover:border-[#1B3027]'
@@ -2602,7 +2613,7 @@ export default function LivePrintCustomizer({
               <button
                 type="button"
                 onClick={() => setIsZoomedStage((prev) => !prev)}
-                className={`px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border ${
+                className={`px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.08em] sm:tracking-[0.13em] font-semibold transition border whitespace-nowrap shrink-0 ${
                   isZoomedStage
                     ? 'bg-[#9E472A] text-[#FDFBF7] border-[#9E472A] shadow-sm'
                     : 'bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#9E472A]'
@@ -2613,9 +2624,20 @@ export default function LivePrintCustomizer({
               <button
                 type="button"
                 onClick={handleOpenFullscreenProof}
-                className="px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027]"
+                className="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.08em] sm:tracking-[0.13em] font-semibold transition border bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027] whitespace-nowrap shrink-0"
               >
                 ⛶ Fullscreen
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowScaleVisualizer((prev) => !prev)}
+                className={`px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.08em] sm:tracking-[0.13em] font-semibold transition border whitespace-nowrap shrink-0 ${
+                  showScaleVisualizer
+                    ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
+                    : 'bg-[#FDFBF7] text-[#261A13] border-[#D8C9B6] hover:border-[#9E472A]'
+                }`}
+              >
+                {showScaleVisualizer ? '✕ Scale' : '📐 Scale'}
               </button>
               {product.mockupGallery.length > 0 && (
                 <button
@@ -2624,7 +2646,7 @@ export default function LivePrintCustomizer({
                     setIsZoomedStage(false)
                     setActiveMockupUrl(product.mockupGallery[0])
                   }}
-                  className={`px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.1em] sm:tracking-[0.13em] font-semibold transition border ${
+                  className={`hidden sm:inline-flex px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-[11px] uppercase tracking-[0.08em] sm:tracking-[0.13em] font-semibold transition border whitespace-nowrap shrink-0 ${
                     activeMockupUrl
                       ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
                       : 'bg-[#FDFBF7] text-[#9E472A] border-[#D8C9B6] hover:border-[#9E472A]'
@@ -2698,8 +2720,8 @@ export default function LivePrintCustomizer({
                   activeMockupUrl ? 'hidden' : 'block'
                 } relative z-10 mx-auto transition-all duration-300 ${
                   viewMode === 'room'
-                    ? 'max-w-[220px] xs:max-w-[250px] sm:max-w-[320px] md:max-w-[355px]'
-                    : 'max-w-[260px] xs:max-w-[290px] sm:max-w-[380px] md:max-w-[430px]'
+                    ? 'max-w-[252px] sm:max-w-[320px] md:max-w-[355px]'
+                    : 'max-w-[276px] sm:max-w-[380px] md:max-w-[430px]'
                 }`}
               >
                 {product.formFactor === 'acrylic-stand' ? (
@@ -2945,28 +2967,8 @@ export default function LivePrintCustomizer({
             </div>
           </div>
 
-          {/* 3D Studio Camera Angle Thumbnails + Live Proof Toggle + Wall-Scale Visualizer */}
-          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-2.5 sm:p-3 space-y-2">
-            <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 text-[10px] font-mono-tech uppercase tracking-wider text-[#7A331E]">
-              <span>SWITCH VIEW OR INSPECT DETAILS:</span>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <button
-                  type="button"
-                  onClick={handleOpenFullscreenProof}
-                  className="px-2 py-1 sm:px-2.5 sm:py-1 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] font-semibold transition"
-                >
-                  ⛶ Fullscreen
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowScaleVisualizer((prev) => !prev)}
-                  className="px-2 py-1 sm:px-2.5 sm:py-1 bg-[#F3E9DA] hover:bg-[#E8D9C3] border border-[#9E472A] text-[#261A13] font-semibold transition"
-                >
-                  {showScaleVisualizer ? '✕ Close Scale' : '📐 Size Scale'}
-                </button>
-              </div>
-            </div>
-
+          {/* 3D Studio Camera Angle Thumbnails + Wall-Scale Visualizer + 1-Tap Presets */}
+          <div className="bg-[#FDFBF7] border border-[#D8C9B6] p-2.5 sm:p-3 space-y-2.5">
             {showScaleVisualizer && (
               <div className="p-3 bg-[#EFE6D8] border border-[#CBB89F] space-y-2.5">
                 <div className="flex items-center justify-between text-[10px] font-mono-tech uppercase tracking-wider text-[#261A13]">
@@ -3038,7 +3040,7 @@ export default function LivePrintCustomizer({
                     : 'bg-[#F8F3EA] text-[#261A13] border-[#D8C9B6] hover:border-[#1B3027]'
                 }`}
               >
-                ✦ Live Customizer Proof
+                ✦ Live Proof
               </button>
               {product.mockupGallery.map((mUrl, idx) => (
                 <button
@@ -3059,6 +3061,17 @@ export default function LivePrintCustomizer({
                   />
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => setShowScaleVisualizer((prev) => !prev)}
+                className={`px-2.5 py-1.5 border text-[11px] font-mono-tech font-semibold shrink-0 transition ml-auto ${
+                  showScaleVisualizer
+                    ? 'bg-[#1B3027] text-[#F7F4ED] border-[#1B3027]'
+                    : 'bg-[#F3E9DA] hover:bg-[#E8D9C3] border-[#9E472A] text-[#261A13]'
+                }`}
+              >
+                {showScaleVisualizer ? '✕ Scale' : '📐 Size Scale'}
+              </button>
             </div>
 
             {/* 1-Tap Quick Personalization Inspiration Presets (Prominently placed beneath proof) */}
@@ -3150,25 +3163,6 @@ export default function LivePrintCustomizer({
                 Updates Live On Artwork
               </span>
             </div>
-
-            {/* 1-Click Occasion Presets Right Inside Step 01 */}
-            {product.presets.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 bg-[#F8F3EA] border border-[#D8C9B6] p-2.5">
-                <span className="font-mono-tech text-[10px] uppercase tracking-[0.1em] text-[#7A331E] font-semibold mr-1">
-                  Quick Examples:
-                </span>
-                {product.presets.map((preset, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleApplyPreset(preset)}
-                    className="px-2 py-1 border border-[#CBB89F] hover:border-[#1B3027] bg-[#FDFBF7] text-[#261A13] text-[11px] font-medium transition"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {product.supportsPhotoUpload && (
               <div className="p-3 bg-[#F6EFE4] border border-[#CBB89F] space-y-2.5">
@@ -3513,25 +3507,27 @@ export default function LivePrintCustomizer({
                     {familyMembers.map((member, idx) => (
                       <div
                         key={member.id}
-                        className="flex items-center gap-2 p-2 bg-[#FDFBF7] border border-[#D8C9B6]"
+                        className="grid grid-cols-1 sm:grid-cols-12 gap-2 p-2.5 bg-[#FDFBF7] border border-[#D8C9B6] items-center"
                       >
-                        <span className="text-[10px] font-mono-tech text-[#8C583A] w-6 shrink-0 font-bold">
-                          #{idx + 1}
-                        </span>
-                        <input
-                          type="text"
-                          value={member.name}
-                          onChange={(e) => {
-                            const updated = [...familyMembers]
-                            updated[idx].name = e.target.value
-                            setFamilyMembers(updated)
-                            syncFamilyMembersToCanvas(updated, familyNote)
-                          }}
-                          placeholder="Name (e.g. Emma, Mom, Nana)"
-                          maxLength={18}
-                          className="flex-1 min-w-0 border border-[#CBB89F] px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-                        />
-                        <div className="flex items-center gap-1.5 shrink-0">
+                        <div className="sm:col-span-6 flex items-center gap-2 min-w-0">
+                          <span className="text-[10px] font-mono-tech text-[#8C583A] w-6 shrink-0 font-bold">
+                            #{idx + 1}
+                          </span>
+                          <input
+                            type="text"
+                            value={member.name}
+                            onChange={(e) => {
+                              const updated = [...familyMembers]
+                              updated[idx].name = e.target.value
+                              setFamilyMembers(updated)
+                              syncFamilyMembersToCanvas(updated, familyNote)
+                            }}
+                            placeholder="Name (e.g. Emma, Mom, Nana)"
+                            maxLength={18}
+                            className="flex-1 min-w-0 border border-[#CBB89F] bg-white px-2.5 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+                          />
+                        </div>
+                        <div className="sm:col-span-6 flex items-center gap-1.5 min-w-0">
                           <select
                             value={member.month}
                             onChange={(e) => {
@@ -3540,7 +3536,7 @@ export default function LivePrintCustomizer({
                               setFamilyMembers(updated)
                               syncFamilyMembersToCanvas(updated, familyNote)
                             }}
-                            className="border border-[#CBB89F] bg-white px-2 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none font-medium"
+                            className="flex-1 min-w-0 border border-[#CBB89F] bg-white px-2 py-1.5 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none font-medium"
                           >
                             {MONTH_NAMES.map((m) => {
                               const f = BIRTH_FLOWERS_DICT[m]
@@ -3559,7 +3555,7 @@ export default function LivePrintCustomizer({
                                 setFamilyMembers(updated)
                                 syncFamilyMembersToCanvas(updated, familyNote)
                               }}
-                              className="text-[#9E472A] hover:text-[#7A331E] text-xs px-1.5 font-bold"
+                              className="text-[#9E472A] hover:text-[#7A331E] text-xs px-1.5 font-bold shrink-0"
                               title="Remove member"
                             >
                               ✕

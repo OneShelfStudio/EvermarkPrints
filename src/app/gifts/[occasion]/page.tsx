@@ -78,13 +78,13 @@ export default function OccasionGiftGuidePage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8 md:py-12 space-y-16">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      {/* Occasion Gift Guide Editorial Header */}
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-8 py-4 sm:py-8 md:py-10 space-y-10 sm:space-y-16">
+        {/* Occasion Gift Guide Editorial Header */}
       <section className="bg-gradient-to-br from-[#1B3027] via-[#223B30] to-[#261A13] text-[#F7F4ED] border border-[#D8AE64]/40 p-7 sm:p-11 space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="px-3 py-1 bg-[#9E472A] text-[#FDFBF7] text-[11px] font-mono-tech uppercase tracking-[0.18em]">
@@ -253,6 +253,7 @@ export default function OccasionGiftGuidePage({
           ))}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }

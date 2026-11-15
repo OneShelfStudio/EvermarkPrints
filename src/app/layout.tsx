@@ -207,75 +207,70 @@ export default function RootLayout({
 
         {/* Fine Print House Header */}
         <header className="sticky top-0 z-40 bg-[#F6EFE4]/95 backdrop-blur-md border-b border-[#D8C9B6]">
-          <div className="max-w-7xl mx-auto px-3.5 sm:px-8 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
-            <Link href="/" className="flex items-center gap-2 sm:gap-3.5 group min-w-0">
-              <EvermarkCrest size={34} className="shrink-0 transition-transform group-hover:scale-105 duration-200 sm:w-11 sm:h-11" />
-              <div className="flex flex-col min-w-0">
-                <span className="text-xl sm:text-3xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition leading-none truncate">
+          <div className="max-w-7xl mx-auto px-3.5 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-3">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+              <EvermarkCrest size={30} className="shrink-0 transition-transform group-hover:scale-105 duration-200 sm:w-10 sm:h-10" />
+              <div className="flex flex-col shrink-0">
+                <span className="text-[15px] sm:text-2xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition leading-none whitespace-nowrap">
                   EVERMARK PRINTS
                 </span>
-                <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.22em] text-[#9E472A] font-mono-tech font-semibold mt-0.5 sm:mt-1 truncate">
-                  Bespoke Archival Press <span className="hidden sm:inline">· United States</span>
+                <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.14em] sm:tracking-[0.2em] text-[#9E472A] font-mono-tech font-semibold mt-0.5 sm:mt-1 whitespace-nowrap">
+                  Bespoke Archival Press <span className="hidden md:inline">· United States</span>
                 </span>
               </div>
             </Link>
 
-            <nav className="hidden xl:flex items-center gap-6 text-xs uppercase tracking-[0.13em] font-medium text-[#4A3B31]">
+            <nav className="hidden xl:flex items-center gap-4 text-[11px] uppercase tracking-[0.1em] font-medium text-[#4A3B31] whitespace-nowrap">
               <Link
                 href="/create/custom-star-map"
-                className="hover:text-[#9E472A] transition py-1"
+                className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
-                Night Sky Map
+                Star Maps
+              </Link>
+              <Link
+                href="/create/family-tree-botanical-print"
+                className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
+              >
+                Woven Blankets
+              </Link>
+              <Link
+                href="/create/met-engaged-married-triptych"
+                className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
+              >
+                3-Chapter Triptych
               </Link>
               <Link
                 href="/create/custom-vinyl-song-portrait"
-                className="hover:text-[#9E472A] transition py-1"
+                className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
-                Photo &amp; Vinyl Song
-              </Link>
-              <Link
-                href="/create/custom-soundwave-art"
-                className="hover:text-[#9E472A] transition py-1"
-              >
-                Voice Waveform
+                Vinyl &amp; Voice
               </Link>
               <Link
                 href="/create/custom-pet-memorial"
-                className="hover:text-[#9E472A] transition py-1"
+                className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
-                Pet Portrait
-              </Link>
-              <Link
-                href="/create/newborn-birth-stat-portrait"
-                className="hover:text-[#9E472A] transition py-1"
-              >
-                Newborn Keepsake
-              </Link>
-              <Link
-                href="/contact"
-                className="hover:text-[#9E472A] transition py-1"
-              >
-                Contact
+                Pet &amp; Home
               </Link>
               <Link
                 href="/track"
-                className="text-[#1B3027] font-semibold hover:text-[#9E472A] transition py-1 border-b border-[#1B3027]/40"
+                className="text-[#1B3027] font-semibold hover:text-[#9E472A] transition py-1 border-b border-[#1B3027]/40 whitespace-nowrap"
               >
                 Track Order
               </Link>
             </nav>
 
-            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <Link
                 href="/track"
                 className="xl:hidden px-2 py-1.5 sm:px-3 sm:py-2 border border-[#CBB89F] bg-[#FDFBF7] text-[#261A13] text-[10px] font-mono-tech uppercase tracking-wider font-semibold whitespace-nowrap"
               >
                 Track
               </Link>
+              <StudioConciergeBot />
               <OrderBagDrawer />
               <Link
                 href="/#live-studio"
-                className="hidden sm:inline-block px-4 sm:px-5 py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.15em] font-semibold transition shadow-sm whitespace-nowrap"
+                className="hidden sm:inline-block px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.13em] font-semibold transition shadow-sm whitespace-nowrap"
               >
                 Design Your Print
               </Link>
@@ -468,7 +463,6 @@ export default function RootLayout({
           </div>
         </footer>
 
-        <StudioConciergeBot />
         <Analytics />
       </body>
     </html>

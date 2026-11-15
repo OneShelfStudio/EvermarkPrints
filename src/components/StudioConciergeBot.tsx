@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
 interface ChatMessage {
   role: 'assistant' | 'user'
@@ -12,8 +12,6 @@ interface ChatMessage {
 }
 
 export default function StudioConciergeBot() {
-  const pathname = usePathname()
-  const isCustomizerPage = pathname?.startsWith('/create/')
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -23,6 +21,12 @@ export default function StudioConciergeBot() {
       text: 'Welcome to Evermark Prints. Ask me about attaching a photo or voice note, frame woods, 3 to 5 day US delivery, or type your checkout email to track a live order.',
     },
   ])
+
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true)
+    window.addEventListener('evermark:open-concierge', handleOpen)
+    return () => window.removeEventListener('evermark:open-concierge', handleOpen)
+  }, [])
 
   async function sendQuestion(questionText: string) {
     const trimmed = questionText.trim()
@@ -63,120 +67,120 @@ export default function StudioConciergeBot() {
     }
   }
 
-  return (
-    <div
-      className={`fixed z-50 ${
-        isCustomizerPage
-          ? 'bottom-16 right-3 sm:bottom-5 sm:right-5'
-          : 'bottom-4 right-4 sm:bottom-5 sm:right-5'
-      }`}
-    >
-      {!isOpen ? (
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="p-2.5 sm:px-4 sm:py-3 bg-[#1B3027] hover:bg-[#254236] text-[#F7F4ED] border border-[#D8AE64]/50 shadow-2xl flex items-center gap-2 text-xs font-mono-tech uppercase tracking-[0.12em] sm:tracking-[0.14em] transition rounded-full sm:rounded-none"
-          title="Studio Concierge & Order Status"
-        >
-          <span className="h-2 w-2 rounded-full bg-[#E5C178] animate-pulse shrink-0" />
-          <span className="hidden sm:inline">Studio Concierge &amp; Order Status</span>
-          <span className="sm:hidden text-[11px] font-semibold">Concierge</span>
-        </button>
-      ) : (
-        <div className="w-[calc(100vw-24px)] max-w-sm sm:w-[380px] bg-[#FDFBF7] border-2 border-[#1B3027] shadow-2xl flex flex-col overflow-hidden max-h-[85vh]">
-          {/* Header */}
-          <div className="bg-[#1B3027] text-[#F7F4ED] px-4 py-3 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-editorial font-semibold tracking-wide text-[#F7F4ED]">
-                Evermark Studio Concierge
-              </p>
-              <p className="text-[10px] font-mono-tech uppercase tracking-wider text-[#E5C178]">
-                24/7 Order Lookup · Framing &amp; Gift Help
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="text-xs font-mono-tech text-[#E5C178] hover:text-white px-2 py-1"
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Quick Prompt Buttons */}
-          <div className="bg-[#F3E9DA] px-3 py-2 border-b border-[#D8C9B6] flex flex-wrap gap-1.5">
-            {[
-              'Track my order',
-              'How to attach photo/audio?',
-              'Fix a typo on my order',
-              'Any promo code?',
-            ].map((q) => (
+  const modalNode =
+    isOpen && typeof document !== 'undefined'
+      ? createPortal(
+          <div className="fixed bottom-4 right-3 sm:bottom-6 sm:right-6 z-50 w-[calc(100vw-24px)] max-w-sm sm:w-[380px] bg-[#FDFBF7] border-2 border-[#1B3027] shadow-2xl flex flex-col overflow-hidden max-h-[85vh]">
+            {/* Header */}
+            <div className="bg-[#1B3027] text-[#F7F4ED] px-4 py-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-editorial font-semibold tracking-wide text-[#F7F4ED]">
+                  Evermark Studio Concierge
+                </p>
+                <p className="text-[10px] font-mono-tech uppercase tracking-wider text-[#E5C178]">
+                  24/7 Order Lookup · Framing &amp; Gift Help
+                </p>
+              </div>
               <button
-                key={q}
                 type="button"
-                onClick={() => sendQuestion(q)}
-                className="px-2 py-1 bg-[#FDFBF7] hover:bg-[#1B3027] hover:text-[#F7F4ED] border border-[#CBB89F] text-[10px] text-[#261A13] font-medium transition"
+                onClick={() => setIsOpen(false)}
+                className="text-xs font-mono-tech text-[#E5C178] hover:text-white px-2 py-1"
               >
-                {q}
+                ✕
               </button>
-            ))}
-          </div>
+            </div>
 
-          {/* Messages */}
-          <div className="p-3.5 space-y-3 max-h-[290px] overflow-y-auto text-xs bg-[#FDFBF7]">
-            {messages.map((m, idx) => (
-              <div
-                key={idx}
-                className={`p-3 leading-relaxed ${
-                  m.role === 'user'
-                    ? 'bg-[#1B3027] text-[#F7F4ED] ml-6'
-                    : 'bg-[#F6EFE4] text-[#261A13] border border-[#D8C9B6] mr-4'
-                }`}
-              >
-                <p>{m.text}</p>
-                {m.actionUrl && (
-                  <Link
-                    href={m.actionUrl}
-                    onClick={() => setIsOpen(false)}
-                    className="inline-block mt-2 px-3 py-1.5 bg-[#9E472A] text-[#FDFBF7] font-mono-tech uppercase text-[10px]"
-                  >
-                    {m.actionLabel || 'View Now →'}
-                  </Link>
-                )}
-              </div>
-            ))}
-            {loading && (
-              <div className="text-[11px] font-mono-tech text-[#7A6858] px-2">
-                Checking studio records...
-              </div>
-            )}
-          </div>
+            {/* Quick Prompt Buttons */}
+            <div className="bg-[#F3E9DA] px-3 py-2 border-b border-[#D8C9B6] flex flex-wrap gap-1.5">
+              {[
+                'Track my order',
+                'How to attach photo/audio?',
+                'Fix a typo on my order',
+                'Any promo code?',
+              ].map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => sendQuestion(q)}
+                  className="px-2 py-1 bg-[#FDFBF7] hover:bg-[#1B3027] hover:text-[#F7F4ED] border border-[#CBB89F] text-[10px] text-[#261A13] font-medium transition"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
 
-          {/* Input */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              sendQuestion(input)
-            }}
-            className="border-t border-[#D8C9B6] p-2.5 bg-[#F8F3EA] flex gap-2"
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your email to track order, or ask a question..."
-              className="flex-grow border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-3.5 py-2 bg-[#1B3027] text-[#F7F4ED] text-xs font-mono-tech uppercase"
+            {/* Messages */}
+            <div className="p-3.5 space-y-3 max-h-[290px] overflow-y-auto text-xs bg-[#FDFBF7]">
+              {messages.map((m, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 leading-relaxed ${
+                    m.role === 'user'
+                      ? 'bg-[#1B3027] text-[#F7F4ED] ml-6'
+                      : 'bg-[#F6EFE4] text-[#261A13] border border-[#D8C9B6] mr-4'
+                  }`}
+                >
+                  <p>{m.text}</p>
+                  {m.actionUrl && (
+                    <Link
+                      href={m.actionUrl}
+                      onClick={() => setIsOpen(false)}
+                      className="inline-block mt-2 px-3 py-1.5 bg-[#9E472A] text-[#FDFBF7] font-mono-tech uppercase text-[10px]"
+                    >
+                      {m.actionLabel || 'View Now →'}
+                    </Link>
+                  )}
+                </div>
+              ))}
+              {loading && (
+                <div className="text-[11px] font-mono-tech text-[#7A6858] px-2">
+                  Checking studio records...
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                sendQuestion(input)
+              }}
+              className="border-t border-[#D8C9B6] p-2.5 bg-[#F8F3EA] flex gap-2"
             >
-              Send
-            </button>
-          </form>
-        </div>
-      )}
-    </div>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your email to track order, or ask a question..."
+                className="flex-grow border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2 text-xs text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-3.5 py-2 bg-[#1B3027] text-[#F7F4ED] text-xs font-mono-tech uppercase"
+              >
+                Send
+              </button>
+            </form>
+          </div>,
+          document.body
+        )
+      : null
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="px-2 py-1.5 sm:px-3 sm:py-2 bg-[#1B3027] hover:bg-[#254236] text-[#F7F4ED] border border-[#D8AE64]/50 flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition shrink-0 whitespace-nowrap"
+        aria-label="Studio Concierge & Order Status"
+        title="Studio Concierge & Order Status"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-[#E5C178] animate-pulse shrink-0" />
+        <span className="hidden sm:inline">Concierge</span>
+        <span className="sm:hidden">Help</span>
+      </button>
+      {modalNode}
+    </>
   )
 }
