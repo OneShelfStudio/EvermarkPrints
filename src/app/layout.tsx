@@ -207,20 +207,20 @@ export default function RootLayout({
 
         {/* Fine Print House Header */}
         <header className="sticky top-0 z-40 bg-[#F6EFE4]/95 backdrop-blur-md border-b border-[#D8C9B6]">
-          <div className="max-w-7xl mx-auto px-3.5 sm:px-8 py-3 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-3">
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
-              <EvermarkCrest size={30} className="shrink-0 transition-transform group-hover:scale-105 duration-200 sm:w-10 sm:h-10" />
+          <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-3">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
+              <EvermarkCrest size={30} className="shrink-0 transition-transform group-hover:scale-105 duration-200 sm:w-9 sm:h-9" />
               <div className="flex flex-col shrink-0">
-                <span className="text-[15px] sm:text-2xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition leading-none whitespace-nowrap">
+                <span className="text-[15px] sm:text-xl font-editorial font-semibold tracking-tight text-[#261A13] group-hover:text-[#1B3027] transition leading-none whitespace-nowrap">
                   EVERMARK PRINTS
                 </span>
-                <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.14em] sm:tracking-[0.2em] text-[#9E472A] font-mono-tech font-semibold mt-0.5 sm:mt-1 whitespace-nowrap">
-                  Bespoke Archival Press <span className="hidden md:inline">· United States</span>
+                <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.14em] sm:tracking-[0.18em] text-[#9E472A] font-mono-tech font-semibold mt-0.5 sm:mt-1 whitespace-nowrap">
+                  Bespoke Archival Press
                 </span>
               </div>
             </Link>
 
-            <nav className="hidden xl:flex items-center gap-4 text-[11px] uppercase tracking-[0.1em] font-medium text-[#4A3B31] whitespace-nowrap">
+            <nav className="hidden xl:flex items-center gap-3.5 text-[10.5px] uppercase tracking-[0.08em] font-medium text-[#4A3B31] whitespace-nowrap">
               <Link
                 href="/create/custom-star-map"
                 className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
@@ -231,13 +231,13 @@ export default function RootLayout({
                 href="/create/family-tree-botanical-print"
                 className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
-                Woven Blankets
+                Blankets
               </Link>
               <Link
                 href="/create/met-engaged-married-triptych"
                 className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
-                3-Chapter Triptych
+                Triptych
               </Link>
               <Link
                 href="/create/custom-vinyl-song-portrait"
@@ -270,9 +270,9 @@ export default function RootLayout({
               <OrderBagDrawer />
               <Link
                 href="/#live-studio"
-                className="hidden sm:inline-block px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[11px] uppercase tracking-[0.13em] font-semibold transition shadow-sm whitespace-nowrap"
+                className="hidden sm:inline-block px-3 sm:px-3.5 py-2 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] text-[10.5px] uppercase tracking-[0.1em] font-semibold transition shadow-sm whitespace-nowrap"
               >
-                Design Your Print
+                Design Print
               </Link>
             </div>
           </div>

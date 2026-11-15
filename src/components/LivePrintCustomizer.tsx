@@ -2593,8 +2593,8 @@ export default function LivePrintCustomizer({
           className="lg:col-span-7 lg:sticky lg:top-20 self-start space-y-2 sm:space-y-3 min-w-0 w-full max-w-full scroll-mt-16"
         >
           {/* View Mode & Interactive Zoom Toolbar */}
-          <div className="flex items-center justify-between gap-1.5 border-b border-[#D8C9B6] pb-2">
-            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-0.5 sm:pb-0">
+          <div className="flex items-center justify-between gap-2 border-b border-[#D8C9B6] pb-2">
+            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 min-w-0">
               <button
                 type="button"
                 onClick={() => {
@@ -2656,10 +2656,6 @@ export default function LivePrintCustomizer({
                 </button>
               )}
             </div>
-
-            <span className="hidden xl:inline-block text-[10px] font-mono-tech uppercase tracking-[0.12em] text-[#7A331E] font-medium">
-              {product.physicalMedium}
-            </span>
           </div>
 
           {/* Interactive Gallery Wall Stage OR Real Printify 3D Camera Mockup Viewer */}
