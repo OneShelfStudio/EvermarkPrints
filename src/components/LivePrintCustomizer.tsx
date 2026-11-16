@@ -2175,7 +2175,6 @@ export default function LivePrintCustomizer({
     const allOptions = Array.from(
       new Set([product.defaultHeadline, ...baseOptions].filter(Boolean))
     )
-    const selectVal = allOptions.includes(headline) ? headline : '__custom__'
 
     if (isPersonalNameField) {
       return (
@@ -2189,7 +2188,7 @@ export default function LivePrintCustomizer({
               setHeadline(e.target.value)
             }}
             maxLength={maxLen}
-            className="w-full border border-[#CBB89F] bg-white px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+            className="w-full border border-[#CBB89F] bg-white px-3 py-2 text-xs sm:text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
             placeholder={placeholder}
           />
         </div>
@@ -2212,12 +2211,12 @@ export default function LivePrintCustomizer({
             setHeadline(e.target.value)
           }}
           maxLength={maxLen}
-          className="w-full border border-[#1B3027] bg-white px-3.5 py-2.5 text-sm text-[#261A13] focus:outline-none"
+          className="w-full border border-[#1B3027] bg-white px-3 py-2 text-xs sm:text-sm text-[#261A13] focus:outline-none"
           placeholder={placeholder}
         />
         <select
           aria-label={`${label} curated suggestions`}
-          value={selectVal}
+          value="__custom__"
           onChange={(e) => {
             const val = e.target.value
             setActiveMockupUrl(null)
@@ -2244,11 +2243,6 @@ export default function LivePrintCustomizer({
       new Set([product.defaultSubline, ...baseQuotes].filter(Boolean))
     )
     const isBlank = subline.trim() === ''
-    const selectVal = isBlank
-      ? '__none__'
-      : allQuotes.includes(subline)
-      ? subline
-      : '__custom__'
 
     return (
       <div className="space-y-1.5">
@@ -2267,20 +2261,20 @@ export default function LivePrintCustomizer({
             </button>
           )}
         </div>
-        <input
-          type="text"
+        <textarea
+          rows={2}
           value={subline}
           onChange={(e) => {
             setActiveMockupUrl(null)
             setSubline(e.target.value)
           }}
           maxLength={68}
-          className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-sm text-[#261A13] focus:outline-none"
+          className="w-full border border-[#1B3027] bg-white px-3 py-2 text-xs sm:text-sm text-[#261A13] leading-snug resize-none focus:outline-none"
           placeholder={placeholder}
         />
         <select
           aria-label={`${label} curated suggestions`}
-          value={selectVal}
+          value="__custom__"
           onChange={(e) => {
             const val = e.target.value
             setActiveMockupUrl(null)
@@ -3100,7 +3094,6 @@ export default function LivePrintCustomizer({
               const compareTotalUsd =
                 (activeVariant.compareAtUsd || activeVariant.priceUsd) +
                 Math.max(0, totalUsd - activeVariant.priceUsd)
-              const totalSavingsUsd = Math.max(0, compareTotalUsd - netCheckoutUsd)
               return (
                 <div className="mt-2 p-3 bg-[#F8F3EA] border border-[#CBB89F] flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-baseline gap-2.5 flex-wrap">
@@ -3112,15 +3105,10 @@ export default function LivePrintCustomizer({
                         ${totalUsd}
                       </span>
                     )}
-                    {compareTotalUsd > totalUsd && (
-                      <span className="text-xs text-[#8C7A6B] line-through">
-                        ${compareTotalUsd}
-                      </span>
-                    )}
                     <span className="px-2 py-0.5 bg-[#1B3027] text-[#E5C178] text-[10px] font-mono-tech uppercase tracking-wider font-semibold">
                       {appliedPromoCode
-                        ? `✓ 15% Off Applied (Code ${appliedPromoCode}) · Save $${totalSavingsUsd}`
-                        : `Retail Value $${compareTotalUsd} · Free US Shipping`}
+                        ? `✓ 15% Off Applied (Code ${appliedPromoCode}) · Retail $${compareTotalUsd}`
+                        : `Retail $${compareTotalUsd} · Free US Shipping`}
                     </span>
                   </div>
                 </div>
