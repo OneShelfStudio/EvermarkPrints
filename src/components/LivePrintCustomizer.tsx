@@ -325,8 +325,7 @@ export default function LivePrintCustomizer({
     initPanY: 0,
   })
 
-  const defaultVariant =
-    product.variants.find((v) => v.badge === 'Most Popular') || product.variants[0]
+  const defaultVariant = product.variants[0]
 
   const [headline, setHeadline] = useState(product.defaultHeadline)
   const [subline, setSubline] = useState(product.defaultSubline)
@@ -345,8 +344,6 @@ export default function LivePrintCustomizer({
   const [selYear, setSelYear] = useState<number>(2023)
   const [dateFormatStyle, setDateFormatStyle] = useState<DateFormatStyle>('editorial')
   const [isCustomDateMode, setIsCustomDateMode] = useState<boolean>(false)
-  const [isCustomHeadlineMode, setIsCustomHeadlineMode] = useState<boolean>(false)
-  const [isCustomSublineMode, setIsCustomSublineMode] = useState<boolean>(false)
   const [isCustomLocationMode, setIsCustomLocationMode] = useState<boolean>(false)
   const [showCoordsOnPrint, setShowCoordsOnPrint] = useState<boolean>(true)
   const [isEditingCoordsText, setIsEditingCoordsText] = useState<boolean>(false)
@@ -652,14 +649,11 @@ export default function LivePrintCustomizer({
   function handleSwitchProduct(newSlug: string) {
     const nextProd = EVERMARK_CATALOG.find((p) => p.slug === newSlug)
     if (!nextProd) return
-    const nextDefaultVar =
-      nextProd.variants.find((v) => v.badge === 'Most Popular') || nextProd.variants[0]
+    const nextDefaultVar = nextProd.variants[0]
     setActiveProductSlug(newSlug)
     setActiveMockupUrl(null)
     setViewMode('room')
     setIsZoomedStage(false)
-    setIsCustomHeadlineMode(false)
-    setIsCustomSublineMode(false)
     setIsCustomDateMode(false)
     setIsCustomLocationMode(false)
     setShowCoordsOnPrint(true)
@@ -713,7 +707,6 @@ export default function LivePrintCustomizer({
     FRAME_FINISHES[0]
   const activeVariant =
     product.variants.find((v) => v.id === selectedVariantId) ||
-    product.variants.find((v) => v.badge === 'Most Popular') ||
     product.variants[0]
   const resolvedPrintifyVariantId = resolvePrintifyVariantId(
     activeVariant,
@@ -2182,9 +2175,7 @@ export default function LivePrintCustomizer({
     const allOptions = Array.from(
       new Set([product.defaultHeadline, ...baseOptions].filter(Boolean))
     )
-    const isMatchedOption = allOptions.includes(headline)
-    const selectVal =
-      isCustomHeadlineMode || !isMatchedOption ? '__custom__' : headline
+    const selectVal = allOptions.includes(headline) ? headline : '__custom__'
 
     if (isPersonalNameField) {
       return (
@@ -2198,7 +2189,7 @@ export default function LivePrintCustomizer({
               setHeadline(e.target.value)
             }}
             maxLength={maxLen}
-            className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
+            className="w-full border border-[#CBB89F] bg-white px-3.5 py-2.5 text-sm text-[#261A13] focus:border-[#1B3027] focus:outline-none"
             placeholder={placeholder}
           />
         </div>
@@ -2209,48 +2200,40 @@ export default function LivePrintCustomizer({
       <div className="space-y-1.5">
         <div className="flex flex-wrap items-center justify-between gap-1">
           <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
-          <button
-            type="button"
-            onClick={() => setIsCustomHeadlineMode(!isCustomHeadlineMode)}
-            className="text-[11px] font-mono-tech text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
-          >
-            {selectVal === '__custom__' ? '▾ Choose Popular Title' : '✎ Type Custom Names/Title'}
-          </button>
+          <span className="text-[10px] font-mono-tech text-[#1B3027] uppercase tracking-wider">
+            Type directly or pick idea below
+          </span>
         </div>
+        <input
+          type="text"
+          value={headline}
+          onChange={(e) => {
+            setActiveMockupUrl(null)
+            setHeadline(e.target.value)
+          }}
+          maxLength={maxLen}
+          className="w-full border border-[#1B3027] bg-white px-3.5 py-2.5 text-sm text-[#261A13] focus:outline-none"
+          placeholder={placeholder}
+        />
         <select
+          aria-label={`${label} curated suggestions`}
           value={selectVal}
           onChange={(e) => {
             const val = e.target.value
             setActiveMockupUrl(null)
-            if (val === '__custom__') {
-              setIsCustomHeadlineMode(true)
-            } else {
-              setIsCustomHeadlineMode(false)
+            if (val !== '__custom__') {
               setHeadline(val)
             }
           }}
-          className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2.5 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+          className="w-full border border-[#D8C9B6] bg-[#F8F3EA] px-3 py-1.5 text-xs text-[#4A3B31] font-medium focus:border-[#1B3027] focus:outline-none"
         >
+          <option value="__custom__">▾ Or pick a curated title idea...</option>
           {allOptions.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
             </option>
           ))}
-          <option value="__custom__">✎ Type Custom Title or Couple Names...</option>
         </select>
-        {selectVal === '__custom__' && (
-          <input
-            type="text"
-            value={headline}
-            onChange={(e) => {
-              setActiveMockupUrl(null)
-              setHeadline(e.target.value)
-            }}
-            maxLength={maxLen}
-            className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-sm text-[#261A13] focus:outline-none"
-            placeholder={placeholder}
-          />
-        )}
       </div>
     )
   }
@@ -2261,12 +2244,9 @@ export default function LivePrintCustomizer({
       new Set([product.defaultSubline, ...baseQuotes].filter(Boolean))
     )
     const isBlank = subline.trim() === ''
-    const isMatchedQuote = allQuotes.includes(subline)
-    const selectVal = isCustomSublineMode
-      ? '__custom__'
-      : isBlank
+    const selectVal = isBlank
       ? '__none__'
-      : isMatchedQuote
+      : allQuotes.includes(subline)
       ? subline
       : '__custom__'
 
@@ -2274,59 +2254,52 @@ export default function LivePrintCustomizer({
       <div className="space-y-1.5">
         <div className="flex flex-wrap items-center justify-between gap-1">
           <span className="text-xs text-[#4A3B31] font-medium">{label}</span>
-          <button
-            type="button"
-            onClick={() => {
-              if (selectVal === '__custom__') {
-                setIsCustomSublineMode(false)
-                setSubline(allQuotes[0] || product.defaultSubline)
-              } else {
-                setIsCustomSublineMode(true)
-              }
-            }}
-            className="text-[11px] font-mono-tech text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
-          >
-            {selectVal === '__custom__' ? '▾ Choose Curated Quote' : '✎ Write Custom Quote'}
-          </button>
+          {!isBlank && (
+            <button
+              type="button"
+              onClick={() => {
+                setActiveMockupUrl(null)
+                setSubline('')
+              }}
+              className="text-[10px] font-mono-tech text-[#9E472A] hover:text-[#1B3027] underline underline-offset-2 font-semibold"
+            >
+              ✕ Hide Quote Line
+            </button>
+          )}
         </div>
+        <input
+          type="text"
+          value={subline}
+          onChange={(e) => {
+            setActiveMockupUrl(null)
+            setSubline(e.target.value)
+          }}
+          maxLength={68}
+          className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-sm text-[#261A13] focus:outline-none"
+          placeholder={placeholder}
+        />
         <select
+          aria-label={`${label} curated suggestions`}
           value={selectVal}
           onChange={(e) => {
             const val = e.target.value
             setActiveMockupUrl(null)
-            if (val === '__custom__') {
-              setIsCustomSublineMode(true)
-            } else if (val === '__none__') {
-              setIsCustomSublineMode(false)
+            if (val === '__none__') {
               setSubline('')
-            } else {
-              setIsCustomSublineMode(false)
+            } else if (val !== '__custom__') {
               setSubline(val)
             }
           }}
-          className="w-full border border-[#CBB89F] bg-[#FDFBF7] px-3 py-2.5 text-xs sm:text-sm text-[#261A13] font-medium focus:border-[#1B3027] focus:outline-none"
+          className="w-full border border-[#D8C9B6] bg-[#F8F3EA] px-3 py-1.5 text-xs text-[#4A3B31] font-medium focus:border-[#1B3027] focus:outline-none"
         >
+          <option value="__custom__">▾ Or pick a curated quote / hide line...</option>
           {allQuotes.map((q) => (
             <option key={q} value={q}>
               “{q}”
             </option>
           ))}
           <option value="__none__">🚫 No Subtitle / Quote (Clean Minimalist Look)</option>
-          <option value="__custom__">✎ Write Custom Dedication or Song Lyric...</option>
         </select>
-        {selectVal === '__custom__' && (
-          <input
-            type="text"
-            value={subline}
-            onChange={(e) => {
-              setActiveMockupUrl(null)
-              setSubline(e.target.value)
-            }}
-            maxLength={68}
-            className="w-full border border-[#1B3027] bg-white px-3.5 py-2 text-sm text-[#261A13] focus:outline-none"
-            placeholder={placeholder}
-          />
-        )}
       </div>
     )
   }
@@ -3122,19 +3095,37 @@ export default function LivePrintCustomizer({
             </div>
 
             {/* Above-the-Fold Price + WELCOME15 Instant Clarity Bar */}
-            <div className="mt-2 p-3 bg-[#F8F3EA] border border-[#CBB89F] flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-editorial font-bold text-[#261A13]">
-                  ${totalUsd}
-                </span>
-                <span className="px-2 py-0.5 bg-[#1B3027] text-[#E5C178] text-[10px] font-mono-tech uppercase tracking-wider font-semibold">
-                  15% Off at Checkout: ${Math.round(totalUsd * 0.85)} (Code WELCOME15)
-                </span>
-              </div>
-              <span className="text-[10px] font-mono-tech uppercase tracking-wider font-semibold text-[#1B3027]">
-                ✓ Code WELCOME15 Applied
-              </span>
-            </div>
+            {(() => {
+              const netCheckoutUsd = appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd
+              const compareTotalUsd =
+                (activeVariant.compareAtUsd || activeVariant.priceUsd) +
+                Math.max(0, totalUsd - activeVariant.priceUsd)
+              const totalSavingsUsd = Math.max(0, compareTotalUsd - netCheckoutUsd)
+              return (
+                <div className="mt-2 p-3 bg-[#F8F3EA] border border-[#CBB89F] flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-baseline gap-2.5 flex-wrap">
+                    <span className="text-2xl sm:text-3xl font-editorial font-bold text-[#1B3027]">
+                      ${netCheckoutUsd}
+                    </span>
+                    {appliedPromoCode && (
+                      <span className="text-sm text-[#8C7A6B] line-through">
+                        ${totalUsd}
+                      </span>
+                    )}
+                    {compareTotalUsd > totalUsd && (
+                      <span className="text-xs text-[#8C7A6B] line-through">
+                        ${compareTotalUsd}
+                      </span>
+                    )}
+                    <span className="px-2 py-0.5 bg-[#1B3027] text-[#E5C178] text-[10px] font-mono-tech uppercase tracking-wider font-semibold">
+                      {appliedPromoCode
+                        ? `✓ 15% Off Applied (Code ${appliedPromoCode}) · Save $${totalSavingsUsd}`
+                        : `Retail Value $${compareTotalUsd} · Free US Shipping`}
+                    </span>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
 
           {/* STEP 1: Contextual Inscription & Personalization (Immediate Live Canvas Updates) */}
@@ -4189,6 +4180,27 @@ export default function LivePrintCustomizer({
                 )}
               </div>
             )}
+          </div>
+
+          {/* Express 1-Tap Checkout CTA Right Below Step 01 Personalization */}
+          <div className="p-3.5 bg-[#F3E9DA] border border-[#1B3027]/30 space-y-2">
+            <button
+              type="button"
+              disabled={isCheckingOut}
+              onClick={handleCheckout}
+              className="w-full py-3.5 px-5 bg-[#1B3027] hover:bg-[#264437] disabled:opacity-60 text-[#F7F4ED] font-semibold text-xs sm:text-sm uppercase tracking-[0.14em] transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span>
+                {isCheckingOut
+                  ? 'Preparing Archival Commission...'
+                  : `Express Checkout · $${
+                      appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd
+                    } (Free 3–5 Day US Shipping) →`}
+              </span>
+            </button>
+            <p className="text-[10px] font-mono-tech text-[#4A3B31] text-center">
+              ✓ Apple Pay, Google Pay &amp; Cards · 2-Hour Free Edit Window After Ordering · Or choose larger sizes below ↓
+            </p>
           </div>
 
           {/* STEP 2: Select Hardwood Frame / Wood Base Finish (ONLY shown on products that have a wood frame/base!) */}

@@ -87,23 +87,23 @@ export default function EvermarkHomePage() {
                 <span>HANDCRAFTED IN US STUDIOS</span>
                 <span className="hidden sm:inline">·</span>
                 <span className="hidden sm:inline">
-                  FRAMED ART · ACRYLIC STANDS · WOVEN BLANKETS · CHISELED SLATE · SOY CANDLES
+                  FROM $22 W/ CODE WELCOME15 (15% OFF) · FREE 3–5 DAY US HOLIDAY DELIVERY
                 </span>
               </div>
 
               <h1 className="text-2xl sm:text-5xl lg:text-6xl font-editorial font-normal tracking-tight text-[#F7F4ED] leading-[1.1] sm:leading-[1.06]">
-                Painterly Keepsakes &amp;{' '}
+                Heirloom Woven Blankets &amp;{' '}
                 <span className="italic text-[#E5C178]">
-                  Bespoke Heirloom Decor.
+                  Bespoke Family Keepsakes.
                 </span>
               </h1>
 
               <p className="text-xs sm:text-base text-[#E2D9C8] max-w-2xl leading-relaxed">
                 <span className="sm:hidden">
-                  12 custom heirloom gifts — woven fringed blankets, framed star maps, chiseled stone slates, 3-panel triptychs &amp; soy candles.
+                  100% cotton birth flower woven blankets, 3-chapter milestone triptychs, chiseled stone slates &amp; custom gifts from $22 w/ code WELCOME15 (15% off) + free 3–5 day US delivery.
                 </span>
                 <span className="hidden sm:inline">
-                  Explore 12 distinct physical gifts and hand-illustrated artwork editions below, from 100% cotton jacquard-woven fringed blankets, raw chiseled natural stone slate plaques, and crystal acrylic desk stands to 3-panel split gallery triptychs, wood-topped tapestries, and scented amber soy candles.
+                  Start with our #1 Family Birth Flower Woven Blanket, 3-Chapter Wedding &amp; Milestone Canvases, raw chiseled stone slates, and 12 handcrafted keepsakes starting from $22 with auto-applied code WELCOME15 (15% off) and complimentary 3–5 day US holiday delivery.
                 </span>
               </p>
 

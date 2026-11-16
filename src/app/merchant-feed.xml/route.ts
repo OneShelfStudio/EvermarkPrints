@@ -65,10 +65,12 @@ export async function GET() {
 
       const basePrice = variant.priceUsd
       const isHeroTop4 = [
-        'met-engaged-married-triptych',
-        'custom-vinyl-song-portrait',
-        'custom-star-map',
         'family-tree-botanical-print',
+        'met-engaged-married-triptych',
+        'custom-pet-memorial',
+        'custom-coordinates-print',
+        'custom-soundwave-art',
+        'custom-star-map',
       ].includes(product.slug)
 
       return `
@@ -77,7 +79,7 @@ export async function GET() {
       <g:item_group_id>${escapeXml(product.sku)}</g:item_group_id>
       <g:title>${fullTitle}</g:title>
       <g:description>${fullDesc}</g:description>
-      <g:link>${baseUrl}/create/${product.slug}</g:link>
+      <g:link>${baseUrl}/create/${product.slug}?variant=${encodeURIComponent(variant.id)}</g:link>
       <g:image_link>${primaryImage}</g:image_link>
       ${additionalImagesXml}
       <g:condition>new</g:condition>

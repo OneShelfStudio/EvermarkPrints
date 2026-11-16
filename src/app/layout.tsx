@@ -222,12 +222,6 @@ export default function RootLayout({
 
             <nav className="hidden xl:flex items-center gap-3.5 text-[10.5px] uppercase tracking-[0.08em] font-medium text-[#4A3B31] whitespace-nowrap">
               <Link
-                href="/create/custom-star-map"
-                className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
-              >
-                Star Maps
-              </Link>
-              <Link
                 href="/create/family-tree-botanical-print"
                 className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
@@ -240,16 +234,22 @@ export default function RootLayout({
                 Triptych
               </Link>
               <Link
+                href="/create/custom-pet-memorial"
+                className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
+              >
+                Pet &amp; Home
+              </Link>
+              <Link
                 href="/create/custom-vinyl-song-portrait"
                 className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
                 Vinyl &amp; Voice
               </Link>
               <Link
-                href="/create/custom-pet-memorial"
+                href="/create/custom-star-map"
                 className="hover:text-[#9E472A] transition py-1 whitespace-nowrap"
               >
-                Pet &amp; Home
+                Star Maps
               </Link>
               <Link
                 href="/track"

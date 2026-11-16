@@ -18,7 +18,7 @@ export default function AdUnit({
       ? {
           kicker: 'BESPOKE STUDIO COMPANION · HAND-POURED IN USA',
           headline:
-            'Pair Your Keepsake With a Custom Label 9oz Scented Amber Glass Soy Candle ($48 · Free US Shipping)',
+            'Pair Your Keepsake With a Custom Label 9oz Scented Amber Glass Soy Candle ($28 · $24 w/ WELCOME15 · Free US Shipping)',
           ctaLabel: 'Customize Soy Candle →',
           ctaHref: '/create/custom-book-stack-print',
         }
@@ -35,7 +35,7 @@ export default function AdUnit({
             headline:
               'Add a 2nd Identical Copy for Family or Grandparents at 25% Off With Free Combined Shipping',
             ctaLabel: 'Explore Collector Pair →',
-            ctaHref: '/create/custom-star-map',
+            ctaHref: '/create/family-tree-botanical-print',
           }
 
   return (
