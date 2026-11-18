@@ -166,3 +166,113 @@ export async function sendOrderAlertEmail(data: OrderNotificationData) {
     return { sent: false, error: err }
   }
 }
+
+export interface ShipmentNotificationData {
+  orderId: string
+  customerEmail: string
+  customerName?: string
+  productTitle?: string
+  formatLabel?: string
+  trackingCarrier: string
+  trackingNumber: string
+  trackingUrl: string
+}
+
+export async function sendShipmentNotificationEmail(data: ShipmentNotificationData) {
+  const apiKey = process.env.RESEND_API_KEY
+  const ownerEmail = process.env.STUDIO_ALERT_EMAIL || 'ryanb@digital-dads-llc.com'
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'Evermark Studio <orders@evermarkprints.com>'
+
+  const customerHtml = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FCFBF8; border: 1px solid #DDD5C7; padding: 32px; color: #261A13;">
+      <div style="border-bottom: 2px solid #1B3027; padding-bottom: 16px; margin-bottom: 24px;">
+        <span style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #9E472A; font-weight: 600;">US ARCHIVAL DISPATCH · TRACKING ASSIGNED</span>
+        <h1 style="font-size: 26px; margin: 6px 0 0; color: #1B3027;">Your Custom Keepsake Has Shipped</h1>
+      </div>
+
+      <p style="font-size: 15px; line-height: 1.6;">Hello ${data.customerName || 'Collector'},</p>
+      <p style="font-size: 14px; line-height: 1.6; color: #4A3B31;">
+        Great news—your custom handcrafted keepsake has completed press and quality inspection at our US studio and has been handed over to ${data.trackingCarrier} for delivery.
+      </p>
+
+      <div style="background: #F3EFE6; border: 1px solid #DDD5C7; padding: 20px; margin: 20px 0;">
+        <p style="margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #9E472A; font-weight: bold;">Shipment Details</p>
+        <p style="margin: 0 0 10px; font-size: 15px; font-weight: bold; color: #1B3027;">Carrier: ${data.trackingCarrier}</p>
+        <p style="margin: 0 0 10px; font-size: 14px; font-family: monospace; color: #261A13;"><strong>Tracking Number:</strong> ${data.trackingNumber}</p>
+        <p style="margin: 0; font-size: 13px; color: #6E6256;">Edition: ${data.productTitle || 'Custom Keepsake'} ${data.formatLabel ? `(${data.formatLabel})` : ''}</p>
+      </div>
+
+      <div style="text-align: center; margin: 28px 0;">
+        <a href="${data.trackingUrl || `https://www.evermarkprints.com/track?q=${encodeURIComponent(data.orderId)}`}" style="display: inline-block; background: #1B3027; color: #F7F4ED; text-decoration: none; padding: 12px 26px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.12em; border-radius: 4px;">Track Delivery Online →</a>
+      </div>
+
+      <div style="background: #FAF6F0; border-left: 4px solid #1B3027; padding: 14px 18px; margin-bottom: 24px;">
+        <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #5C4D42;">
+          You can also check your live order and delivery status anytime on our website at <a href="https://www.evermarkprints.com/track" style="color: #9E472A; font-weight: bold;">evermarkprints.com/track</a>.
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid #DDD5C7; padding-top: 16px; font-size: 12px; color: #7A6F63; text-align: center;">
+        Handcrafted with pride in the United States.<br />
+        Questions or special instructions? Reply directly to this email or reach us at <a href="mailto:concierge@evermarkprints.com" style="color: #9E472A;">concierge@evermarkprints.com</a>.
+      </div>
+    </div>
+  `
+
+  const ownerHtml = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px; background: #FAF6F0; color: #261A13;">
+      <h2 style="color: #1B3027; margin-top: 0;">Evermark Order Dispatched</h2>
+      <p><strong>Order ID:</strong> ${data.orderId}</p>
+      <p><strong>Customer:</strong> ${data.customerName || 'Customer'} (${data.customerEmail})</p>
+      <p><strong>Carrier:</strong> ${data.trackingCarrier}</p>
+      <p><strong>Tracking Number:</strong> <a href="${data.trackingUrl}">${data.trackingNumber}</a></p>
+      <p><strong>Live Tracking Portal:</strong> <a href="https://www.evermarkprints.com/track?q=${encodeURIComponent(data.orderId)}">View On Evermark</a></p>
+    </div>
+  `
+
+  if (!apiKey) {
+    console.log(
+      `[Evermark Shipment Notice] RESEND_API_KEY not configured. Dispatched: Order ${data.orderId} via ${data.trackingCarrier} (${data.trackingNumber}) to ${data.customerEmail}`
+    )
+    return { sent: false, reason: 'RESEND_API_KEY not set' }
+  }
+
+  try {
+    // 1. Send customer dispatch email
+    if (data.customerEmail) {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromEmail,
+          to: [data.customerEmail],
+          subject: `Your Evermark Prints Keepsake Has Shipped! (${data.trackingCarrier} Tracking Inside)`,
+          html: customerHtml,
+        }),
+      })
+    }
+
+    // 2. Alert store owner
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [ownerEmail],
+        subject: `[Order Dispatched] ${data.trackingCarrier} ${data.trackingNumber} - ${data.customerName || data.orderId}`,
+        html: ownerHtml,
+      }),
+    })
+
+    return { sent: true }
+  } catch (err) {
+    console.error('[Evermark Shipment Email Error]:', err)
+    return { sent: false, error: err }
+  }
+}
