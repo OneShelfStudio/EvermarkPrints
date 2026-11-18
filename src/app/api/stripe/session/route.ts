@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { getEvermarkProductBySlug, FRAME_FINISHES, EVERMARK_CATALOG } from '@/lib/catalog'
+import { processCompletedEvermarkOrder } from '@/lib/printify'
+import { resolveSanityProjectId } from '@/lib/sanity'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +16,40 @@ export async function GET(req: Request) {
     }
 
     const session = await stripe.checkout.sessions.retrieve(sessionId)
+
+    // Fail-safe: guarantee order dossier + Printify dispatch even if webhook is delayed
+    if (session.payment_status === 'paid') {
+      const sanityProjectId = resolveSanityProjectId()
+      const sanityDataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+      const sanityToken = process.env.SANITY_API_TOKEN
+      let existsInSanity = false
+      if (sanityProjectId) {
+        try {
+          const docId = `evermark_order_${session.id.replace(/[^a-zA-Z0-9_-]/g, '')}`
+          const q = encodeURIComponent(`*[_id == "${docId}"][0]._id`)
+          const headers: Record<string, string> = {}
+          if (sanityToken) headers.Authorization = `Bearer ${sanityToken}`
+          const checkRes = await fetch(
+            `https://${sanityProjectId}.api.sanity.io/v2024-01-01/data/query/${sanityDataset}?query=${q}`,
+            { headers, cache: 'no-store' }
+          )
+          if (checkRes.ok) {
+            const checkData = await checkRes.json()
+            existsInSanity = Boolean(checkData?.result)
+          }
+        } catch {
+          // Proceed with failsafe processing on query error
+        }
+      }
+      if (!existsInSanity) {
+        try {
+          await processCompletedEvermarkOrder(session)
+        } catch {
+          // Non-blocking fallback
+        }
+      }
+    }
+
     const meta = session.metadata || {}
 
     const productSlug = meta.productSlug || 'custom-star-map'

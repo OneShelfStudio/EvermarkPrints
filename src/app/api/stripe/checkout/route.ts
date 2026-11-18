@@ -78,9 +78,29 @@ export async function POST(req: Request) {
       }
     }
 
+    const isCustomizeLater = cleanMetadata.customizeLater === 'yes'
+    const proofInstructions = isCustomizeLater
+      ? 'ORDER NOW, CUSTOMIZE LATER ACTIVE: Your order is held safely in our proof queue. Enter your custom wording & preview your live proof anytime at https://www.evermarkprints.com/track using your checkout email address.'
+      : '2-HOUR LIVE PROOF & TYPO WINDOW ACTIVE: View your live proof, fix any typo within 2 hours, or track your US studio shipment at https://www.evermarkprints.com/track using your checkout email address.'
+
     const session = await stripe.checkout.sessions.create({
       line_items: formattedLineItems,
       mode: 'payment',
+      invoice_creation: {
+        enabled: true,
+        invoice_data: {
+          description: proofInstructions,
+          footer:
+            'Evermark Prints · US Archival Press · Personalize, view your live proof, or track your order at https://www.evermarkprints.com/track',
+        },
+      },
+      custom_text: {
+        submit: {
+          message: isCustomizeLater
+            ? 'After checkout, you can personalize your wording immediately on the confirmation screen or anytime via https://www.evermarkprints.com/track.'
+            : 'Includes a free 2-hour live proof & typo-edit window after checkout before we strike your keepsake.',
+        },
+      },
       ...(resolvedPromoId
         ? { discounts: [{ promotion_code: resolvedPromoId }] }
         : { allow_promotion_codes: true }),

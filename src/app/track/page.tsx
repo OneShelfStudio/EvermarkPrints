@@ -99,7 +99,7 @@ export default function TrackOrderPage() {
       }
       setEditingOrderId(null)
       setSaveSuccessMsg(
-        'Your inscription has been updated and synced with our US production studio.'
+        'Your custom inscription & live proof have been approved and released to our US production studio!'
       )
       const r2 = await fetch(`/api/orders/lookup?q=${encodeURIComponent(query.trim())}`)
       const d2 = await r2.json()
@@ -369,7 +369,7 @@ export default function TrackOrderPage() {
                       onClick={() => handleSaveEdits(order.orderId)}
                       className="px-4 py-2 bg-[#1B3027] text-[#F7F4ED] font-mono-tech uppercase text-[11px]"
                     >
-                      Save Updated Inscription
+                      ✓ Save Wording &amp; Approve Proof for Production
                     </button>
                     <button
                       type="button"
@@ -404,7 +404,9 @@ export default function TrackOrderPage() {
                         onClick={() => startEditing(order)}
                         className="px-4 py-2 bg-[#9E472A] hover:bg-[#84381F] text-[#FDFBF7] font-mono-tech uppercase text-[11px] transition"
                       >
-                        ✎ Fix a Typo ({Math.max(1, 120 - order.minutesSinceOrder)}m Left in Window)
+                        {order.stageLabel.includes('Held')
+                          ? '✎ Personalize Your Wording & Approve Proof →'
+                          : `✎ Fix a Typo (${Math.max(1, 120 - order.minutesSinceOrder)}m Left in Window)`}
                       </button>
                     )}
                   </div>

@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { stripe } from '@/lib/stripe'
 import {
   getEvermarkProductBySlug,
   EVERMARK_CATALOG,
@@ -54,7 +55,10 @@ export async function getPrintifyShopStatus() {
  * Records a completed Stripe Checkout commission to Sanity CMS and dispatches
  * the Printify US fulfillment order for Shop ID 29416532.
  */
-export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Session) {
+export async function processCompletedEvermarkOrder(
+  session: Stripe.Checkout.Session,
+  options?: { forcePrintifySubmit?: boolean }
+) {
   const meta = session.metadata || {}
   const isCustomizeLater = meta.customizeLater === 'yes'
   const shopId = process.env.PRINTIFY_SHOP_ID || '29416532'
@@ -70,6 +74,37 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
   const variantIdNum =
     Number(meta.printifyVariantId) ||
     resolvePrintifyVariantId(matchedVariant, meta.frameFinishId)
+
+  const docId = `evermark_order_${session.id.replace(/[^a-zA-Z0-9_-]/g, '')}`
+  let existingPrintifyOrderId: string | null = null
+  if (sanityProjectId) {
+    try {
+      const q = encodeURIComponent(`*[_id == "${docId}"][0]{printifyOrderId}`)
+      const headers: Record<string, string> = {}
+      if (sanityToken) headers.Authorization = `Bearer ${sanityToken}`
+      const checkRes = await fetch(
+        `https://${sanityProjectId}.api.sanity.io/v2024-01-01/data/query/${sanityDataset}?query=${q}`,
+        { headers, cache: 'no-store' }
+      )
+      if (checkRes.ok) {
+        const checkData = await checkRes.json()
+        existingPrintifyOrderId = checkData?.result?.printifyOrderId || null
+      }
+    } catch {
+      // Non-blocking
+    }
+  }
+
+  if (typeof session.payment_intent === 'string' && session.customer_details?.email) {
+    try {
+      await stripe.paymentIntents.update(session.payment_intent, {
+        receipt_email: session.customer_details.email,
+        description: `${product.title} — Personalize or Edit Proof: https://www.evermarkprints.com/track?q=${session.id}&edit=1`,
+      })
+    } catch {
+      // Non-blocking
+    }
+  }
 
   const defaultRenderUrl = `https://www.evermarkprints.com/api/render-master?slug=${encodeURIComponent(
     product.slug
@@ -90,7 +125,7 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
       ? meta.customMasterUrl
       : defaultRenderUrl
 
-  let printifyOrderId: string | null = null
+  let printifyOrderId: string | null = existingPrintifyOrderId
 
   // 1. Submit fulfillment order to Printify Shop 29416532 when API token and shipping address exist
   const legacyShipping = (
@@ -103,7 +138,9 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
   ).shipping_details
   const shippingDetails = legacyShipping || session.customer_details
   const addr = shippingDetails?.address
-  if (!isCustomizeLater && printifyToken && addr?.line1 && addr?.city && addr?.postal_code) {
+  const shouldSubmitToPrintify =
+    !existingPrintifyOrderId && (!isCustomizeLater || Boolean(options?.forcePrintifySubmit))
+  if (shouldSubmitToPrintify && printifyToken && addr?.line1 && addr?.city && addr?.postal_code) {
     try {
       const fullName = (shippingDetails?.name || session.customer_details?.name || 'Evermark Collector').trim()
       const parts = fullName.split(/\s+/)
@@ -267,7 +304,7 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
             mutations: [
               {
                 createOrReplace: {
-                  _id: `evermark_order_${session.id.replace(/[^a-zA-Z0-9_-]/g, '')}`,
+                  _id: docId,
                   _type: 'evermarkOrder',
                   stripeSessionId: session.id,
                   parentOrderSessionId: meta.parentOrderSessionId || null,
@@ -288,7 +325,8 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
                   dateText: meta.dateText || '',
                   coordsText: meta.coordsText || '',
                   giftNote: meta.giftNote || '',
-                  customizeLater: isCustomizeLater,
+                  customizeLater: options?.forcePrintifySubmit ? false : isCustomizeLater,
+                  proofApproved: Boolean(options?.forcePrintifySubmit),
                   masterRenderUrl,
                   printifyShopId: shopId,
                 },

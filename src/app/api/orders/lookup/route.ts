@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { getEvermarkProductBySlug, FRAME_FINISHES, EVERMARK_CATALOG } from '@/lib/catalog'
 import { resolveSanityProjectId } from '@/lib/sanity'
+import { processCompletedEvermarkOrder } from '@/lib/printify'
 
 export const dynamic = 'force-dynamic'
 
@@ -222,6 +223,8 @@ export async function POST(req: Request) {
       )
     }
 
+    const existingDoc = await fetchSanityShipmentInfo(orderId)
+
     const updatedMeta = {
       ...(session.metadata || {}),
       headline: String(headline || '').slice(0, 120),
@@ -229,9 +232,11 @@ export async function POST(req: Request) {
       locationText: String(locationText || '').slice(0, 120),
       dateText: String(dateText || '').slice(0, 120),
       coordsText: String(coordsText || '').slice(0, 120),
+      customizeLater: 'no',
+      proofApproved: 'yes',
     }
 
-    await stripe.checkout.sessions.update(orderId, {
+    const updatedSession = await stripe.checkout.sessions.update(orderId, {
       metadata: updatedMeta,
     })
 
@@ -258,6 +263,8 @@ export async function POST(req: Request) {
                   locationText: updatedMeta.locationText,
                   dateText: updatedMeta.dateText,
                   coordsText: updatedMeta.coordsText,
+                  customizeLater: false,
+                  proofApproved: true,
                   inscriptionUpdatedAt: new Date().toISOString(),
                 },
               },
@@ -265,6 +272,10 @@ export async function POST(req: Request) {
           ],
         }),
       }).catch(() => {})
+    }
+
+    if (isCustomizeLater || !existingDoc?.printifyOrderId) {
+      await processCompletedEvermarkOrder(updatedSession, { forcePrintifySubmit: true }).catch(() => {})
     }
 
     return NextResponse.json({ updated: true })
