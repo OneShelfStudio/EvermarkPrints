@@ -128,21 +128,28 @@ export async function processCompletedEvermarkOrder(
   let printifyOrderId: string | null = existingPrintifyOrderId
 
   // 1. Submit fulfillment order to Printify Shop 29416532 when API token and shipping address exist
-  const legacyShipping = (
-    session as unknown as {
-      shipping_details?: {
-        name?: string | null
-        address?: Stripe.Address | null
-      } | null
+  let resolvedAddress = session.shipping_details?.address || session.customer_details?.address
+  let resolvedName = session.shipping_details?.name || session.customer_details?.name
+
+  // If shipping address was collected on PaymentIntent instead of CheckoutSession
+  if ((!resolvedAddress?.line1 || !resolvedAddress?.city) && typeof session.payment_intent === 'string') {
+    try {
+      const pi = await stripe.paymentIntents.retrieve(session.payment_intent)
+      if (pi.shipping?.address) {
+        resolvedAddress = pi.shipping.address as Stripe.Address
+        resolvedName = pi.shipping.name || resolvedName
+      }
+    } catch {
+      // Non-blocking
     }
-  ).shipping_details
-  const shippingDetails = legacyShipping || session.customer_details
-  const addr = shippingDetails?.address
+  }
+
+  const addr = resolvedAddress
   const shouldSubmitToPrintify =
     !existingPrintifyOrderId && (!isCustomizeLater || Boolean(options?.forcePrintifySubmit))
   if (shouldSubmitToPrintify && printifyToken && addr?.line1 && addr?.city && addr?.postal_code) {
     try {
-      const fullName = (shippingDetails?.name || session.customer_details?.name || 'Evermark Collector').trim()
+      const fullName = (resolvedName || 'Evermark Collector').trim()
       const parts = fullName.split(/\s+/)
       const firstName = parts[0] || 'Evermark'
       const lastName = parts.slice(1).join(' ') || 'Collector'
