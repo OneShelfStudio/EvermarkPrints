@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import Script from 'next/script'
 import Link from 'next/link'
 import StudioConciergeBot from '@/components/StudioConciergeBot'
@@ -464,6 +465,7 @@ export default function RootLayout({
         </footer>
 
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
