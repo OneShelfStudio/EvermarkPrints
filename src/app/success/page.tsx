@@ -204,7 +204,10 @@ function SuccessContent() {
         {sessionId && (
           <p className="text-xs text-[#7A6F63] font-mono-tech">
             ORDER REFERENCE: {sessionId.slice(0, 28)}... ·{' '}
-            <Link href="/track" className="underline text-[#1B3027] font-semibold">
+            <Link
+              href={`/track?q=${encodeURIComponent(sessionId)}&edit=1`}
+              className="underline text-[#1B3027] font-semibold"
+            >
               Track Order or Edit Typo (2-Hour Window) →
             </Link>
           </p>
@@ -260,6 +263,15 @@ function SuccessContent() {
                   <strong>Gift Note:</strong> “{savedDesign.giftNote}”
                 </p>
               )}
+
+              <div className="pt-2">
+                <Link
+                  href={sessionId ? `/track?q=${encodeURIComponent(sessionId)}&edit=1` : '/track'}
+                  className="inline-block px-4 py-2 bg-[#1B3027] hover:bg-[#264437] text-[#F7F4ED] text-[11px] font-mono-tech uppercase tracking-wider font-semibold transition"
+                >
+                  ✏️ Customize or Edit Inscription Now (Free Proof Window) →
+                </Link>
+              </div>
             </div>
           </div>
         )}

@@ -56,6 +56,7 @@ export async function getPrintifyShopStatus() {
  */
 export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Session) {
   const meta = session.metadata || {}
+  const isCustomizeLater = meta.customizeLater === 'yes'
   const shopId = process.env.PRINTIFY_SHOP_ID || '29416532'
   const printifyToken = process.env.PRINTIFY_API_TOKEN
   const sanityProjectId = resolveSanityProjectId()
@@ -102,7 +103,7 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
   ).shipping_details
   const shippingDetails = legacyShipping || session.customer_details
   const addr = shippingDetails?.address
-  if (printifyToken && addr?.line1 && addr?.city && addr?.postal_code) {
+  if (!isCustomizeLater && printifyToken && addr?.line1 && addr?.city && addr?.postal_code) {
     try {
       const fullName = (shippingDetails?.name || session.customer_details?.name || 'Evermark Collector').trim()
       const parts = fullName.split(/\s+/)
@@ -287,6 +288,7 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
                   dateText: meta.dateText || '',
                   coordsText: meta.coordsText || '',
                   giftNote: meta.giftNote || '',
+                  customizeLater: isCustomizeLater,
                   masterRenderUrl,
                   printifyShopId: shopId,
                 },
@@ -318,6 +320,7 @@ export async function processCompletedEvermarkOrder(session: Stripe.Checkout.Ses
       shippingAddress: addr || null,
       printifyOrderId,
       masterRenderUrl,
+      customizeLater: isCustomizeLater,
     })
   } catch (err) {
     console.error('[Evermark Email Dispatch Error]:', err)

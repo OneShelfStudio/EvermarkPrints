@@ -119,13 +119,16 @@ export async function GET(req: Request) {
 
       const createdMs = s.created * 1000
       const minutesSinceOrder = Math.max(0, Math.floor((Date.now() - createdMs) / 60000))
-      const canEditInscription = minutesSinceOrder <= 120 && !sanityDoc?.trackingNumber
+      const isCustomizeLater = Boolean(sanityDoc?.customizeLater || meta.customizeLater === 'yes')
+      const canEditInscription = (minutesSinceOrder <= 120 || isCustomizeLater) && !sanityDoc?.trackingNumber
 
       let stageIndex = 2
       let stageLabel = 'In 2-Hour Proof & Inscription Review Window'
       if (sanityDoc?.trackingNumber) {
         stageIndex = 4
         stageLabel = `Dispatched via ${sanityDoc.trackingCarrier || 'USPS/UPS'}`
+      } else if (isCustomizeLater) {
+        stageLabel = 'Held for Your Custom Wording & Proof Approval (Edit Below Anytime)'
       } else if (minutesSinceOrder > 120) {
         stageIndex = 3
         stageLabel = 'In US Studio Production & Quality Inspection'
@@ -207,8 +210,9 @@ export async function POST(req: Request) {
 
     const session = await stripe.checkout.sessions.retrieve(orderId)
     const minutesSince = Math.floor((Date.now() - session.created * 1000) / 60000)
+    const isCustomizeLater = session.metadata?.customizeLater === 'yes'
 
-    if (minutesSince > 130) {
+    if (minutesSince > 130 && !isCustomizeLater) {
       return NextResponse.json(
         {
           error:
@@ -254,6 +258,7 @@ export async function POST(req: Request) {
                   locationText: updatedMeta.locationText,
                   dateText: updatedMeta.dateText,
                   coordsText: updatedMeta.coordsText,
+                  inscriptionUpdatedAt: new Date().toISOString(),
                 },
               },
             },

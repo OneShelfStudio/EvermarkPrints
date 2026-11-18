@@ -27,6 +27,7 @@ interface OrderNotificationData {
   } | null
   printifyOrderId?: string | null
   masterRenderUrl: string
+  customizeLater?: boolean
 }
 
 export async function sendOrderAlertEmail(data: OrderNotificationData) {
@@ -54,7 +55,8 @@ export async function sendOrderAlertEmail(data: OrderNotificationData) {
         <p style="margin: 0 0 8px; font-size: 14px;"><strong>Customer:</strong> ${data.customerName} (${data.customerEmail})</p>
         <p style="margin: 0 0 8px; font-size: 14px;"><strong>Total Paid:</strong> $${data.amountUsd.toFixed(2)} USD</p>
         <p style="margin: 0 0 8px; font-size: 14px;"><strong>Edition:</strong> ${data.productTitle} - ${data.formatLabel}</p>
-        <p style="margin: 0; font-size: 14px;"><strong>Ship To:</strong> ${addrStr}</p>
+        <p style="margin: 0 0 8px; font-size: 14px;"><strong>Ship To:</strong> ${addrStr}</p>
+        <p style="margin: 0; font-size: 14px; color: ${data.customizeLater ? '#9E472A' : '#1B3027'};"><strong>Mode:</strong> ${data.customizeLater ? 'HOLD FOR CUSTOMER PERSONALIZATION (Customize Later Selected)' : 'Immediate Studio Production'}</p>
       </div>
 
       <div style="margin-bottom: 24px;">
@@ -99,14 +101,16 @@ export async function sendOrderAlertEmail(data: OrderNotificationData) {
       </div>
 
       <div style="background: #FAF6F0; border-left: 4px solid #1B3027; padding: 14px 18px; margin-bottom: 24px;">
-        <p style="margin: 0 0 6px; font-size: 13px; font-weight: bold; color: #1B3027;">Spot a typo? 2-Hour Proof Window Active</p>
+        <p style="margin: 0 0 6px; font-size: 13px; font-weight: bold; color: #1B3027;">${data.customizeLater ? 'Your 1-Click Personalization Link & Proof' : 'Spot a typo? 2-Hour Proof Window Active'}</p>
         <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #5C4D42;">
-          You can edit your custom wording directly on our live tracking page within 2 hours of checkout before your piece goes to press.
+          ${data.customizeLater
+            ? 'Whenever you have your exact names, dates, or quotes ready, click the button below to personalize your keepsake and preview your live proof before we strike your order.'
+            : 'You can edit your custom wording directly on our live tracking page within 2 hours of checkout before your piece goes to press.'}
         </p>
       </div>
 
       <div style="text-align: center; margin: 28px 0;">
-        <a href="https://www.evermarkprints.com/track" style="display: inline-block; background: #1B3027; color: #F7F4ED; text-decoration: none; padding: 12px 24px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.12em;">Track Order & View Live Proof →</a>
+        <a href="https://www.evermarkprints.com/track?q=${encodeURIComponent(data.orderId)}&edit=1" style="display: inline-block; background: #1B3027; color: #F7F4ED; text-decoration: none; padding: 12px 24px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.12em;">${data.customizeLater ? 'Personalize Your Wording & View Live Proof →' : 'Track Order & Edit Wording (2-Hour Proof Window) →'}</a>
       </div>
 
       <div style="border-top: 1px solid #DDD5C7; padding-top: 16px; font-size: 12px; color: #7A6F63; text-align: center;">

@@ -401,6 +401,7 @@ export default function LivePrintCustomizer({
 
   const [isGiftOrder, setIsGiftOrder] = useState<boolean>(false)
   const [giftNote, setGiftNote] = useState<string>('')
+  const [customizeLaterMode, setCustomizeLaterMode] = useState<boolean>(false)
 
   // Wall-Scale Size Visualizer & Saved Proof Email Recovery State
   const [showScaleVisualizer, setShowScaleVisualizer] = useState<boolean>(false)
@@ -2046,6 +2047,7 @@ export default function LivePrintCustomizer({
             customAudioUrl: uploadedAudioUrl || '',
             customPhotoUrl: uploadedPhotoUrl || '',
             previewDataUrl,
+            customizeLater: customizeLaterMode,
           })
         )
 
@@ -2083,7 +2085,7 @@ export default function LivePrintCustomizer({
 
       const lineItems = allCheckoutItems.map((item) => ({
         name: `${item.shortTitle} · ${item.variantLabel}`,
-        description: `${item.colorwayLabel}${
+        description: `${customizeLaterMode ? '[CUSTOMIZE LATER — HOLD FOR PROOF] ' : ''}${item.colorwayLabel}${
           item.frameFinishLabel ? ` | ${item.frameFinishLabel}` : ''
         } | "${item.headline}" (${item.locationText} · ${item.dateText})`,
         amountCents: item.priceUsd * 100,
@@ -2147,6 +2149,7 @@ export default function LivePrintCustomizer({
             hasCustomAudio: uploadedAudioName ? 'yes' : 'no',
             customMasterUrl: customMasterUrl.slice(0, 480),
             bundleCount: String(allCheckoutItems.length),
+            customizeLater: customizeLaterMode ? 'yes' : 'no',
           },
         }),
       })
@@ -3137,6 +3140,46 @@ export default function LivePrintCustomizer({
               <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#9E472A]">
                 Updates Live On Artwork
               </span>
+            </div>
+
+            {/* 1-Tap "Order Now, Customize Later" Holiday Fast-Track Toggle */}
+            <div
+              className={`p-3 border transition ${
+                customizeLaterMode
+                  ? 'bg-[#F2F8F4] border-[#1B3027] shadow-xs'
+                  : 'bg-[#FAF6F0] border-[#CBB89F]'
+              } space-y-2.5`}
+            >
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={customizeLaterMode}
+                  onChange={(e) => setCustomizeLaterMode(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-[#1B3027] rounded border-[#9E472A] shrink-0"
+                />
+                <div className="space-y-0.5 min-w-0">
+                  <span className="text-xs font-semibold text-[#1B3027] block leading-snug">
+                    ⚡ Don&apos;t have all names or dates ready? Order Now, Customize Later
+                  </span>
+                  <span className="text-[11px] text-[#4A3B31] block leading-relaxed">
+                    Lock in <strong>15% Off (${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd})</strong> + Free 3–5 Day US Delivery now. We&apos;ll email your 1-click personalization link &amp; send a digital proof before printing.
+                  </span>
+                </div>
+              </label>
+              {customizeLaterMode && (
+                <button
+                  type="button"
+                  disabled={isCheckingOut}
+                  onClick={handleCheckout}
+                  className="w-full py-2.5 px-4 bg-[#1B3027] hover:bg-[#264437] disabled:opacity-60 text-[#F7F4ED] font-mono-tech text-[11px] uppercase tracking-[0.14em] font-semibold transition flex items-center justify-center gap-2 shadow-xs"
+                >
+                  <span>
+                    {isCheckingOut
+                      ? 'Preparing Order...'
+                      : `Lock In Order Now · $${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd} (Personalize via Email) →`}
+                  </span>
+                </button>
+              )}
             </div>
 
             {product.supportsPhotoUpload && (
@@ -4172,6 +4215,11 @@ export default function LivePrintCustomizer({
 
           {/* Express 1-Tap Checkout CTA Right Below Step 01 Personalization */}
           <div className="p-3.5 bg-[#F3E9DA] border border-[#1B3027]/30 space-y-2">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold">
+              <span>🛡️ 100% Happiness Guarantee</span>
+              <span>·</span>
+              <span>Digital Proof Sent Within 2 Hours</span>
+            </div>
             <button
               type="button"
               disabled={isCheckingOut}
@@ -4181,6 +4229,10 @@ export default function LivePrintCustomizer({
               <span>
                 {isCheckingOut
                   ? 'Preparing Archival Commission...'
+                  : customizeLaterMode
+                  ? `Express Checkout (Personalize Later) · $${
+                      appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd
+                    } →`
                   : `Express Checkout · $${
                       appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd
                     } (Free 3–5 Day US Shipping) →`}

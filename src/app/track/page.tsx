@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { COMPANION_ADD_ONS } from '@/lib/catalog'
 import AdUnit from '@/components/AdUnit'
@@ -22,6 +22,29 @@ export default function TrackOrderPage() {
   const [editCoords, setEditCoords] = useState('')
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null)
   const [addingAddOnId, setAddingAddOnId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const initialQ = (params.get('q') || '').trim()
+    const autoEdit = params.get('edit') === '1'
+    if (!initialQ) return
+    setQuery(initialQ)
+    setLoading(true)
+    fetch(`/api/orders/lookup?q=${encodeURIComponent(initialQ)}`)
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (ok && Array.isArray(data.orders)) {
+          setOrders(data.orders)
+          setSearched(true)
+          if (autoEdit && data.orders.length > 0 && data.orders[0].canEditInscription) {
+            startEditing(data.orders[0])
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
