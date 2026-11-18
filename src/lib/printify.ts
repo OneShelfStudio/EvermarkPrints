@@ -55,6 +55,14 @@ export async function getPrintifyShopStatus() {
  * Records a completed Stripe Checkout commission to Sanity CMS and dispatches
  * the Printify US fulfillment order for Shop ID 29416532.
  */
+function normalizeCountryCode(country?: string | null): string {
+  if (!country) return 'US'
+  const c = country.trim().toUpperCase()
+  if (c === 'UNITED STATES' || c === 'USA' || c === 'UNITED STATES OF AMERICA') return 'US'
+  if (c.length === 2) return c
+  return 'US'
+}
+
 export async function processCompletedEvermarkOrder(
   session: Stripe.Checkout.Session,
   options?: { forcePrintifySubmit?: boolean }
@@ -247,7 +255,7 @@ export async function processCompletedEvermarkOrder(
           last_name: lastName,
           email: session.customer_details?.email || 'orders@evermarkprints.com',
           phone: session.customer_details?.phone || '0000000000',
-          country: addr.country || 'US',
+          country: normalizeCountryCode(addr.country),
           region: addr.state || '',
           address1: addr.line1,
           address2: addr.line2 || '',
@@ -256,7 +264,7 @@ export async function processCompletedEvermarkOrder(
         },
       }
 
-      let pRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/orders.json`, {
+      const pRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/orders.json`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${printifyToken}`,
@@ -268,28 +276,12 @@ export async function processCompletedEvermarkOrder(
         }),
       })
 
-      // If custom print_areas submission encountered a validation issue, fall back to product_id fulfillment
-      if (!pRes.ok && hasRasterCustomMaster) {
-        pRes = await fetch(`${PRINTIFY_BASE_URL}/shops/${shopId}/orders.json`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${printifyToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...baseOrderPayload,
-            external_id: `${session.id.slice(0, 42)}_fb`,
-            line_items: fallbackLineItemsPayload,
-          }),
-        })
-      }
-
       if (pRes.ok) {
         const pData = await pRes.json()
         printifyOrderId = pData?.id || null
       } else {
         const errTxt = await pRes.text()
-        console.warn('[Evermark Printify Order Submit Warning]:', pRes.status, errTxt)
+        console.error('[Evermark Printify Order Submit Error]:', pRes.status, errTxt)
       }
     } catch (err) {
       console.error('[Evermark Printify Order Dispatch Error]:', err)

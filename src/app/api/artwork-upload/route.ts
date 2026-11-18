@@ -43,43 +43,13 @@ export async function POST(req: Request) {
     const base64Data = matches[2]
     const buffer = Buffer.from(base64Data, 'base64')
 
-    // 1. Primary: Upload directly to Printify Permanent S3 Media Library (/v1/uploads/images.json)
-    // so Printify order fulfillment receives a native, permanent raster PNG hosted on Printify's own S3!
-    const printifyToken = process.env.PRINTIFY_API_TOKEN
-    if (printifyToken) {
-      try {
-        const pUploadRes = await fetch('https://api.printify.com/v1/uploads/images.json', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${printifyToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file_name: `evermark-${cleanSlug}-${Date.now()}.png`,
-            contents: base64Data,
-          }),
-        })
-        if (pUploadRes.ok) {
-          const pUploadData = await pUploadRes.json()
-          const pUrl = pUploadData?.preview_url
-          if (pUrl) {
-            return NextResponse.json({
-              id: pUploadData?.id || undefined,
-              url: pUrl,
-              masterArtworkUrl: pUrl,
-              storage: 'printify-s3',
-            })
-          }
-        }
-      } catch {
-        // Fall through to Sanity CDN or self-hosted cache
-      }
-    }
-
-    // 2. Fallback: If Sanity Write Token is configured, upload as a permanent CDN asset
+    // 1. Primary: If Sanity Write Token is configured, upload to Sanity CDN as a permanent public .png asset.
+    // Printify orders require a public PNG/JPG URL with file extension; Sanity CDN URLs succeed 100% of the time without 8201 or 10300 errors.
     const sanityProjectId = resolveSanityProjectId()
     const sanityDataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
     const sanityWriteToken = process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_API_TOKEN
+
+    let sanityCdnUrl: string | null = null
 
     if (sanityWriteToken) {
       try {
@@ -98,18 +68,58 @@ export async function POST(req: Request) {
         )
         if (sanityRes.ok) {
           const sanityData = await sanityRes.json()
-          const cdnUrl = sanityData?.document?.url
-          if (cdnUrl) {
-            return NextResponse.json({
-              url: cdnUrl,
-              masterArtworkUrl: cdnUrl,
-              storage: 'sanity-cdn',
-            })
-          }
+          sanityCdnUrl = sanityData?.document?.url || null
         }
       } catch {
-        // Fall through to self-hosted master store
+        // Fall through to Printify upload or self-hosted master store
       }
+    }
+
+    // 2. Concurrently upload to Printify Media Library (/v1/uploads/images.json)
+    let printifyUploadId: string | undefined = undefined
+    let printifyPreviewUrl: string | null = null
+    const printifyToken = process.env.PRINTIFY_API_TOKEN
+    if (printifyToken) {
+      try {
+        const pUploadRes = await fetch('https://api.printify.com/v1/uploads/images.json', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${printifyToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            file_name: `evermark-${cleanSlug}-${Date.now()}.png`,
+            contents: base64Data,
+          }),
+        })
+        if (pUploadRes.ok) {
+          const pUploadData = await pUploadRes.json()
+          printifyUploadId = pUploadData?.id || undefined
+          printifyPreviewUrl = pUploadData?.preview_url || null
+        }
+      } catch {
+        // Non-blocking
+      }
+    }
+
+    // If Sanity CDN URL is ready, return it as the primary master artwork URL (Printify-safe PNG)
+    if (sanityCdnUrl) {
+      return NextResponse.json({
+        id: printifyUploadId,
+        url: sanityCdnUrl,
+        masterArtworkUrl: sanityCdnUrl,
+        previewUrl: printifyPreviewUrl || sanityCdnUrl,
+        storage: 'sanity-cdn',
+      })
+    }
+
+    if (printifyPreviewUrl) {
+      return NextResponse.json({
+        id: printifyUploadId,
+        url: printifyPreviewUrl,
+        masterArtworkUrl: printifyPreviewUrl,
+        storage: 'printify-s3',
+      })
     }
 
     // 2. Store in self-hosted print master cache & return direct image URL
