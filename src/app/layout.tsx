@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/react'
+import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import Link from 'next/link'
 import StudioConciergeBot from '@/components/StudioConciergeBot'
