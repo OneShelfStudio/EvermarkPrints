@@ -48,7 +48,7 @@ export async function GET() {
       const rawTitle = `${seoBaseTitle} (${shortVariantLabel})`.slice(0, 148)
       const fullTitle = escapeXml(rawTitle)
       const fullDesc = escapeXml(
-        `${product.description} (${variant.subtitle}). Handcrafted to order in US studios with live interactive previewing, Instant Printable Gift Presentation Card, and complimentary 3 to 5 day tracked US shipping.`
+        `${product.description} (${variant.subtitle}). Handcrafted to order in US studios in 2-4 days with live interactive previewing, Instant Printable Gift Presentation Card, and complimentary tracked US delivery (3-5 days transit).`
       )
       const primaryImage = `${baseUrl}${product.previewImage}?v=2`
       const additionalImagesXml = [
@@ -97,12 +97,12 @@ export async function GET() {
       ${highlightsXml}
       <g:shipping>
         <g:country>US</g:country>
-        <g:service>Complimentary Tracked US Studio Delivery (3-5 Days)</g:service>
+        <g:service>Complimentary Tracked US Delivery (Handcrafted 2-4 Days + 3-5 Days Transit)</g:service>
         <g:price>0.00 USD</g:price>
-        <g:min_handling_time>1</g:min_handling_time>
-        <g:max_handling_time>2</g:max_handling_time>
-        <g:min_transit_time>2</g:min_transit_time>
-        <g:max_transit_time>4</g:max_transit_time>
+        <g:min_handling_time>2</g:min_handling_time>
+        <g:max_handling_time>4</g:max_handling_time>
+        <g:min_transit_time>3</g:min_transit_time>
+        <g:max_transit_time>5</g:max_transit_time>
       </g:shipping>
     </item>`
     })

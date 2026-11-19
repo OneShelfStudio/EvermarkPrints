@@ -110,7 +110,7 @@ export async function POST(req: Request) {
 
         <div style="background: #1B3027; color: #F7F4ED; padding: 18px; text-align: center; margin: 24px 0;">
           <p style="margin: 0 0 6px; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #E5C178;">COLLECTOR PRIVILEGE RESERVED</p>
-          <p style="margin: 0 0 14px; font-size: 14px;">Enter code <strong style="color: #E5C178; font-size: 16px;">WELCOME15</strong> at checkout for <strong>15% Off</strong> + Free 3 to 5 Day US Shipping.</p>
+          <p style="margin: 0 0 14px; font-size: 14px;">Enter code <strong style="color: #E5C178; font-size: 16px;">WELCOME15</strong> at checkout for <strong>15% Off</strong> + Free Tracked US Shipping.</p>
           <a href="${safeShareUrl}" style="display: inline-block; background: #E5C178; color: #261A13; text-decoration: none; padding: 12px 24px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.14em;">Resume Your Custom Design →</a>
         </div>
 

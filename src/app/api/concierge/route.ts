@@ -59,7 +59,7 @@ export async function POST(req: Request) {
             }") was verified ${mins} minutes ago and is currently in our 2-Hour Proof Window. You can edit any typo OR add matching keepsakes onto your order with free combined shipping at https://www.evermarkprints.com/track using "${lookupKey}".`
           : `Your commission ("${
               meta.headline || 'Custom Keepsake'
-            }") is currently in our American production studio. Tracked USPS/UPS delivery arrives in 3 to 5 business days. You can view your live proof or add companion items at https://www.evermarkprints.com/track.`
+            }") is currently in our American production studio (handcrafted in 2 to 4 business days). Once complete, tracked USPS/UPS delivery arrives in 3 to 5 business days. You can view your live proof or add companion items at https://www.evermarkprints.com/track.`
 
       return NextResponse.json({
         reply: statusText,
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({
         reply:
-          'All 12 physical keepsake editions ship FREE from our US studios and arrive in 3 to 5 business days via tracked USPS/UPS. Every package ships gift-ready with zero retail prices on the packing slip!',
+          'All 12 physical keepsake editions are handcrafted in our US studios in 2 to 4 business days, then ship FREE via tracked USPS/UPS (3 to 5 business days transit, 5 to 8 business days total). Every package ships gift-ready with zero retail prices on the packing slip!',
       })
     }
 

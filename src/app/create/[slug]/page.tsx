@@ -121,14 +121,14 @@ export default function CreateCustomPrintPage({
           '@type': 'ShippingDeliveryTime',
           handlingTime: {
             '@type': 'QuantitativeValue',
-            minValue: 1,
-            maxValue: 2,
+            minValue: 2,
+            maxValue: 4,
             unitCode: 'DAY',
           },
           transitTime: {
             '@type': 'QuantitativeValue',
-            minValue: 2,
-            maxValue: 4,
+            minValue: 3,
+            maxValue: 5,
             unitCode: 'DAY',
           },
         },
@@ -188,7 +188,7 @@ export default function CreateCustomPrintPage({
             ← Archival Collection Index
           </Link>
           <span className="uppercase tracking-[0.1em] text-[#7A331E]">
-            {product.plateNumber} · FREE 3-5 DAY US DELIVERY
+            {product.plateNumber} · HANDCRAFTED IN 2–4 DAYS · FREE TRACKED US DELIVERY
           </span>
         </div>
 

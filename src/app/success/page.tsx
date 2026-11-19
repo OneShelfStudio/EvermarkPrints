@@ -197,7 +197,7 @@ function SuccessContent() {
             Thank You for Your Commission.
           </h1>
           <p className="text-sm sm:text-base text-[#4A3B31] leading-relaxed">
-            Your custom keepsake order has been verified via Stripe and queued for production in our US studio. We will email your live USPS/UPS tracking link as soon as your package is dispatched (3 to 5 business days).
+            Your custom keepsake order has been verified via Stripe and queued for production in our US studio (handcrafted in 2 to 4 business days). We will email your live USPS/UPS tracking link as soon as your package is dispatched (3 to 5 business days transit).
           </p>
         </div>
 

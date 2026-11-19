@@ -20,9 +20,9 @@ export const OCCASION_GUIDES: OccasionGuide[] = [
     metaTitle:
       'Custom Anniversary & Wedding Gifts | Night Sky Star Maps, Soundwave Art & Triptychs',
     metaDescription:
-      'Shop handcrafted custom anniversary and wedding keepsakes: exact night sky star maps, scannable voice & first dance soundwave acrylic blocks, vinyl record prints, and 3-panel triptychs. Free 3 to 5 day US shipping.',
+      'Shop handcrafted custom anniversary and wedding keepsakes: exact night sky star maps, scannable voice & first dance soundwave acrylic blocks, vinyl record prints, and 3-panel triptychs. Free tracked US delivery.',
     intro:
-      'Celebrate a 1st paper anniversary, 5th wood anniversary, wedding day, or the night your story began. Every Evermark Prints keepsake is custom-plotted from your exact date, location, GPS coordinates, or first-dance song and shipped complimentary in 3 to 5 business days across all 50 US states.',
+      'Celebrate a 1st paper anniversary, 5th wood anniversary, wedding day, or the night your story began. Every Evermark Prints keepsake is custom-plotted from your exact date, location, GPS coordinates, or first-dance song, handcrafted in 2–4 days, and shipped complimentary via tracked US delivery (3–5 days transit).',
     highlightTip:
       'Most Popular Anniversary Pairing: Combine the Custom Night Sky Star Map (framed in solid American Walnut) with a matching Scannable First-Dance Soundwave Acrylic Block.',
     productSlugs: [
@@ -53,7 +53,7 @@ export const OCCASION_GUIDES: OccasionGuide[] = [
     metaTitle:
       'Personalized Gifts for Mom & Grandma | Custom Family Birth Flower Woven Blankets',
     metaDescription:
-      'Design a custom family birth flower bouquet jacquard-woven cotton throw blanket, scented soy candle, or family home portrait for Mom, Nana, or Grandma. Free 3 to 5 day US delivery.',
+      'Design a custom family birth flower bouquet jacquard-woven cotton throw blanket, scented soy candle, or family home portrait for Mom, Nana, or Grandma. Free tracked US delivery.',
     intro:
       'Create an heirloom that celebrates every child and grandchild in the family garden. Select each family member’s birth month flower (from January Carnation to December Narcissus) and see their individual stems and botanical name tags bloom live on our 100% cotton jacquard-woven throw blanket.',
     highlightTip:
@@ -115,7 +115,7 @@ export const OCCASION_GUIDES: OccasionGuide[] = [
     metaTitle:
       'Custom Pet Memorial & Dog/Cat Portrait Gifts | Watercolor Birch Wood Plaques',
     metaDescription:
-      'Honor a beloved dog or cat with a custom watercolor pet portrait printed on a solid natural birch hardwood hanging plaque with braided jute cord. Free 3 to 5 day US delivery.',
+      'Honor a beloved dog or cat with a custom watercolor pet portrait printed on a solid natural birch hardwood hanging plaque with braided jute cord. Free tracked US delivery.',
     intro:
       'Honor a loyal companion with a warm, gallery-grade tribute. Upload your favorite photo of your dog or cat to preview it inside a soft watercolor vignette on a solid natural birch wood plaque with braided jute hanging cord, complete with their name, life dates, and tribute message.',
     highlightTip:
@@ -160,7 +160,7 @@ export const OCCASION_GUIDES: OccasionGuide[] = [
       {
         question: 'How fast does nursery wall art ship?',
         answer:
-          'All newborn and nursery editions are crafted in our US studios and arrive in 3 to 5 business days with complimentary tracked shipping.',
+          'All newborn and nursery editions are handcrafted in our US studios in 2 to 4 business days, then arrive in 3 to 5 business days with complimentary tracked shipping.',
       },
     ],
   },

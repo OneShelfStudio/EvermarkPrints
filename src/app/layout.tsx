@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: '%s | Evermark Prints',
   },
   description:
-    'Commission bespoke custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveform art, pet portraits, and scented soy candles. Handcrafted in US studios with free 3 to 5 day delivery.',
+    'Commission bespoke custom night sky star maps, jacquard woven throw blankets, chiseled stone slate plaques, crystal acrylic blocks, voice waveform art, pet portraits, and scented soy candles. Handcrafted in US studios in 2–4 days with complimentary tracked US delivery.',
   keywords: [
     'custom star map framed',
     'custom night sky print',
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Evermark Prints | Custom Star Maps, Woven Blankets & Heirloom Gifts',
     description:
-      'Design custom star maps, voice waveforms, woven blankets, stone slates, and pet portraits with live interactive preview and free 3 to 5 day US delivery.',
+      'Design custom star maps, voice waveforms, woven blankets, stone slates, and pet portraits with live interactive preview and free tracked US delivery.',
     images: ['/mockups/custom-star-map-1.webp'],
   },
   icons: {
@@ -197,7 +197,7 @@ export default function RootLayout({
       <body className="text-[#261A13] font-sans-clean min-h-screen flex flex-col selection:bg-[#1B3027] selection:text-[#F7F4ED] overflow-x-hidden max-w-full">
         {/* Warm Heritage Forest & Burnished Brass Announcement Ribbon */}
         <div className="bg-[#1B3027] text-[#F7F4ED] text-[10px] sm:text-[11px] tracking-[0.1em] sm:tracking-[0.15em] uppercase py-2 px-3 sm:py-2.5 sm:px-4 text-center font-medium border-b border-[#D8AE64]/30 leading-snug">
-          <span>🎄 FREE 3–5 DAY US DELIVERY &nbsp;·&nbsp; </span>
+          <span>🎄 HANDCRAFTED IN 2–4 DAYS &nbsp;·&nbsp; FREE TRACKED US DELIVERY (3–5 DAYS) &nbsp;·&nbsp; </span>
           <span className="text-[#E5C178] font-semibold">
             CODE WELCOME15 (15% OFF)
           </span>

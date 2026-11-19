@@ -73,7 +73,7 @@ export default function TermsOfServicePage() {
             3. US Shipping &amp; Production Windows
           </h2>
           <p>
-            All physical editions ship to addresses within the United States via USPS, UPS, or FedEx. Standard studio production and framing takes 1 to 2 business days, with complimentary tracked US delivery arriving within <strong>3 to 5 business days</strong> for most domestic destinations.
+            All physical editions ship to addresses within the United States via USPS, UPS, or FedEx. Standard bespoke studio handcrafting and curing takes 2 to 4 business days, followed by complimentary tracked US delivery arriving within <strong>3 to 5 business days</strong> for most domestic destinations (estimated total arrival in 5 to 8 business days).
           </p>
         </section>
 

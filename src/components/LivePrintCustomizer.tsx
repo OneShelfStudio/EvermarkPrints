@@ -3087,7 +3087,7 @@ export default function LivePrintCustomizer({
                 Physical Medium: <strong>{product.physicalMedium}</strong>
               </span>
               <span className="text-[11px] font-mono-tech text-[#1B3027] font-semibold">
-                ✓ Free 3–5 Day US Shipping
+                ✓ Free Tracked US Shipping
               </span>
             </div>
 
@@ -3162,7 +3162,7 @@ export default function LivePrintCustomizer({
                     ⚡ Don&apos;t have all names or dates ready? Order Now, Customize Later
                   </span>
                   <span className="text-[11px] text-[#4A3B31] block leading-relaxed">
-                    Lock in <strong>15% Off (${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd})</strong> + Free 3–5 Day US Delivery now. We&apos;ll email your 1-click personalization link &amp; send a digital proof before printing.
+                    Lock in <strong>15% Off (${appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd})</strong> + Free Tracked US Delivery now. We&apos;ll email your 1-click personalization link &amp; send a digital proof before printing.
                   </span>
                 </div>
               </label>
@@ -4235,7 +4235,7 @@ export default function LivePrintCustomizer({
                     } →`
                   : `Express Checkout · $${
                       appliedPromoCode ? Math.round(totalUsd * 0.85) : totalUsd
-                    } (Free 3–5 Day US Shipping) →`}
+                    } (Free Tracked US Shipping) →`}
               </span>
             </button>
             <p className="text-[10px] font-mono-tech text-[#4A3B31] text-center">
@@ -4430,9 +4430,12 @@ export default function LivePrintCustomizer({
                         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                       }
                       const now = new Date()
-                      return `${addBusinessDays(now, 3)} to ${addBusinessDays(now, 5)}`
+                      return `${addBusinessDays(now, 5)} to ${addBusinessDays(now, 8)}`
                     })()}
                   </strong>
+                  <span className="text-[10px] text-[#264437] font-normal block sm:inline sm:ml-1">
+                    (Handcrafted in 2–4 days + 3–5 days tracked delivery)
+                  </span>
                 </span>
               </div>
               <span className="text-[10px] font-mono-tech uppercase tracking-wider text-[#1B3027] font-semibold shrink-0">
@@ -4529,7 +4532,7 @@ export default function LivePrintCustomizer({
             </div>
 
             <p className="text-[11px] text-[#5C4D42] text-center font-mono-tech">
-              COMPLIMENTARY US STUDIO DELIVERY (3 TO 5 DAYS) · SHIPS GIFT-READY WITH ZERO PRICE TAGS
+              HANDCRAFTED IN 2–4 DAYS · COMPLIMENTARY TRACKED US DELIVERY (3–5 DAYS) · GIFT-READY
             </p>
             <p className="text-[11px] text-[#7A6858] text-center">
               Protected by our{' '}
@@ -4692,13 +4695,13 @@ export default function LivePrintCustomizer({
 
             <div className="p-6 bg-[#FDFBF7] border border-[#CBB89F] space-y-2.5">
               <span className="text-[10px] font-mono-tech uppercase tracking-[0.18em] text-[#9E472A] font-semibold">
-                03 · COMPLIMENTARY 3–5 DAY US SHIPPING
+                03 · HANDCRAFTED IN 2–4 DAYS + FREE TRACKED US DELIVERY
               </span>
               <h3 className="text-xl font-editorial font-semibold text-[#261A13]">
                 Gift-Ready Protective Packaging
               </h3>
               <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
-                Ships free from our domestic US studios via tracked USPS, UPS, or FedEx with reinforced corner guards and zero price tags inside—plus an instant printable Gift Presentation Certificate immediately after checkout.
+                Handcrafted to order in 2 to 4 business days in our US studios, then ships complimentary via tracked USPS, UPS, or FedEx (3 to 5 business days transit) with reinforced corner guards and zero price tags inside—plus an instant printable Gift Presentation Certificate immediately after checkout.
               </p>
             </div>
           </section>

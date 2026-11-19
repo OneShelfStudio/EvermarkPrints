@@ -48,7 +48,7 @@ export default function EvermarkHomePage() {
             name: 'How fast is US shipping on custom framed prints, blankets, and stone slates?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'All 12 custom physical keepsakes are crafted to order in our domestic US studios and ship complimentary via tracked USPS, UPS, or FedEx with typical delivery in 3 to 5 business days across all 50 US states.',
+              text: 'All 12 custom physical keepsakes are handcrafted to order in our domestic US studios in 2 to 4 business days, then ship complimentary via tracked USPS, UPS, or FedEx (3 to 5 business days transit) across all 50 US states.',
             },
           },
           {
@@ -87,7 +87,7 @@ export default function EvermarkHomePage() {
                 <span>HANDCRAFTED IN US STUDIOS</span>
                 <span className="hidden sm:inline">·</span>
                 <span className="hidden sm:inline">
-                  FROM $22 W/ CODE WELCOME15 (15% OFF) · FREE 3–5 DAY US HOLIDAY DELIVERY
+                  FROM $22 W/ CODE WELCOME15 (15% OFF) · FREE TRACKED US DELIVERY
                 </span>
               </div>
 
@@ -100,16 +100,16 @@ export default function EvermarkHomePage() {
 
               <p className="text-xs sm:text-base text-[#E2D9C8] max-w-2xl leading-relaxed">
                 <span className="sm:hidden">
-                  100% cotton birth flower woven blankets, 3-chapter milestone triptychs, chiseled stone slates &amp; custom gifts from $22 w/ code WELCOME15 (15% off) + free 3–5 day US delivery.
+                  100% cotton birth flower woven blankets, 3-chapter milestone triptychs, chiseled stone slates &amp; custom gifts from $22 w/ code WELCOME15 (15% off) + free tracked US delivery.
                 </span>
                 <span className="hidden sm:inline">
-                  Start with our #1 Family Birth Flower Woven Blanket, 3-Chapter Wedding &amp; Milestone Canvases, raw chiseled stone slates, and 12 handcrafted keepsakes starting from $22 with auto-applied code WELCOME15 (15% off) and complimentary 3–5 day US holiday delivery.
+                  Start with our #1 Family Birth Flower Woven Blanket, 3-Chapter Wedding &amp; Milestone Canvases, raw chiseled stone slates, and 12 handcrafted keepsakes starting from $22 with auto-applied code WELCOME15 (15% off) and complimentary tracked US holiday delivery.
                 </span>
               </p>
 
               {/* Compact Mobile Trust & Promo Row */}
               <div className="lg:hidden pt-1 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono-tech text-[#E5C178] border-t border-white/15">
-                <span>★★★★★ 4.9/5 · Free 3–5 Day US Delivery · Code WELCOME15</span>
+                <span>★★★★★ 4.9/5 · Handcrafted in 2–4 Days · Free US Delivery · Code WELCOME15</span>
               </div>
             </div>
 
@@ -132,7 +132,7 @@ export default function EvermarkHomePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[#E5C178] font-bold">✓</span>
-                  <span>Free 3 to 5 Day US Delivery · Gift-Ready With Zero Price Tags</span>
+                  <span>Free Tracked US Delivery · Gift-Ready With Zero Price Tags</span>
                 </li>
               </ul>
               <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] font-mono-tech text-[#E5C178]">
@@ -220,7 +220,7 @@ export default function EvermarkHomePage() {
               How fast is US shipping on framed prints, blankets, and stone slates?
             </h3>
             <p className="text-xs sm:text-sm text-[#4A3B31] leading-relaxed">
-              All 12 custom physical keepsakes are crafted to order in our domestic US studios and ship complimentary via tracked USPS, UPS, or FedEx with typical delivery in 3 to 5 business days across all 50 US states.
+              All 12 custom physical keepsakes are handcrafted to order in our domestic US studios in 2 to 4 business days, then ship complimentary via tracked USPS, UPS, or FedEx (3 to 5 business days transit) across all 50 US states.
             </p>
           </div>
 

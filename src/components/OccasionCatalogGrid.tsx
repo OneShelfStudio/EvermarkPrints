@@ -150,7 +150,7 @@ export default function OccasionCatalogGrid() {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-[#5C4D42] max-w-md">
-            Filter by milestone below or browse all 12 American-crafted editions. Every piece includes live canvas previewing and complimentary 3 to 5 day US delivery.
+            Filter by milestone below or browse all 12 American-crafted editions. Every piece includes live canvas previewing and complimentary tracked US delivery.
           </p>
         </div>
 

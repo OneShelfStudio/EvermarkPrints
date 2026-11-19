@@ -114,7 +114,7 @@ export async function sendOrderAlertEmail(data: OrderNotificationData) {
       </div>
 
       <div style="border-top: 1px solid #DDD5C7; padding-top: 16px; font-size: 12px; color: #7A6F63; text-align: center;">
-        Complimentary Tracked US Delivery (3 to 5 business days).<br />
+        Handcrafted in our US studio (2–4 business days) · Complimentary Tracked US Delivery (3 to 5 business days transit).<br />
         Questions? Reply to this email or contact us at <a href="mailto:concierge@evermarkprints.com" style="color: #9E472A;">concierge@evermarkprints.com</a>.
       </div>
     </div>

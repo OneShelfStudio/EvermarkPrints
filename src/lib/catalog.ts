@@ -375,7 +375,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         },
         label: '12" x 16" Gallery Hardwood Framed Edition',
         dimensions: '12 x 16 in (30.5 x 40.6 cm)',
-        subtitle: 'Our signature gallery proportion · Ready to hang · Free 3 to 5 day US shipping',
+        subtitle: 'Our signature gallery proportion · Ready to hang · Free tracked US shipping',
         priceUsd: 78,
         compareAtUsd: 115,
         badge: 'Most Popular',
@@ -464,7 +464,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'Painterly deep-indigo and gold-dust Milky Way nebula over a pine mountain horizon',
       '1-Click GPS Coordinate lookup for any city, wedding venue, or birth hospital',
       'Hand-framed in solid Walnut, Warm Honey Oak, or Gallery Matte Black hardwood',
-      'Complimentary tracked US delivery in 3 to 5 business days',
+      'Complimentary tracked US delivery (handcrafted in 2–4 days + 3–5 days transit)',
     ],
     reviews: [
       {
@@ -695,7 +695,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'True 100% cotton jacquard loom weave with colorful braided fringe edges',
       'Hand-illustrated English roses, wild lavender, eucalyptus, and fern bouquet',
       'Personalize with all children and grandchildren names plus your family established year',
-      'Woven and shipped from US textile mills in 3 to 5 business days',
+      'Woven to order in US textile mills (2–4 days) + complimentary tracked US delivery',
     ],
     reviews: [
       {
@@ -741,7 +741,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         printifyVariantId: 243923,
         label: '7" x 11" Architectural Stone Slate Plaque + Display Feet',
         dimensions: '7 x 11 in (17.8 x 27.9 cm)',
-        subtitle: 'Our signature mantel & bookshelf stone edition · Free 3 to 5 day US shipping',
+        subtitle: 'Our signature mantel & bookshelf stone edition · Free tracked US shipping',
         priceUsd: 54,
         compareAtUsd: 79,
         badge: 'Most Popular',
@@ -850,7 +850,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         },
         label: '16" x 20" Statement Floating Framed 3-Chapter Triptych Canvas',
         dimensions: '16 x 20 in · 1.25" Deep Stretched Canvas + Solid Floating Frame',
-        subtitle: 'Our bestselling anniversary & wedding centerpiece scale · Ready to hang · Free 3 to 5 day US shipping',
+        subtitle: 'Our bestselling anniversary & wedding centerpiece scale · Ready to hang · Free tracked US shipping',
         priceUsd: 84,
         compareAtUsd: 125,
         badge: 'Most Popular',
@@ -917,7 +917,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'Three-chapter triptych layout on 1.25"-deep stretched artist canvas inside a recessed floating frame',
       'Layered watercolor mountain ridges in Prussian blue, sage green, and sunset terracotta',
       'Hangs effortlessly and dead-level in 30 seconds with pre-installed gallery wire hardware',
-      'Ships complimentary from our US architectural print studios in 3 to 5 business days',
+      'Handcrafted in our US architectural print studios (2–4 days) + complimentary tracked US delivery',
     ],
     reviews: [
       {
@@ -1013,7 +1013,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'Pre-assembled solid wood top and bottom hanger bars with natural cotton twine',
       'Generous 26" x 36" architectural wall presence that hangs on a single brass nail in seconds',
       'Hand-painted Aegean nautical watercolor chart with 1-Click GPS coordinate plotting',
-      'Crafted in North Carolina with complimentary 3 to 5 day US delivery',
+      'Crafted in North Carolina (2–4 days) with complimentary tracked US delivery',
     ],
     reviews: [
       {
@@ -1206,7 +1206,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         },
         label: '16" x 20" Exhibition Floating Framed 1.25" Matte Canvas',
         dimensions: '16 x 20 in (Vertical) · 1.25" Deep Canvas + Floating Frame',
-        subtitle: 'Full living-room statement scale · Free Priority US delivery in 3 to 5 days',
+        subtitle: 'Full living-room statement scale · Free tracked Priority US delivery',
         priceUsd: 98,
         compareAtUsd: 139,
         badge: 'Statement Scale',
@@ -1257,7 +1257,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'Gallery-wrapped matte artist canvas suspended inside a 1.25" recessed floating frame',
       'Photorealistic champagne-gold vinyl record with crimson and gold filigree center label',
       'Upload your couple photo into the center vinyl medallion or attach your song audio',
-      'Arrives ready to hang with pre-installed wire hardware in 3 to 5 business days',
+      'Arrives ready to hang with pre-installed wire hardware (5–8 business days total delivery)',
     ],
     reviews: [
       {
@@ -1316,7 +1316,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         printifyVariantId: 109697,
         label: '12" x 12" Statement Solid Birch Hardwood Wall Plaque',
         dimensions: '12 x 12 in (30.5 x 30.5 cm) · Solid Birch Wood',
-        subtitle: 'Large hallway or fireplace mantel tribute · Free 3 to 5 day US shipping',
+        subtitle: 'Large hallway or fireplace mantel tribute · Free tracked US shipping',
         priceUsd: 68,
         compareAtUsd: 95,
       },
@@ -1366,7 +1366,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'UV-printed directly onto solid natural birch hardwood with a braided jute hanging cord',
       'Upload your own dog or cat photo to frame it inside our watercolor laurel wreath backdrop',
       'Includes Warm Color, Classic B&W Film, and Fine Sketch portrait filters',
-      'Crafted and shipped from our US woodshop studios in 3 to 5 business days',
+      'Handcrafted in US woodshop studios (2–4 days) + free tracked US delivery',
     ],
     reviews: [
       {
@@ -1414,7 +1414,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         printifyVariantId: 243923,
         label: '7" x 11" Architectural Stone Slate Plaque + Display Feet',
         dimensions: '7 x 11 in (17.8 x 27.9 cm)',
-        subtitle: 'Bestselling housewarming & realtor closing edition · Free 3 to 5 day US shipping',
+        subtitle: 'Bestselling housewarming & realtor closing edition · Free tracked US shipping',
         priceUsd: 54,
         compareAtUsd: 79,
         badge: 'Most Popular',
@@ -1509,7 +1509,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         },
         label: '11" x 14" Solid Hardwood Nursery Framed Print',
         dimensions: '11 x 14 in (27.9 x 35.6 cm)',
-        subtitle: 'Archival warm museum print · Solid wood frame · Free 3 to 5 day US shipping',
+        subtitle: 'Archival warm museum print · Solid wood frame · Free tracked US shipping',
         priceUsd: 68,
         compareAtUsd: 98,
       },
@@ -1602,7 +1602,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'Hand-painted storybook sleeping crescent moon, pastel clouds, golden stars, and bunny',
       'Optional newborn hospital portrait upload inside our gilded watercolor nursery wreath',
       'Records full name, birth date, exact minute, weight in lbs/oz, and length in inches',
-      'Framed in solid wood and shipped gift-ready in 3 to 5 business days',
+      'Framed in solid wood and shipped gift-ready (handcrafted in 2–4 days + free delivery)',
     ],
     reviews: [
       {
@@ -1650,7 +1650,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
         printifyVariantId: 244605,
         label: '8" x 10" Statement Crystal Acrylic + Hardwood Stand',
         dimensions: '8 x 10 in (20.3 x 25.4 cm)',
-        subtitle: 'Large dresser & mantel scale · Free 3 to 5 day US delivery',
+        subtitle: 'Large dresser & mantel scale · Free tracked US delivery',
         priceUsd: 68,
         compareAtUsd: 99,
       },
@@ -1710,7 +1710,7 @@ const RAW_EVERMARK_CATALOG: EvermarkProduct[] = [
       'Thick optical cast acrylic plaque paired with a solid carved hardwood stand',
       'Luminous indigo and golden Milky Way nebula catches ambient room light through the acrylic edges',
       '1-Click GPS Coordinate lookup for any city, wedding venue, or engagement spot',
-      'Ships gift-ready in 3 to 5 business days from our US studios',
+      'Handcrafted in Arizona (2–4 days) and shipped gift-ready via tracked US delivery',
     ],
     reviews: [
       {

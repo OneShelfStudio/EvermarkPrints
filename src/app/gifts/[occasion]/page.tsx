@@ -91,7 +91,7 @@ export default function OccasionGiftGuidePage({
             {guide.kicker}
           </span>
           <span className="text-xs font-mono-tech text-[#E5C178]">
-            USE CODE <strong className="underline">WELCOME15</strong> FOR 15% OFF · FREE 3 TO 5 DAY US SHIPPING
+            USE CODE <strong className="underline">WELCOME15</strong> FOR 15% OFF · FREE TRACKED US SHIPPING
           </span>
         </div>
 
