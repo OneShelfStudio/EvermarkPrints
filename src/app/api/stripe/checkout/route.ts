@@ -109,9 +109,6 @@ export async function POST(req: Request) {
             shipping_address_collection: {
               allowed_countries: ['US'],
             },
-            phone_number_collection: {
-              enabled: true,
-            },
           }
         : {}),
       payment_intent_data: {
